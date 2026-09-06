@@ -5,6 +5,7 @@ import { AIAvatar } from '@/components/AI'
 
 interface AISuggestionsWidgetProps {
   accountType?: 'personal' | 'business'
+  currentNav?: string
   onNavigate: (tab: string) => void
   onBack?: () => void
   onNotifications?: () => void
@@ -301,6 +302,7 @@ function SuggestionDeck({
 
 export default function AISuggestionsWidget({
   accountType = 'personal',
+  currentNav = 'ai',
   onNavigate,
   onBack,
   onNotifications,
@@ -345,7 +347,7 @@ export default function AISuggestionsWidget({
         </div>
       </div>
 
-      <BottomNav active="ai" accountType={accountType} onChange={tab => onNavigate(tab)} />
+      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
     </div>
   )
 }

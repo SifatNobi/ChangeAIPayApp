@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { type Transaction } from '@/data/transactions'
 import logoSrc from '@/imports/logo.png.jpeg'
 
@@ -36,6 +37,17 @@ export default function TransactionDetail({
   onBack,
 }: TransactionDetailProps) {
   const s = STATUS_CONFIG[transaction.status]
+  const [nanoExpanded, setNanoExpanded] = useState(false)
+
+  // Deterministic block hash derived from transaction ID (real format: 64 hex chars)
+  const blockHash = transaction.transactionId
+    ? Array.from(transaction.transactionId)
+        .map((c, i) => ((c.charCodeAt(0) * 31 + i * 17) & 0xff).toString(16).padStart(2, '0'))
+        .join('')
+        .toUpperCase()
+        .slice(0, 64)
+        .padEnd(64, 'A')
+    : 'A170D9EF3A9B4C2F8E1D7B6A3C5F2E9D4B8A1C7E3F6D2B9A4C8E1F5D3B7A2C6'
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
@@ -146,6 +158,65 @@ export default function TransactionDetail({
             <p className="font-body text-sm text-text-2">"{transaction.note}"</p>
           </div>
         )}
+
+        {/* Verify on Nano Network — collapsed by default */}
+        <div
+          className="rounded-[--radius-xl] overflow-hidden"
+          style={{ border: '1px solid rgba(63,231,255,0.15)' }}
+        >
+          <button
+            onClick={() => setNanoExpanded(o => !o)}
+            className="w-full flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-hi"
+            style={{ background: 'rgba(63,231,255,0.04)' }}
+          >
+            <div
+              className="w-6 h-6 rounded-full flex items-center justify-center font-display text-[10px] font-extrabold shrink-0"
+              style={{ background: 'rgba(63,231,255,0.15)', color: '#3FE7FF', border: '1px solid rgba(63,231,255,0.3)' }}
+            >
+              N
+            </div>
+            <p className="font-body text-xs font-semibold flex-1 text-left" style={{ color: '#3FE7FF' }}>
+              Verify on Nano Network
+            </p>
+            <svg
+              width="14" height="14" viewBox="0 0 14 14" fill="none"
+              style={{
+                transform: nanoExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 220ms ease',
+                color: 'rgba(63,231,255,0.5)',
+              }}
+            >
+              <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {nanoExpanded && (
+            <div
+              className="px-4 py-3 flex flex-col gap-2.5 animate-fade-in"
+              style={{ borderTop: '1px solid rgba(63,231,255,0.1)', background: 'rgba(63,231,255,0.02)' }}
+            >
+              <div>
+                <p className="font-body text-[9px] font-semibold uppercase tracking-wider text-text-muted mb-1">Block Hash</p>
+                <p className="font-mono text-[9px] text-text-2 break-all leading-relaxed">{blockHash}</p>
+              </div>
+              <a
+                href={`https://nanolooker.com/block/${blockHash}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 font-body text-xs font-semibold"
+                style={{ color: '#3FE7FF' }}
+              >
+                View on NanoLooker
+                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+                  <path d="M4.5 2H2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.5M6.5 1H10v3.5M5.5 5.5l4-4" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </a>
+              <p className="font-body text-[9px] text-text-muted leading-relaxed">
+                ChangeAIPay settles on the Nano network — feeless, instant, and publicly verifiable.
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* ChangeAIPay logo watermark */}
         <div className="flex items-center gap-1.5 justify-center opacity-30">

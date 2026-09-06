@@ -5,6 +5,7 @@ import { TRANSACTIONS, type Transaction } from '@/data/transactions'
 
 interface TransactionHistoryProps {
   accountType?: 'personal' | 'business'
+  currentNav?: string
   onNavigate?: (tab: string) => void
   onSelectTransaction?: (tx: Transaction) => void
   onSearch?: () => void
@@ -33,6 +34,7 @@ function groupByDate(txs: Transaction[]) {
 
 export default function TransactionHistory({
   accountType = 'personal',
+  currentNav = 'history',
   onNavigate,
   onSelectTransaction,
   onSearch,
@@ -192,7 +194,7 @@ export default function TransactionHistory({
         )}
       </div>
 
-      <BottomNav active="home" onChange={onNavigate} accountType={accountType} />
+      <BottomNav active={currentNav as any} onChange={onNavigate} accountType={accountType} />
     </div>
   )
 }

@@ -244,6 +244,11 @@ import LightCardComingSoon from './screens/LightCardComingSoon'
 import LightVaultComingSoon from './screens/LightVaultComingSoon'
 import RealCostConsumer from './screens/RealCostConsumer'
 import RealCostMerchant from './screens/RealCostMerchant'
+import RemittanceCost from './screens/RemittanceCost'
+import NanoReceive from './screens/NanoReceive'
+import NanoSend from './screens/NanoSend'
+import NanoExportKey from './screens/NanoExportKey'
+import NanoTransparency from './screens/NanoTransparency'
 import QuickActionToolbar from './components/QuickActionToolbar'
 
 type Screen =
@@ -315,7 +320,8 @@ type Screen =
   | 'securityAlert' | 'welcomeBackExtended'
   | 'appReviewRequest' | 'rateApp'
   | 'lightCardComingSoon' | 'lightVaultComingSoon'
-  | 'realCostConsumer' | 'realCostMerchant'
+  | 'realCostConsumer' | 'realCostMerchant' | 'remittanceCost'
+  | 'nanoReceive' | 'nanoSend' | 'nanoExportKey' | 'nanoTransparency'
   | 'languageSelection' | 'currencySelection' | 'regionalSettings' | 'timeZone'
   | 'emptyTransactions' | 'emptyNotifications' | 'emptyGoals' | 'emptyAI' | 'emptyFeatures'
   | 'noSearchResults' | 'genericError' | 'notFound' | 'retryLoading' | 'somethingWentWrong'
@@ -535,6 +541,11 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'lightVaultComingSoon',    label: '246 LightVault',           group: 'System' },
   { id: 'realCostConsumer',        label: '247 Real Cost Consumer',   group: 'Onboarding' },
   { id: 'realCostMerchant',        label: '248 Real Cost Merchant',   group: 'Onboarding' },
+  { id: 'remittanceCost',          label: '249 Remittance Cost',      group: 'Onboarding' },
+  { id: 'nanoReceive',             label: '250 Nano Receive',         group: 'App' },
+  { id: 'nanoSend',                label: '251 Nano Send',            group: 'App' },
+  { id: 'nanoExportKey',           label: '252 Nano Export Key',      group: 'App' },
+  { id: 'nanoTransparency',        label: '253 Nano Transparency',    group: 'App' },
   { id: 'languageSelection',  label: '233 Language Selection',   group: 'System' },
   { id: 'currencySelection',  label: '234 Currency Selection',   group: 'System' },
   { id: 'regionalSettings',   label: '235 Regional Settings',    group: 'System' },
@@ -586,10 +597,52 @@ export default function App() {
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null)
   const [selectedMerchantTier, setSelectedMerchantTier] = useState<TierName>('Scale')
 
+  // Payment flow state - SINGLE SOURCE OF TRUTH for transaction data
+  const [selectedContact, setSelectedContact] = useState<{ id: string; name: string; handle: string; initials: string; color: string; verified: boolean } | null>(null)
+  const [paymentTransaction, setPaymentTransaction] = useState({ amount: '', currency: 'USD', note: '', fee: 'Free', total: '' })
+  const [splitPaymentData, setSplitPaymentData] = useState<{ total: string; participants: { id: string; name: string; initials: string; color: string; handle: string; customAmount?: string; customPct?: string }[]; method: 'equal' | 'custom' | 'percentage' }>({ total: '', participants: [], method: 'equal' })
+  const [refundData, setRefundData] = useState({ transactionAmount: '' })
+  
+  // Banking flow state
+  const [bankingData, setBankingData] = useState({ amount: '', bankId: '', speed: '', operation: 'add' as 'add' | 'withdraw' })
+  
+  // Crypto withdrawal state
+  const [cryptoWithdrawData, setCryptoWithdrawData] = useState({ amount: '', address: '' })
+
+  // Goal state
+  const [goalData, setGoalData] = useState({ name: '', emoji: '🏠', targetAmount: 0, recurringAmount: 0, fundingMethod: 'manual' })
+
+  // Subscription checkout state
+  const [subscriptionCheckoutData, setSubscriptionCheckoutData] = useState({ plan: 'prime' as 'edge' | 'prime' | 'apex', cycle: 'monthly' as 'monthly' | 'annual', price: 39.99 })
+
   const go = useCallback((screen: Screen) => {
     setCurrent(screen)
     setShowNav(false)
   }, [])
+
+  // Helper to get current consumer nav active item from screen
+  const getConsumerNav = useCallback((): string => {
+    if (current === 'home') return 'home'
+    if (current === 'paymentsHub' || current === 'sendMethod' || current === 'contactPicker' || current === 'sendAmount' || current === 'sendConfirmation' || current === 'sendSuccess' || current === 'sendFailed' || current === 'sendPending' || current === 'receive' || current === 'qrHub' || current === 'scanQR' || current === 'invalidQR' || current === 'expiredQR' || current === 'splitPayment' || current === 'splitSuccess' || current === 'paymentNote' || current === 'refundRequest' || current === 'refundResult') return 'payments'
+    if (current === 'subscriptionPlans' || current === 'comparePlans' || current === 'checkout' || current === 'upgrade' || current === 'downgrade' || current === 'billingHistory' || current === 'invoiceDownload' || current === 'statements' || current === 'taxDocuments') return 'subscription'
+    if (current === 'finaChat' || current === 'chatHistory' || current === 'savedResponses' || current === 'aiMemory' || current === 'aiPrivacy' || current === 'voiceMode' || current === 'financialReport' || current === 'suggestedBudget' || current === 'spendingInsights' || current === 'subscriptionReview' || current === 'goalPlanner' || current === 'aiSettings') return 'ai'
+    if (current === 'feedback' || current === 'contactSupport') return 'requests'
+    if (current === 'transactionHistory' || current === 'transactionDetail' || current === 'receipt' || current === 'shareReceipt' || current === 'export' || current === 'transactionSearch' || current === 'filters' || current === 'recurring' || current === 'scheduled' || current === 'cancelScheduled') return 'history'
+    if (current === 'profile' || current === 'personalInformation' || current === 'security' || current === 'devices' || current === 'notificationPreferences' || current === 'language' || current === 'inviteFriends' || current === 'changeCircle' || current === 'circleMomentum' || current === 'milestoneUnlocks' || current === 'milestoneReveal' || current === 'changeVault' || current === 'milestoneSurprise' || current === 'referralTerms' || current === 'changeImpactSummary' || current === 'leaderboard' || current === 'savingsLeaderboard' || current === 'monthlyRankings' || current === 'achievementBadges' || current === 'communityChallenges' || current === 'savingsMilestones' || current === 'supportDevelopment' || current === 'deleteAccount' || current === 'deleteConfirmation' || current === 'logoutConfirm') return 'profile'
+    return 'home'
+  }, [current])
+
+  // Helper to get current merchant nav active item from screen
+  const getMerchantNav = useCallback((): string => {
+    if (current === 'merchantHome') return 'home'
+    if (current === 'merchantPaymentsHub' || current === 'invoice' || current === 'merchantQR' || current === 'payout') return 'payments'
+    if (current === 'merchantPlans' || current === 'merchantComparePlans' || current === 'merchantCheckout' || current === 'merchantUpgrade' || current === 'merchantDowngrade' || current === 'merchantBilling' || current === 'enterpriseContact') return 'plans'
+    if (current === 'ainaChat') return 'ai'
+    if (current === 'businessHealth' || current === 'revenueOverview' || current === 'customerInsights' || current === 'cashFlow' || current === 'revenueReport' || current === 'businessInsights') return 'insights'
+    if (current === 'feedback') return 'requests'
+    if (current === 'merchantProfile' || current === 'teamMembers' || current === 'roles' || current === 'merchantSecurity' || current === 'merchantSettings' || current === 'merchantDeleteAccount' || current === 'merchantDeleteConfirmation' || current === 'merchantLogout') return 'profile'
+    return 'home'
+  }, [current])
 
   const consumerNav = useCallback((tab: string) => {
     if (tab === 'home') go('home')
@@ -606,6 +659,8 @@ export default function App() {
     else if (item === 'payments') go('merchantPaymentsHub')
     else if (item === 'ai') go('ainaChat')
     else if (item === 'insights') go('businessHealth')
+    else if (item === 'plans') go('merchantPlans')
+    else if (item === 'requests') go('feedback')
     else if (item === 'profile') go('merchantProfile')
   }, [go])
 
@@ -617,9 +672,9 @@ export default function App() {
       case 'welcome':
         return (
           <Welcome
-            onGoogle={() => go('realCostConsumer')}
-            onApple={() => go('realCostConsumer')}
-            onEmail={() => go('realCostConsumer')}
+            onGoogle={() => go('accountType')}
+            onApple={() => go('accountType')}
+            onEmail={() => go('accountType')}
             onLogin={() => go('login')}
           />
         )
@@ -667,16 +722,55 @@ export default function App() {
       case 'realCostConsumer':
         return (
           <RealCostConsumer
-            onContinue={() => go('accountType')}
-            onBack={() => go('welcome')}
+            onContinue={() => go('remittanceCost')}
+            onBack={() => go('accountType')}
           />
         )
 
       case 'realCostMerchant':
         return (
           <RealCostMerchant
-            onContinue={() => go('createAccount')}
+            onContinue={() => go('kybIntro')}
             onBack={() => go('accountType')}
+          />
+        )
+
+      case 'remittanceCost':
+        return (
+          <RemittanceCost
+            onContinue={() => go('createAccount')}
+            onBack={() => go('realCostConsumer')}
+          />
+        )
+
+      case 'nanoReceive':
+        return (
+          <NanoReceive
+            onBack={() => go('walletDetail')}
+            onDone={() => go('walletDetail')}
+          />
+        )
+
+      case 'nanoSend':
+        return (
+          <NanoSend
+            onBack={() => go('walletDetail')}
+            onSuccess={() => go('walletDetail')}
+            onScanQR={() => go('scanQR')}
+          />
+        )
+
+      case 'nanoExportKey':
+        return (
+          <NanoExportKey
+            onBack={() => go('security')}
+          />
+        )
+
+      case 'nanoTransparency':
+        return (
+          <NanoTransparency
+            onBack={() => go('security')}
           />
         )
 
@@ -686,9 +780,9 @@ export default function App() {
             onSelect={type => {
               setAccountType(type)
               if (type === 'business') go('realCostMerchant')
-              else go('createAccount')
+              else go('realCostConsumer')
             }}
-            onBack={() => go('realCostConsumer')}
+            onBack={() => go('welcome')}
           />
         )
 
@@ -972,6 +1066,7 @@ export default function App() {
             accountType={accountType}
             kycStatus="complete"
             plan="free"
+            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onSend={() => go('sendMethod')}
             onRequest={() => go('receive')}
@@ -994,6 +1089,8 @@ export default function App() {
             onAddMoney={() => go('addMoney')}
             onWithdraw={() => go('withdraw')}
             onNotifications={() => go('notifications')}
+            onNanoReceive={() => go('nanoReceive')}
+            onNanoSend={() => go('nanoSend')}
           />
         )
 
@@ -1077,6 +1174,7 @@ export default function App() {
             accountType={accountType}
             currentPlan="free"
             kycComplete={false}
+            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onBack={() => go('home')}
             onNotifications={() => go('notifications')}
@@ -1109,6 +1207,7 @@ export default function App() {
         return (
           <AISuggestionsWidget
             accountType={accountType}
+            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onBack={() => go('home')}
             onNotifications={() => go('notifications')}
@@ -1158,6 +1257,7 @@ export default function App() {
         return (
           <PaymentsHub
             accountType={accountType}
+            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onNotifications={() => go('notifications')}
             onSend={() => go('sendMethod')}
@@ -1183,7 +1283,10 @@ export default function App() {
       case 'contactPicker':
         return (
           <ContactPicker
-            onSelect={() => go('sendAmount')}
+            onSelect={(contact) => {
+              setSelectedContact(contact)
+              go('sendAmount')
+            }}
             onBack={() => go('sendMethod')}
             onAddNew={() => {}}
           />
@@ -1192,7 +1295,27 @@ export default function App() {
       case 'sendAmount':
         return (
           <SendAmount
-            onContinue={(_amount, _currency, _note) => go('sendConfirmation')}
+            recipientName={selectedContact?.name}
+            recipientHandle={selectedContact?.handle}
+            recipientInitials={selectedContact?.initials}
+            recipientColor={selectedContact?.color}
+            onContinue={(amount, currency, note) => {
+              // Calculate fee and total based on actual amount
+              const numAmount = parseFloat(amount.replace(/,/g, '')) || 0
+              const feeRate = currency !== 'USD' ? 0.0175 : 0
+              const fee = feeRate * numAmount
+              const total = numAmount + fee
+              const currencySymbol = currency === 'USD' ? '$' : currency === 'GBP' ? '£' : '€'
+              
+              setPaymentTransaction({
+                amount,
+                currency,
+                note,
+                fee: fee > 0 ? `${fee.toFixed(2)}` : 'Free',
+                total: `${currencySymbol}${total.toFixed(2)}`,
+              })
+              go('sendConfirmation')
+            }}
             onBack={() => go('contactPicker')}
             onLimitReached={() => go('transactionLimitReached')}
           />
@@ -1201,6 +1324,15 @@ export default function App() {
       case 'sendConfirmation':
         return (
           <SendConfirmation
+            recipientName={selectedContact?.name}
+            recipientHandle={selectedContact?.handle}
+            recipientInitials={selectedContact?.initials}
+            recipientColor={selectedContact?.color}
+            amount={paymentTransaction.amount}
+            currency={paymentTransaction.currency}
+            fee={paymentTransaction.fee}
+            total={paymentTransaction.total}
+            note={paymentTransaction.note}
             onConfirm={() => go('sendSuccess')}
             onBack={() => go('sendAmount')}
             onEditRecipient={() => go('contactPicker')}
@@ -1211,6 +1343,13 @@ export default function App() {
       case 'sendSuccess':
         return (
           <SendSuccess
+            recipientName={selectedContact?.name}
+            recipientHandle={selectedContact?.handle}
+            recipientInitials={selectedContact?.initials}
+            recipientColor={selectedContact?.color}
+            amount={paymentTransaction.amount}
+            currency={paymentTransaction.currency}
+            fee={paymentTransaction.fee}
             onDone={() => go('paymentsHub')}
             onShareReceipt={() => go('shareReceipt')}
             onAddFavorite={() => {}}
@@ -1221,6 +1360,8 @@ export default function App() {
         return (
           <SendFailed
             reason="network_error"
+            amount={paymentTransaction.amount}
+            recipientName={selectedContact?.name}
             onRetry={() => go('sendConfirmation')}
             onSupport={() => go('support')}
             onCancel={() => go('paymentsHub')}
@@ -1231,6 +1372,9 @@ export default function App() {
         return (
           <SendPending
             reason="bank_settlement"
+            recipientName={selectedContact?.name}
+            amount={paymentTransaction.amount}
+            currency={paymentTransaction.currency}
             onViewReceipt={() => go('receipt')}
             onDone={() => go('paymentsHub')}
           />
@@ -1288,7 +1432,10 @@ export default function App() {
       case 'splitPayment':
         return (
           <SplitPayment
-            onSendRequests={() => go('splitSuccess')}
+            onSendRequests={(total, participants, method) => {
+              setSplitPaymentData({ total, participants, method })
+              go('splitSuccess')
+            }}
             onBack={() => go('paymentsHub')}
             onAddContact={() => go('contactPicker')}
           />
@@ -1297,6 +1444,15 @@ export default function App() {
       case 'splitSuccess':
         return (
           <SplitSuccess
+            total={splitPaymentData.total}
+            entries={splitPaymentData.participants.map(p => ({
+              name: p.name,
+              initials: p.initials,
+              color: p.color,
+              handle: p.handle,
+              amount: (parseFloat(splitPaymentData.total) / splitPaymentData.participants.length).toFixed(2),
+              status: 'sent' as const,
+            }))}
             onShare={() => {}}
             onDone={() => go('paymentsHub')}
           />
@@ -1313,6 +1469,7 @@ export default function App() {
       case 'refundRequest':
         return (
           <RefundRequest
+            transactionAmount={refundData.transactionAmount}
             onSubmit={() => go('refundResult')}
             onBack={() => go('home')}
           />
@@ -1322,6 +1479,7 @@ export default function App() {
         return (
           <RefundResult
             outcome="approved"
+            refundAmount={refundData.transactionAmount}
             onDone={() => go('home')}
             onAppeal={() => go('refundRequest')}
             onSupport={() => go('support')}
@@ -1395,7 +1553,10 @@ export default function App() {
       case 'addMoney':
         return (
           <AddMoney
-            onConfirm={() => go('home')}
+            onConfirm={(amount, bankId, speed) => {
+              setBankingData({ amount, bankId, speed, operation: 'add' })
+              go('home')
+            }}
             onBack={() => go('walletDetail')}
           />
         )
@@ -1403,7 +1564,10 @@ export default function App() {
       case 'withdraw':
         return (
           <Withdraw
-            onConfirm={() => go('home')}
+            onConfirm={(amount, bankId, speed) => {
+              setBankingData({ amount, bankId, speed, operation: 'withdraw' })
+              go('home')
+            }}
             onLimitReached={() => go('transactionLimitReached')}
             onBack={() => go('linkedBankDetail')}
           />
@@ -1421,6 +1585,7 @@ export default function App() {
         return (
           <TransactionHistory
             accountType={accountType}
+            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onSelectTransaction={tx => { setSelectedTx(tx); go('transactionDetail') }}
             onSearch={() => go('transactionSearch')}
@@ -1670,7 +1835,16 @@ export default function App() {
       case 'createGoal':
         return (
           <CreateGoal
-            onSave={() => go('goals')}
+            onSave={(data) => {
+              setGoalData({ 
+                name: data.name, 
+                emoji: data.emoji, 
+                targetAmount: data.targetAmount,
+                recurringAmount: data.recurringAmount || 0,
+                fundingMethod: data.fundingMethod
+              })
+              go('goals')
+            }}
             onBack={() => go('goals')}
           />
         )
@@ -1872,6 +2046,8 @@ export default function App() {
             onChangePin={() => go('setPIN')}
             onBiometric={() => go('enableBiometrics')}
             onTwoFactor={() => go('enable2FA')}
+            onExportNanoKey={() => go('nanoExportKey')}
+            onNanoTransparency={() => go('nanoTransparency')}
           />
         )
 
@@ -1975,7 +2151,16 @@ export default function App() {
         return (
           <Checkout
             plan={recommendedPlan === 'apex' ? 'apex' : 'prime'}
-            onConfirm={() => go('home')}
+            onConfirm={(plan, cycle) => {
+              const PLAN_PRICES: Record<string, { monthly: number; annual: number }> = {
+                edge: { monthly: 9.99, annual: 99.99 },
+                prime: { monthly: 39.99, annual: 399.99 },
+                apex: { monthly: 64.99, annual: 649.99 },
+              }
+              const price = PLAN_PRICES[plan]?.[cycle] || 39.99
+              setSubscriptionCheckoutData({ plan, cycle, price })
+              go('home')
+            }}
             onBack={() => go('comparePlans')}
             onComparePlans={() => go('comparePlans')}
           />

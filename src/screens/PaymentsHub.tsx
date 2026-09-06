@@ -4,6 +4,7 @@ import { GlassCard, TransactionRow } from '@/components/Card'
 
 interface PaymentsHubProps {
   accountType?: 'personal' | 'business'
+  currentNav?: string
   onNavigate: (tab: string) => void
   onNotifications?: () => void
   onSend?: () => void
@@ -66,6 +67,7 @@ const ACTIONS = [
 
 export default function PaymentsHub({
   accountType = 'personal',
+  currentNav = 'payments',
   onNavigate,
   onNotifications,
   onSend, onRequest, onAddMoney, onSplitBill, onPayBills,
@@ -182,7 +184,7 @@ export default function PaymentsHub({
         </div>
       </div>
 
-      <BottomNav active="payments" accountType={accountType} onChange={tab => onNavigate(tab)} />
+      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
     </div>
   )
 }

@@ -9,6 +9,8 @@ interface WalletDetailProps {
   onAddMoney?: () => void
   onWithdraw?: () => void
   onNotifications?: () => void
+  onNanoReceive?: () => void
+  onNanoSend?: () => void
 }
 
 const ALL_TX = [
@@ -35,6 +37,8 @@ export default function WalletDetail({
   onAddMoney,
   onWithdraw,
   onNotifications,
+  onNanoReceive,
+  onNanoSend,
 }: WalletDetailProps) {
   const [filter, setFilter] = useState<'all' | 'incoming' | 'outgoing' | 'pending'>('all')
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
@@ -177,6 +181,78 @@ export default function WalletDetail({
                 <p className="font-body text-xs text-text-muted">Checking ••••4821</p>
               </div>
               <Chip label="Verified" variant="success" dot />
+            </div>
+          </div>
+
+          {/* Powered by Nano section */}
+          <div>
+            <p className="font-body text-sm font-semibold text-text mb-2">Powered by Nano</p>
+            <div
+              className="rounded-[--radius-2xl] px-4 py-4 flex flex-col gap-3"
+              style={{ background: 'rgba(63,231,255,0.04)', border: '1px solid rgba(63,231,255,0.2)' }}
+            >
+              {/* Nano address */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-body text-xs text-text-muted mb-1">Your Nano Address</p>
+                  <p className="font-mono text-xs text-text">nano_1ysn6p7...dw</p>
+                </div>
+                <button
+                  onClick={() => navigator.clipboard.writeText('nano_1ysn6p7s7gbrxkr67c5emzhq1xpbzcfsgchjcsbcmfxfh8qnqz8guwdx5dwn')}
+                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-hi transition-colors shrink-0"
+                  aria-label="Copy address"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <rect x="2.5" y="4.5" width="5" height="5" rx="0.8" stroke="rgba(175,197,255,0.6)" strokeWidth="0.9" />
+                    <path d="M4.5 4.5V3.5a0.8 0.8 0 0 1 0.8-0.8h4.7a0.8 0.8 0 0 1 0.8 0.8v4.7a0.8 0.8 0 0 1-0.8 0.8H9.5" stroke="rgba(175,197,255,0.6)" strokeWidth="0.9" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Confirmed balance */}
+              <div className="flex items-center justify-between border-t border-[color:var(--color-border)] pt-3">
+                <div>
+                  <p className="font-body text-xs text-text-muted mb-1">Confirmed Balance</p>
+                  <p className="font-mono text-sm font-semibold text-text">$2,847.50</p>
+                </div>
+                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
+              </div>
+
+              {/* Feeless settlement badge */}
+              <div
+                className="flex items-center gap-2 px-2.5 py-2 rounded-[--radius-lg] w-fit"
+                style={{ background: 'rgba(63,231,255,0.12)' }}
+              >
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <circle cx="6" cy="6" r="5" stroke="#3FE7FF" strokeWidth="1" />
+                  <path d="M3 6l2 2 4-4" stroke="#3FE7FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <p className="font-body text-xs font-semibold text-[#3FE7FF]">Feeless • Instant Settlement</p>
+              </div>
+
+              {/* Nano network actions */}
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={onNanoReceive}
+                  className="flex-1 h-9 rounded-[--radius-xl] flex items-center justify-center gap-1.5 font-body text-xs font-semibold transition-all active:scale-[0.97]"
+                  style={{ background: 'rgba(63,231,255,0.1)', border: '1px solid rgba(63,231,255,0.25)', color: '#3FE7FF' }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 2v7M2 7l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Receive NANO
+                </button>
+                <button
+                  onClick={onNanoSend}
+                  className="flex-1 h-9 rounded-[--radius-xl] flex items-center justify-center gap-1.5 font-body text-xs font-semibold transition-all active:scale-[0.97]"
+                  style={{ background: 'rgba(63,231,255,0.06)', border: '1px solid rgba(63,231,255,0.18)', color: 'rgba(63,231,255,0.8)' }}
+                >
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                    <path d="M6 10V3M2 5l4-4 4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  Send NANO
+                </button>
+              </div>
             </div>
           </div>
 

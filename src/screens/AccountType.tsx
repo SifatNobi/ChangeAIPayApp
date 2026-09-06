@@ -149,6 +149,16 @@ export default function AccountType({ onSelect, onBack }: AccountTypeProps) {
                 +{businessBenefits.length - 3} more
               </span>
             </div>
+
+            {/* Business CTA */}
+            <div className="mt-4">
+              <div
+                className="w-full h-10 rounded-[--radius-xl] flex items-center justify-center transition-all duration-[250ms]"
+                style={{ background: 'rgba(0,102,255,0.15)', border: '1px solid rgba(0,102,255,0.35)' }}
+              >
+                <span className="font-body text-sm font-bold text-accent">Start as Business →</span>
+              </div>
+            </div>
           </div>
         </button>
       </div>

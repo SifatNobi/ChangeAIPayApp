@@ -135,8 +135,8 @@ export default function MerchantHome({
         style={{ borderBottom: '1px solid rgba(175,197,255,0.08)' }}
       >
         <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: 'rgba(175,197,255,0.06)', border: '1px solid rgba(175,197,255,0.12)' }}>
-              <img src={logoSrc} alt="ChangeAIPay" className="w-full h-full object-contain" />
+          <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: 'rgba(175,197,255,0.06)', border: '1px solid rgba(175,197,255,0.12)', borderRadius: '50%' }}>
+              <img src={logoSrc} alt="ChangeAIPay" className="w-full h-full object-cover rounded-full" style={{ display: 'block' }} />
             </div>
           <div>
             <p className="font-body text-[10px] text-text-muted leading-none">Merchant</p>

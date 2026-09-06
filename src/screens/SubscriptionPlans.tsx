@@ -7,6 +7,7 @@ interface SubscriptionPlansProps {
   accountType?: 'personal' | 'business'
   currentPlan?: PlanTier
   kycComplete?: boolean
+  currentNav?: string
   onNavigate: (tab: string) => void
   onBack?: () => void
   onNotifications?: () => void
@@ -366,6 +367,7 @@ export default function SubscriptionPlans({
   accountType = 'personal',
   currentPlan = 'free',
   kycComplete = false,
+  currentNav = 'subscription',
   onNavigate,
   onBack,
   onNotifications,
@@ -508,7 +510,7 @@ export default function SubscriptionPlans({
         </div>
       </div>
 
-      <BottomNav active="home" accountType={accountType} onChange={tab => onNavigate(tab)} />
+      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
     </div>
   )
 }

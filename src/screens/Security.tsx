@@ -5,6 +5,8 @@ interface SecurityProps {
   onChangePin?: () => void
   onBiometric?: () => void
   onTwoFactor?: () => void
+  onExportNanoKey?: () => void
+  onNanoTransparency?: () => void
 }
 
 type LoginEntry = { id: string; device: string; location: string; ts: string; current?: boolean }
@@ -43,7 +45,7 @@ function RowLink({ icon, label, sub, onPress, danger }: { icon: React.ReactNode;
   )
 }
 
-export default function Security({ onBack, onChangePin, onBiometric, onTwoFactor }: SecurityProps) {
+export default function Security({ onBack, onChangePin, onBiometric, onTwoFactor, onExportNanoKey, onNanoTransparency }: SecurityProps) {
   const [biometricOn, setBiometricOn] = useState(true)
   const [sessions, setSessions] = useState(SESSIONS)
   const [removingId, setRemovingId] = useState<string | null>(null)
@@ -211,6 +213,36 @@ export default function Security({ onBack, onChangePin, onBiometric, onTwoFactor
                 )}
               </div>
             ))}
+          </div>
+        </div>
+
+        {/* Nano / Blockchain — advanced section */}
+        <div>
+          <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Blockchain &amp; Ownership</p>
+          <div className="rounded-[--radius-2xl] overflow-hidden" style={{ border: '1px solid rgba(175,197,255,0.09)' }}>
+            <RowLink
+              icon={
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <circle cx="7" cy="7" r="5.5" stroke="#3FE7FF" strokeWidth="1.1" />
+                  <path d="M4.5 7l2 2 3-3" stroke="#3FE7FF" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              }
+              label="Network Transparency"
+              sub="Representatives &amp; voting weight"
+              onPress={onNanoTransparency}
+            />
+            <RowLink
+              icon={
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <rect x="3" y="6.5" width="8" height="6.5" rx="1.2" stroke="#F5B700" strokeWidth="1.1" />
+                  <path d="M5 6.5V4.5a2 2 0 0 1 4 0V6.5" stroke="#F5B700" strokeWidth="1.1" strokeLinecap="round" />
+                  <circle cx="7" cy="9.5" r="0.8" fill="#F5B700" />
+                </svg>
+              }
+              label="Export Nano Wallet Key"
+              sub="Advanced · requires re-authentication"
+              onPress={onExportNanoKey}
+            />
           </div>
         </div>
 

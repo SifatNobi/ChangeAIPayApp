@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Header, BottomNav } from '@/components/Nav'
 import { WalletCard, TransactionRow, Chip } from '@/components/Card'
 import { SkeletonWalletCard, SkeletonTransactionList } from '@/components/States'
@@ -14,6 +14,7 @@ interface HomeProps {
   accountType?: 'personal' | 'business'
   kycStatus?: KYCStatus
   plan?: Plan
+  currentNav?: string
   onNavigate: (tab: string) => void
   onSend?: () => void
   onRequest?: () => void
@@ -74,23 +75,172 @@ const SPENDING_CATS = [
   { name: 'Other',        amount: 26,  pct: 13, color: 'rgba(175,197,255,0.3)' },
 ]
 
-/* ── Quick action button ─────────────────────────────────────── */
-function QuickAction({
-  icon, label, onClick,
-}: { icon: React.ReactNode; label: string; onClick?: () => void }) {
+/* ── Floating speed-dial quick actions ───────────────────────── */
+interface SpeedDialProps {
+  onSend?: () => void
+  onRequest?: () => void
+  onAddMoney?: () => void
+  onScan?: () => void
+}
+
+function SpeedDial({ onSend, onRequest, onAddMoney, onScan }: SpeedDialProps) {
+  const [open, setOpen] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Auto-collapse after 4s of inactivity
+  useEffect(() => {
+    if (open) {
+      timerRef.current = setTimeout(() => setOpen(false), 4000)
+    }
+    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
+  }, [open])
+
+  const handle = (fn?: () => void) => {
+    setOpen(false)
+    fn?.()
+  }
+
+  const ACTIONS = [
+    {
+      label: 'Send',
+      onClick: () => handle(onSend),
+      color: '#0066FF',
+      glow: 'rgba(0,102,255,0.45)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 14V4M4 9l5-5 5 5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Request',
+      onClick: () => handle(onRequest),
+      color: '#9945FF',
+      glow: 'rgba(153,69,255,0.4)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 4v10M4 9l5 5 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Add',
+      onClick: () => handle(onAddMoney),
+      color: '#00D26A',
+      glow: 'rgba(0,210,106,0.4)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M9 4v10M4 9h10" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Scan',
+      onClick: () => handle(onScan),
+      color: '#3FE7FF',
+      glow: 'rgba(63,231,255,0.4)',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M2 6V3h3M12 3h3v3M2 12v3h3M12 15h3v-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="5" y="5" width="8" height="8" rx="1" stroke="white" strokeWidth="1.2" strokeDasharray="2 1.5" />
+        </svg>
+      ),
+    },
+  ]
+
   return (
-    <button
-      onClick={onClick}
-      className="flex flex-col items-center gap-2 flex-1 focus-ring rounded-[--radius-xl] py-2"
+    <div
+      style={{
+        position: 'fixed',
+        right: 16,
+        bottom: 100,
+        zIndex: 48,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: 10,
+        pointerEvents: 'none',
+      }}
     >
-      <div
-        className="w-12 h-12 rounded-full flex items-center justify-center transition-transform duration-[200ms] active:scale-95"
-        style={{ background: 'rgba(0,102,255,0.12)', border: '1px solid rgba(0,102,255,0.2)' }}
+      {/* Action items — expand upward */}
+      {ACTIONS.map((action, i) => (
+        <div
+          key={action.label}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            opacity: open ? 1 : 0,
+            transform: open ? 'translateY(0) scale(1)' : `translateY(${(ACTIONS.length - i) * 12}px) scale(0.7)`,
+            transition: `opacity 220ms ease ${open ? i * 45 : (ACTIONS.length - 1 - i) * 30}ms, transform 280ms cubic-bezier(0.34,1.56,0.64,1) ${open ? i * 45 : (ACTIONS.length - 1 - i) * 30}ms`,
+            pointerEvents: open ? 'auto' : 'none',
+          }}
+        >
+          {/* Label pill */}
+          <div
+            style={{
+              background: 'rgba(10,16,52,0.92)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(175,197,255,0.15)',
+              borderRadius: 20,
+              padding: '4px 10px',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span className="font-body text-xs font-semibold" style={{ color: action.color }}>{action.label}</span>
+          </div>
+          {/* Action button */}
+          <button
+            onClick={action.onClick}
+            className="flex items-center justify-center transition-all active:scale-90"
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              background: action.color,
+              boxShadow: `0 4px 16px ${action.glow}, 0 2px 6px rgba(0,0,0,0.3)`,
+              border: '1.5px solid rgba(255,255,255,0.15)',
+              pointerEvents: 'auto',
+            }}
+            aria-label={action.label}
+          >
+            {action.icon}
+          </button>
+        </div>
+      ))}
+
+      {/* Toggle button */}
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center justify-center transition-all active:scale-90"
+        style={{
+          width: 52,
+          height: 52,
+          borderRadius: '50%',
+          background: open
+            ? 'rgba(175,197,255,0.12)'
+            : 'linear-gradient(135deg, #0066FF 0%, #3FE7FF 100%)',
+          boxShadow: open
+            ? '0 4px 16px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(175,197,255,0.2)'
+            : '0 0 0 6px rgba(0,102,255,0.12), 0 0 0 12px rgba(0,102,255,0.06), 0 8px 24px rgba(0,102,255,0.45)',
+          border: open ? '1.5px solid rgba(175,197,255,0.25)' : 'none',
+          transition: 'background 280ms ease, box-shadow 280ms ease',
+          pointerEvents: 'auto',
+        }}
+        aria-label={open ? 'Close quick actions' : 'Open quick actions'}
+        aria-expanded={open}
       >
-        {icon}
-      </div>
-      <span className="font-body text-[11px] text-text-muted">{label}</span>
-    </button>
+        <svg
+          width="20" height="20" viewBox="0 0 20 20" fill="none"
+          style={{
+            transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
+            transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)',
+          }}
+        >
+          <path d="M10 4v12M4 10h12" stroke="white" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
   )
 }
 
@@ -99,6 +249,7 @@ export default function Home({
   accountType = 'personal',
   kycStatus = 'complete',
   plan = 'free',
+  currentNav = 'home',
   onNavigate,
   onSend,
   onRequest,
@@ -111,10 +262,8 @@ export default function Home({
   onWalletDetail,
   highVolume = false,
 }: HomeProps) {
-  const [loading, setLoading] = useState(false)
   const [balanceVisible, setBalanceVisible] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
-  const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [upgradeDismissed, setUpgradeDismissed] = useState(false)
   const [finaCardDismissed, setFinaCardDismissed] = useState(false)
   const [demoMode, setDemoMode] = useState<'loaded' | 'loading' | 'empty'>('loaded')
@@ -125,7 +274,6 @@ export default function Home({
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    setRefreshTrigger(t => t + 1)
     await new Promise(r => setTimeout(r, 1600))
     setRefreshing(false)
   }
@@ -149,7 +297,7 @@ export default function Home({
         <div className="fixed bottom-3 right-3 z-[60]">
           <button onClick={() => setDemoMode('loaded')} className="bg-accent text-[#050B2D] text-[10px] font-bold px-2 py-1 rounded-full">Loaded</button>
         </div>
-        <BottomNav active="home" accountType={accountType} onChange={tab => onNavigate(tab)} />
+        <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
       </div>
     )
   }
@@ -176,7 +324,7 @@ export default function Home({
         <div className="fixed bottom-3 right-3 z-[60]">
           <button onClick={() => setDemoMode('loaded')} className="bg-accent text-[#050B2D] text-[10px] font-bold px-2 py-1 rounded-full">Loaded</button>
         </div>
-        <BottomNav active="home" accountType={accountType} onChange={tab => onNavigate(tab)} />
+        <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
       </div>
     )
   }
@@ -313,46 +461,8 @@ export default function Home({
             )
           })()}
 
-          {/* Quick actions */}
-          <div className="flex items-center mt-1">
-            <QuickAction
-              label="Send"
-              onClick={onSend}
-              icon={
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M9 14V4M4 9l5-5 5 5" stroke="#AFC5FF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              }
-            />
-            <QuickAction
-              label="Request"
-              onClick={onRequest}
-              icon={
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M9 4v10M4 9l5 5 5-5" stroke="#AFC5FF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              }
-            />
-            <QuickAction
-              label="Add Money"
-              onClick={onAddMoney}
-              icon={
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M9 4v10M4 9h10" stroke="#AFC5FF" strokeWidth="1.8" strokeLinecap="round" />
-                </svg>
-              }
-            />
-            <QuickAction
-              label="Scan"
-              onClick={onScan}
-              icon={
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                  <path d="M2 6V3h3M12 3h3v3M2 12v3h3M12 15h3v-3" stroke="#AFC5FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  <rect x="5" y="5" width="8" height="8" rx="1" stroke="#AFC5FF" strokeWidth="1.2" strokeDasharray="2 1.5" />
-                </svg>
-              }
-            />
-          </div>
+          {/* Quick actions — floating speed-dial (see SpeedDial component above) */}
+          {/* SpeedDial is rendered outside the scroll container, fixed to viewport */}
 
           {/* Fina / Aina AI insight card — dismissible */}
           {!finaCardDismissed && (
@@ -439,7 +549,15 @@ export default function Home({
         </div>
       </div>
 
-      <BottomNav active="home" accountType={accountType} onChange={tab => onNavigate(tab)} />
+      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
+
+      {/* Floating speed-dial quick actions */}
+      <SpeedDial
+        onSend={onSend}
+        onRequest={onRequest}
+        onAddMoney={onAddMoney}
+        onScan={onScan}
+      />
     </div>
   )
 }

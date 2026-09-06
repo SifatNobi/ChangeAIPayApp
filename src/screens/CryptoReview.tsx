@@ -14,16 +14,11 @@ interface CryptoReviewProps {
   onBack?: () => void
 }
 
-const DEFAULT_ORDER: ReviewOrder = {
-  symbol: 'BTC', name: 'Bitcoin', color: '#F7931A',
-  amountUSD: 100, amountCrypto: 0.001602, price: 62410,
-  providerId: 'liquidity-a', providerName: 'LiquidX',
-  fee: 0.15, totalUSD: 100.15,
-}
-
-export default function CryptoReview({ order = DEFAULT_ORDER, onConfirm, onBack }: CryptoReviewProps) {
+export default function CryptoReview({ order, onConfirm, onBack }: CryptoReviewProps) {
   const [riskAcknowledged, setRiskAcknowledged] = useState(false)
   const [confirming, setConfirming] = useState(false)
+
+  if (!order) return null
 
   const handleConfirm = () => {
     if (!riskAcknowledged || confirming) return

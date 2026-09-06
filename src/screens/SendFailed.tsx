@@ -65,7 +65,7 @@ const REASONS = {
 
 export default function SendFailed({
   reason = 'network_error',
-  amount = '$50.00',
+  amount = '',
   recipientName = 'Alex Johnson',
   onRetry,
   onSupport,

@@ -50,7 +50,7 @@ const REASONS = {
 export default function SendPending({
   reason = 'bank_settlement',
   recipientName = 'Alex Johnson',
-  amount = '$200.00',
+  amount = '',
   currency = 'GBP',
   estimatedTime,
   onNotifyToggle,
@@ -102,7 +102,7 @@ export default function SendPending({
         <div className="text-center flex flex-col gap-2">
           <h1 className="font-display text-2xl font-extrabold text-text tracking-tight">Payment Pending</h1>
           <p className="font-body text-sm text-text-2">
-            {amount} to <span className="font-semibold text-text">{recipientName}</span> is on its way
+            {amount || '—'} to <span className="font-semibold text-text">{recipientName}</span> is on its way
           </p>
         </div>
 

@@ -27,10 +27,10 @@ export default function SendConfirmation({
   recipientHandle = '@alexj',
   recipientInitials = 'AJ',
   recipientColor = '#0066FF',
-  amount = '50.00',
+  amount = '',
   currency = 'USD',
-  fee = 'Free',
-  total = '$50.00',
+  fee = '',
+  total = '',
   eta = 'Instant',
   note = '',
   onConfirm,
@@ -114,12 +114,12 @@ export default function SendConfirmation({
             <button onClick={onEditAmount} className="font-body text-xs font-semibold text-accent min-h-[44px] flex items-center">Edit</button>
           </div>
           <p className="font-display text-4xl font-extrabold text-white tracking-tight">
-            {currency === 'USD' ? '$' : currency === 'GBP' ? '£' : '€'}{amount}
+            {currency === 'USD' ? '$' : currency === 'GBP' ? '£' : '€'}{amount || '—'}
           </p>
           <div className="flex flex-col gap-1.5 border-t border-white/10 pt-3">
             {[
-              { label: 'Fee', value: fee, green: fee === 'Free' },
-              { label: 'Total deducted', value: total, bold: true },
+              { label: 'Fee', value: fee || '—', green: fee === 'Free' },
+              { label: 'Total deducted', value: total || '—', bold: true },
               { label: 'Arrives', value: eta },
             ].map(r => (
               <div key={r.label} className="flex items-center justify-between">

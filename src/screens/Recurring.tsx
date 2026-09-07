@@ -250,6 +250,23 @@ export default function Recurring({ onManage, onBack }: RecurringProps) {
           </div>
         )}
 
+        {/* Empty state - no active recurring payments */}
+        {activeItems.length === 0 && (
+          <div className="flex flex-col items-center gap-3 pt-16">
+            <div
+              className="w-16 h-16 rounded-[--radius-2xl] flex items-center justify-center"
+              style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}
+            >
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                <rect x="3" y="4" width="20" height="18" rx="2.5" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" />
+                <path d="M8 2v4M18 2v4M3 10h20" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </div>
+            <p className="font-body text-sm font-semibold text-text-muted">No active recurring payments</p>
+            <p className="font-body text-xs text-text-muted text-center">Recurring payments you set up will appear here.</p>
+          </div>
+        )}
+
         {/* Paused list */}
         {pausedItems.length > 0 && (
           <div>
@@ -287,6 +304,23 @@ export default function Recurring({ onManage, onBack }: RecurringProps) {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Empty state - no recurring payments at all */}
+        {activeItems.length === 0 && pausedItems.length === 0 && (
+          <div className="flex flex-col items-center gap-3 pt-16">
+            <div
+              className="w-16 h-16 rounded-[--radius-2xl] flex items-center justify-center"
+              style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}
+            >
+              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+                <rect x="3" y="4" width="20" height="18" rx="2.5" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" />
+                <path d="M8 2v4M18 2v4M3 10h20" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </div>
+            <p className="font-body text-sm font-semibold text-text-muted">No recurring payments</p>
+            <p className="font-body text-xs text-text-muted text-center">Add your first recurring payment to get started.</p>
           </div>
         )}
       </div>

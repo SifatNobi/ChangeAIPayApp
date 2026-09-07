@@ -176,7 +176,21 @@ export default function CommunityChallenges({ onBack, onViewLeaderboard }: Commu
         <div>
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Active Challenges</p>
           <div className="flex flex-col gap-3">
-            {active.map(c => <ChallengeCard key={c.id} c={c} />)}
+            {active.length > 0 ? (
+              active.map(c => <ChallengeCard key={c.id} c={c} />)
+            ) : (
+              <div className="flex flex-col items-center gap-3 pt-8">
+                <div className="w-14 h-14 rounded-[20px] flex items-center justify-center"
+                  style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="9" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeDasharray="4 3" />
+                    <path d="M12 6v6M12 15h.01" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <p className="font-body text-sm font-semibold text-text-muted">No active challenges</p>
+                <p className="font-body text-xs text-text-muted text-center">Check back soon for new challenges.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -184,7 +198,21 @@ export default function CommunityChallenges({ onBack, onViewLeaderboard }: Commu
         <div>
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Coming Soon</p>
           <div className="flex flex-col gap-3">
-            {upcoming.map(c => <ChallengeCard key={c.id} c={c} />)}
+            {upcoming.length > 0 ? (
+              upcoming.map(c => <ChallengeCard key={c.id} c={c} />)
+            ) : (
+              <div className="flex flex-col items-center gap-3 pt-8">
+                <div className="w-14 h-14 rounded-[20px] flex items-center justify-center"
+                  style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 4v7M12 15v.5" stroke="rgba(175,197,255,0.3)" strokeWidth="1.3" strokeLinecap="round" />
+                    <circle cx="12" cy="12" r="9" stroke="rgba(175,197,255,0.2)" strokeWidth="1.2" />
+                  </svg>
+                </div>
+                <p className="font-body text-sm font-semibold text-text-muted">No upcoming challenges</p>
+                <p className="font-body text-xs text-text-muted text-center">New challenges will appear here.</p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -192,7 +220,20 @@ export default function CommunityChallenges({ onBack, onViewLeaderboard }: Commu
         <div>
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Past Challenges</p>
           <div className="flex flex-col gap-3">
-            {completed.map(c => <ChallengeCard key={c.id} c={c} />)}
+            {completed.length > 0 ? (
+              completed.map(c => <ChallengeCard key={c.id} c={c} />)
+            ) : (
+              <div className="flex flex-col items-center gap-3 pt-8">
+                <div className="w-14 h-14 rounded-[20px] flex items-center justify-center"
+                  style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M6 12l5 5 8-8" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <p className="font-body text-sm font-semibold text-text-muted">No completed challenges</p>
+                <p className="font-body text-xs text-text-muted text-center">Completed challenges will appear here.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>

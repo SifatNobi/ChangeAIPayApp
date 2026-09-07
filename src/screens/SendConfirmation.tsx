@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import AuthHeader from '@/components/AuthHeader'
+import { recordTransactionFlowComplete } from '@/services/reEngagementNotifications'
 
 interface SendConfirmationProps {
   recipientName?: string
@@ -46,6 +47,7 @@ export default function SendConfirmation({
 
   const handleBiometricSuccess = () => {
     setAuthState('success')
+    recordTransactionFlowComplete()
     setTimeout(() => onConfirm?.(), 400)
   }
 
@@ -63,6 +65,7 @@ export default function SendConfirmation({
       setTimeout(() => {
         if (next.join('') === '123456') {
           setAuthState('success')
+          recordTransactionFlowComplete()
           setTimeout(() => onConfirm?.(), 400)
         } else {
           setPinError(true)

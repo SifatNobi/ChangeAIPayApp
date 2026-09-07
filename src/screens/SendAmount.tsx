@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import AuthHeader from '@/components/AuthHeader'
+import { recordTransactionFlowStart } from '@/services/reEngagementNotifications'
 
 interface SendAmountProps {
   recipientName?: string
@@ -60,6 +61,7 @@ export default function SendAmount({
   const handleContinue = () => {
     if (numVal <= 0) return
     if (overLimit) { onLimitReached?.(); return }
+    recordTransactionFlowStart()
     onContinue?.(display, currency.code, note)
   }
 

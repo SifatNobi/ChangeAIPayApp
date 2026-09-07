@@ -1,6 +1,8 @@
 import { useState, useCallback } from 'react'
 import { type Transaction } from '@/data/transactions'
 
+import { ReEngagementProvider } from './components/ReEngagementProvider'
+
 import PhoneFrame from './components/PhoneFrame'
 import Splash from './screens/Splash'
 import AppUpdate from './screens/AppUpdate'
@@ -3028,7 +3030,8 @@ export default function App() {
 
   return (
     /* PhoneFrame provides the 390×844 canvas and status bar */
-    <PhoneFrame>
+    <ReEngagementProvider>
+      <PhoneFrame>
       <div
         key={current}
         className="animate-fade-in relative"
@@ -3101,5 +3104,6 @@ export default function App() {
         </>
       )}
     </PhoneFrame>
+    </ReEngagementProvider>
   )
 }

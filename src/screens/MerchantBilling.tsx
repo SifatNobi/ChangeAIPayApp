@@ -197,13 +197,26 @@ export default function MerchantBilling({ onBack, onChangePlan }: MerchantBillin
           </p>
         </div>
 
-        {/* Cancellation info */}
+{/* Cancellation info */}
         <div className="px-3 py-3 rounded-[--radius-xl]"
           style={{ background: 'rgba(175,197,255,0.03)', border: '1px solid rgba(175,197,255,0.08)' }}>
-          <p className="font-body text-[10px] text-text-muted leading-relaxed">
-            Cancel before <span className="text-text font-semibold">{nextBilling}</span> to avoid the next charge. Without a subscription, the {currentTier.standardFee}% standard platform fee applies per transaction.
-          </p>
-        </div>
+        <p className="font-body text-[10px] text-text-muted leading-relaxed">
+          Cancel before <span className="text-text font-semibold">{nextBilling}</span> to avoid the next charge. Without a subscription, the {currentTier.standardFee}% standard platform fee applies per transaction.
+        </p>
+      </div>
+
+      {/* Restore Purchases */}
+      <button
+        onClick={() => { /* restore purchases logic */ }}
+        className="w-full h-10 mt-3 rounded-[--radius-xl] font-body text-xs font-semibold text-text-2 flex items-center justify-center gap-2 transition-colors hover:bg-surface-hi active:scale-[0.98]"
+        style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.1)' }}
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M11.5 2A5.5 5.5 0 0 1 1.5 6v5l2 2h14l-1.5-2.5V6A5.5 5.5 0 0 1 11.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9.5 6v.5a2 2 0 0 0 4 0V6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+        </svg>
+        Restore Purchases
+      </button>
       </div>
     </div>
   )

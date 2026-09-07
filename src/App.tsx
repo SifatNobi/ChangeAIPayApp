@@ -848,6 +848,8 @@ export default function App() {
             onForgotPassword={() => go('forgotPassword')}
             onSignUp={() => go('permissions')}
             biometricEnabled={false}
+            onGoogle={() => go('accountType')}
+            onApple={() => go('accountType')}
           />
         )
 

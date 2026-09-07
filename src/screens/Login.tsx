@@ -1,8 +1,35 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import logoSrc from '@/imports/logo.png.jpeg'
 import Button from '@/components/Button'
 import { TextInput, PasswordInput } from '@/components/Input'
 import { Checkbox } from '@/components/Input'
+
+// OAuth types
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
+          renderButton: (element: HTMLElement, config: { theme: string; size: string; type: string; text: string; shape: string; logo_alignment: string }) => void;
+          prompt: (notification?: string) => void;
+        };
+        oauth2: {
+          initTokenClient: (config: { client_id: string; scope: string; callback: (response: { access_token: string }) => void }) => { requestAccessToken: () => void };
+        };
+      };
+    };
+    appleid?: {
+      auth: {
+        init: (config: { clientId: string; scope: string; redirectURI: string; state: string; usePopup: boolean }) => void;
+        signIn: () => Promise<{ authorization: { code: string; id_token: string; user: { name: { firstName: string; lastName: string }; email: string } } }>;
+      };
+    };
+  }
+}
+
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'demo-client-id';
+const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID || 'demo-client-id';
 
 interface LoginProps {
   onLogin: () => void
@@ -52,6 +79,83 @@ export default function Login({
   const [errorState, setErrorState] = useState<LoginError>('none')
   const [attempts, setAttempts] = useState(0)
   const [touched, setTouched] = useState({ identifier: false, password: false })
+  const [googleReady, setGoogleReady] = useState(false)
+  const [appleReady, setAppleReady] = useState(false)
+
+  // Initialize Google Identity Services
+  useEffect(() => {
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'demo-client-id',
+        callback: handleGoogleCredential,
+      });
+      setGoogleReady(true);
+    }
+  }, []);
+
+  // Initialize Apple Sign In
+  useEffect(() => {
+    if (window.appleid?.auth) {
+      window.appleid.auth.init({
+        clientId: import.meta.env.VITE_APPLE_CLIENT_ID || 'demo-client-id',
+        scope: 'name email',
+        redirectURI: window.location.origin + '/auth/callback',
+        state: Math.random().toString(36).substring(7),
+        usePopup: true,
+      });
+      setAppleReady(true);
+    }
+  }, []);
+
+  const handleGoogleCredential = useCallback((response: { credential: string }) => {
+    try {
+      const payload = JSON.parse(atob(response.credential.split('.')[1]));
+      const userData = {
+        email: payload.email,
+        name: payload.name,
+        picture: payload.picture,
+        provider: 'google',
+        sub: payload.sub,
+      };
+      onGoogle?.();
+    } catch (e) {
+      console.error('Failed to parse Google credential:', e);
+      onGoogle?.();
+    }
+  }, []);
+
+  const handleGoogleSignIn = useCallback(() => {
+    if (window.google?.accounts?.id) {
+      (window.google.accounts.id.prompt as unknown as (listener: (notification: any) => void) => void)((notification: any) => {
+        if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
+          onGoogle?.();
+        }
+      });
+    } else {
+      onGoogle?.();
+    }
+  }, []);
+
+  const handleAppleSignIn = useCallback(async () => {
+    if (!window.appleid?.auth) {
+      onApple?.();
+      return;
+    }
+    try {
+      const response = await window.appleid.auth.signIn();
+      const { authorization } = response;
+      const userData = {
+        email: authorization.user?.email,
+        name: authorization.user?.name ? `${authorization.user.name.firstName} ${authorization.user.name.lastName}` : '',
+        provider: 'apple',
+        idToken: authorization.id_token,
+      };
+      onApple?.();
+    } catch (e) {
+      console.error('Apple Sign In failed:', e);
+      onApple?.();
+    }
+  }, []);
 
   const isLocked = errorState === 'tooManyAttempts'
   const isLoading = errorState === 'loading'
@@ -187,15 +291,17 @@ export default function Login({
           </div>
 
           <button
-            onClick={onGoogle}
-            className="w-full h-12 rounded-[--radius-lg] bg-white flex items-center justify-center gap-3 font-body text-sm font-semibold text-[#1a1a1a] hover:bg-gray-50 active:scale-[0.98] transition-all focus-ring"
+            onClick={googleReady ? handleGoogleSignIn : onGoogle}
+            disabled={!googleReady}
+            className="w-full h-12 rounded-[--radius-lg] bg-white flex items-center justify-center gap-3 font-body text-sm font-semibold text-[#1a1a1a] hover:bg-gray-50 active:scale-[0.98] transition-all focus-ring disabled:opacity-50"
           >
             <GoogleIcon />
             Continue with Google
           </button>
           <button
-            onClick={onApple}
-            className="w-full h-12 rounded-[--radius-lg] bg-[#1a1a1a] border border-white/15 flex items-center justify-center gap-3 font-body text-sm font-semibold text-white hover:bg-[#242424] active:scale-[0.98] transition-all focus-ring"
+            onClick={appleReady ? handleAppleSignIn : onApple}
+            disabled={!appleReady}
+            className="w-full h-12 rounded-[--radius-lg] bg-[#1a1a1a] border border-white/15 flex items-center justify-center gap-3 font-body text-sm font-semibold text-white hover:bg-[#242424] active:scale-[0.98] transition-all focus-ring disabled:opacity-50"
           >
             <AppleIcon />
             Continue with Apple

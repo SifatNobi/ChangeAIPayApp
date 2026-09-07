@@ -78,6 +78,21 @@ export default function BillingHistory({ onBack, onViewInvoice }: BillingHistory
         </div>
       </div>
 
+      {/* Restore Purchases */}
+      <div className="px-5 pb-3">
+        <button
+          onClick={() => { /* restore purchases logic */ }}
+          className="w-full h-10 rounded-[--radius-xl] font-body text-xs font-semibold text-text-2 flex items-center justify-center gap-2 transition-colors hover:bg-surface-hi active:scale-[0.98]"
+          style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.1)' }}
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M11.5 2A5.5 5.5 0 0 1 1.5 6v5l2 2h14l-1.5-2.5V6A5.5 5.5 0 0 1 11.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M9.5 6v.5a2 2 0 0 0 4 0V6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+          </svg>
+          Restore Purchases
+        </button>
+      </div>
+
       <div className="flex-1 overflow-y-auto px-5 pb-8 flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
         {filtered.map(entry => {
           const st = STATUS_CFG[entry.status]

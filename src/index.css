@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  /* Brand colours */
+  --color-bg: #050B2D;
+  --color-surface: #101C4D;
+  --color-surface-hi: #1a2760;
+  --color-primary: #0066FF;
+  --color-accent: #3FE7FF;
+  --color-text: #FFFFFF;
+  --color-text-2: #AFC5FF;
+  --color-text-muted: #6B84C4;
+  --color-success: #00D26A;
+  --color-warning: #F5B700;
+  --color-error: #FF4D5A;
+  --color-border: rgba(175, 197, 255, 0.12);
+  --color-stroke: rgba(63, 231, 255, 0.2);
+
+  /* Fonts */
+  --font-display: 'Hanken Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 32px;
+  --radius-full: 9999px;
+
+  /* Spacing additions */
+  --spacing-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+:root {
+  --gradient-primary: linear-gradient(135deg, #0066FF 0%, #3FE7FF 100%);
+  --gradient-surface: linear-gradient(180deg, #050B2D 0%, #101C4D 100%);
+  --gradient-legendary: linear-gradient(135deg, #F5B700 0%, #FFE29A 100%);
+  --gradient-popular: linear-gradient(135deg, #0066FF 0%, #3FE7FF 100%);
+  --blur-glass: blur(24px);
+  --blur-subtle: blur(8px);
+  --shadow-primary: 0 0 24px rgba(0, 102, 255, 0.28);
+  --shadow-accent: 0 0 20px rgba(63, 231, 255, 0.18);
+  --shadow-legendary: 0 0 28px rgba(245, 183, 0, 0.35);
+  --shadow-surface: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+}
+
+/* Scrollbar suppression — show thin bar only while scrolling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(175, 197, 255, 0.15) transparent;
+}
+*::-webkit-scrollbar { width: 3px; height: 3px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb {
+  background: rgba(175, 197, 255, 0.15);
+  border-radius: 99px;
+}
+
+html, body, #root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #08080F;
+  color: #FFFFFF;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ── CSS property registration for animated gradient borders ──── */
+@property --gradient-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* ── Pulse keyframes — protected signature motion ─────────────── */
+@keyframes pulse-draw {
+  0%   { stroke-dashoffset: 600; opacity: 1; }
+  70%  { stroke-dashoffset: 0;   opacity: 1; }
+  85%  { opacity: 1; }
+  100% { stroke-dashoffset: 0;   opacity: 0; }
+}
+@keyframes pulse-fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+@keyframes counter-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes success-burst {
+  0%   { transform: scale(0.6); opacity: 0; }
+  55%  { transform: scale(1.15); opacity: 1; }
+  75%  { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes error-shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+@keyframes gradient-rotate {
+  to { --gradient-angle: 360deg; }
+}
+@keyframes float-up {
+  0%   { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes dots-typing {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40%           { transform: translateY(-6px); opacity: 1; }
+}
+@keyframes ping {
+  75%, 100% { transform: scale(2); opacity: 0; }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes confetti-fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(60px) rotate(360deg); opacity: 0; }
+}
+@keyframes progress-bar {
+  from { width: 0%; }
+  to   { width: var(--progress-target, 75%); }
+}
+@keyframes slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes scale-in {
+  from { transform: scale(0.92); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+/* ── Utility animation classes ──────────────────────────────────── */
+.animate-pulse-draw   { animation: pulse-draw 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+.animate-shimmer      { background: linear-gradient(90deg, #101C4D 25%, #1a2760 50%, #101C4D 75%); background-size: 800px 100%; animation: shimmer 1.5s infinite; }
+.animate-success      { animation: success-burst 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+.animate-error-shake  { animation: error-shake 0.45s ease-out forwards; }
+.animate-counter      { animation: counter-up 0.35s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-float-up     { animation: float-up 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-slide-up     { animation: slide-up 0.35s cubic-bezier(0.4, 0, 0.2, 1) both; }
+.animate-fade-in      { animation: fade-in 0.25s ease both; }
+.animate-scale-in     { animation: scale-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.animate-spin-slow    { animation: spin-slow 1.2s linear infinite; }
+
+/* ── Glass surface ──────────────────────────────────────────────── */
+.glass {
+  background: rgba(16, 28, 77, 0.55);
+  backdrop-filter: var(--blur-glass);
+  -webkit-backdrop-filter: var(--blur-glass);
+  border: 1px solid rgba(175, 197, 255, 0.12);
+}
+
+/* ── Gradient text ──────────────────────────────────────────────── */
+.text-gradient-primary {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.text-gradient-legendary {
+  background: var(--gradient-legendary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Focus ring ─────────────────────────────────────────────────── */
+.focus-ring:focus-visible {
+  outline: 2px solid #3FE7FF;
+  outline-offset: 2px;
+}
+
+/* ── Global accessible focus — all interactive elements ─────────── */
+/* Remove default outline only when a visible replacement exists */
+:focus-visible {
+  outline: 2px solid rgba(63, 231, 255, 0.75);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Suppress focus ring for mouse/touch users (pointer-events path) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Minimum text contrast helpers ──────────────────────────────── */
+/* text-text-muted (#6B84C4 on #050B2D) is ~4.6:1 — passes AA */
+/* Caution: do not use opacity below 0.45 on rgba(175,197,255) text */
+
+/* ── Skip-to-content link (screen reader / keyboard nav) ─────────── */
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: 8px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: #0066FF;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 8px;
+}

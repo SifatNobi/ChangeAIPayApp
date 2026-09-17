@@ -12,6 +12,7 @@ interface MerchantPaymentsHubProps {
   onRecurringBilling?: () => void
   onDisputes?: () => void
   onBack?: () => void
+  onDemoPayment?: () => void
 }
 
 const METHODS: { id: PaymentMethod; label: string; sub: string; color: string; bg: string; icon: React.ReactNode }[] = [
@@ -108,6 +109,7 @@ export default function MerchantPaymentsHub({
   onRecurringBilling,
   onDisputes,
   onBack,
+  onDemoPayment,
 }: MerchantPaymentsHubProps) {
   const [activeNav, setActiveNav] = useState<MerchantNavItem>('payments')
 
@@ -226,6 +228,45 @@ export default function MerchantPaymentsHub({
           </div>
         </div>
       </div>
+
+      {/* DEMO entry point — isolated, removable */}
+      {onDemoPayment && (
+        <div className="px-5 pb-3 shrink-0">
+          <button
+            onClick={onDemoPayment}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[--radius-2xl] transition-all active:scale-[0.98] text-left"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,183,0,0.08) 0%, rgba(245,183,0,0.04) 100%)',
+              border: '1px solid rgba(245,183,0,0.3)',
+            }}
+          >
+            <div
+              className="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(245,183,0,0.12)', border: '1px solid rgba(245,183,0,0.25)' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="9" r="7.5" stroke="#F5B700" strokeWidth="1.2" />
+                <path d="M9 12.5V5.5M6 9l3 3 3-3" stroke="#F5B700" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-body text-sm font-bold text-text">Demo Payment</p>
+                <span
+                  className="px-1.5 py-0.5 rounded-full font-body text-[9px] font-bold uppercase tracking-wider shrink-0"
+                  style={{ background: 'rgba(245,183,0,0.15)', color: '#F5B700', border: '1px solid rgba(245,183,0,0.3)' }}
+                >
+                  TEST
+                </span>
+              </div>
+              <p className="font-body text-[10px] text-text-muted">Receive a $0.00-fee test payment · No real money</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 3l4 4-4 4" stroke="rgba(245,183,0,0.5)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       <MerchantBottomNav active={activeNav} onChange={handleNav} />
     </div>

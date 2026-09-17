@@ -194,6 +194,14 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
         <p className="font-body text-[10px] text-text-muted text-center leading-relaxed">
           Cancel anytime. No refunds for partial months unless required by law.
         </p>
+        <button
+          className="w-full h-10 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
+          onClick={() => {
+            /* Integration point: trigger RevenueCat/App Store restore entitlements */
+          }}
+        >
+          Restore Purchases
+        </button>
       </div>
     </div>
   )

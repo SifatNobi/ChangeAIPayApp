@@ -3,6 +3,7 @@ import { useState } from 'react'
 interface FileDisputeProps {
   onBack?: () => void
   onSubmit?: () => void
+  onConductComplaint?: () => void
 }
 
 const REASONS = [
@@ -14,8 +15,8 @@ const REASONS = [
   { id: 'other', label: 'Other', icon: '💬' },
 ]
 
-export default function FileDispute({ onBack, onSubmit }: FileDisputeProps) {
-  const [step, setStep] = useState(1)
+export default function FileDispute({ onBack, onSubmit, onConductComplaint }: FileDisputeProps) {
+  const [step, setStep] = useState(0)
   const [reason, setReason] = useState('')
   const [description, setDescription] = useState('')
   const [evidence, setEvidence] = useState<string | null>(null)
@@ -24,8 +25,10 @@ export default function FileDispute({ onBack, onSubmit }: FileDisputeProps) {
   const canProceedStep2 = description.trim().length >= 20
 
   const handleBack = () => {
-    if (step === 1) {
+    if (step === 0) {
       onBack?.()
+    } else if (step === 1) {
+      setStep(0)
     } else {
       setStep(s => s - 1)
     }
@@ -78,14 +81,14 @@ export default function FileDispute({ onBack, onSubmit }: FileDisputeProps) {
                 flex: 1,
                 height: 4,
                 borderRadius: 100,
-                background: s <= step ? 'linear-gradient(90deg, #0066FF, #3FE7FF)' : 'rgba(175,197,255,0.1)',
+                background: step > 0 && s <= step ? 'linear-gradient(90deg, #0066FF, #3FE7FF)' : 'rgba(175,197,255,0.1)',
                 transition: 'background 0.3s',
               }}
             />
           ))}
         </div>
         <p style={{ fontSize: 11, color: 'rgba(175,197,255,0.4)' }}>
-          Step {step} of 3 — {step === 1 ? 'Select Reason' : step === 2 ? 'Describe Issue' : 'Review & Submit'}
+          {step === 0 ? 'Choose complaint type' : `Step ${step} of 3 — ${step === 1 ? 'Select Reason' : step === 2 ? 'Describe Issue' : 'Review & Submit'}`}
         </p>
       </div>
 
@@ -101,6 +104,33 @@ export default function FileDispute({ onBack, onSubmit }: FileDisputeProps) {
           gap: 12,
         }}
       >
+        {/* Step 0: Complaint type */}
+        {step === 0 && (
+          <>
+            <p style={{ fontSize: 14, fontWeight: 600, color: 'rgba(175,197,255,0.6)', marginBottom: 4 }}>
+              What type of issue are you reporting?
+            </p>
+            {[
+              { id: 'payment', emoji: '💳', label: 'Payment Issue', sub: 'Unauthorized charge, wrong amount, item not received' },
+              { id: 'conduct', emoji: '🛡️', label: 'Conduct / Quality Issue', sub: 'Damaged currency, inappropriate behaviour, other conduct problems' },
+            ].map(opt => (
+              <button
+                key={opt.id}
+                onClick={() => { if (opt.id === 'conduct') { onConductComplaint?.() } else { setStep(1) } }}
+                style={{ display: 'flex', alignItems: 'flex-start', gap: 14, padding: '16px', borderRadius: 18, background: 'rgba(175,197,255,0.04)', border: '1.5px solid rgba(175,197,255,0.12)', cursor: 'pointer', textAlign: 'left', transition: 'border-color 0.15s' }}
+              >
+                <div style={{ fontSize: 24, lineHeight: 1, paddingTop: 2 }}>{opt.emoji}</div>
+                <div>
+                  <p style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{opt.label}</p>
+                  <p style={{ fontSize: 12, color: 'rgba(175,197,255,0.5)', lineHeight: 1.4 }}>{opt.sub}</p>
+                </div>
+                <svg style={{ marginLeft: 'auto', flexShrink: 0, alignSelf: 'center' }} width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M6 4l4 4-4 4" stroke="rgba(175,197,255,0.4)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            ))}
+          </>
+        )}
         {/* Step 1: Reason selection */}
         {step === 1 && (
           <>

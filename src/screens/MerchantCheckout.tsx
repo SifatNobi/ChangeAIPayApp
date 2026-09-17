@@ -322,6 +322,14 @@ export default function MerchantCheckout({
           style={{ background: `linear-gradient(135deg, ${tier.color}, ${tier.glowColor.replace('0.3', '0.8')})` }}>
           Confirm &amp; Subscribe
         </button>
+        <button
+          className="w-full h-10 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
+          onClick={() => {
+            /* Integration point: trigger RevenueCat/App Store restore entitlements */
+          }}
+        >
+          Restore Purchases
+        </button>
       </div>
     </div>
   )

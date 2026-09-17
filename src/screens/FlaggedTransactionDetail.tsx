@@ -28,6 +28,15 @@ const STATUS_COLORS: Record<string, string> = {
 
 export default function FlaggedTransactionDetail({ flagId, onBack, onApprove, onBlock }: FlaggedTransactionDetailProps) {
   const flag = FLAGS.find(f => f.id === flagId) ?? DEFAULT_FLAG
+
+  if (!flag) {
+    return (
+      <div className="flex flex-col items-center justify-center bg-bg" style={{ minHeight: 785 }}>
+        <p className="font-body text-sm text-text-muted">No flagged transaction selected.</p>
+        <button onClick={onBack} className="mt-4 font-body text-sm text-accent">Go back</button>
+      </div>
+    )
+  }
   const [actionTaken, setActionTaken] = useState<'approve' | 'block' | null>(null)
 
   const handleApprove = () => {

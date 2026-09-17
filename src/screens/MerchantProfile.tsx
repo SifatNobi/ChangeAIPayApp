@@ -71,6 +71,7 @@ interface MerchantProfileProps {
   onHelp?: () => void
   onSupport?: () => void
   onDeleteAccount?: () => void
+  onFreezeAccount?: () => void
   onLogout?: () => void
   onAinaChat?: () => void
   isEnterprise?: boolean
@@ -90,6 +91,7 @@ export default function MerchantProfile({
   onHelp,
   onSupport,
   onDeleteAccount,
+  onFreezeAccount,
   onLogout,
   onAinaChat,
   isEnterprise = false,
@@ -195,6 +197,7 @@ export default function MerchantProfile({
 
           <NavSection title="Account Actions" rows={[
             { label: 'Log out', onPress: () => onLogout?.(), danger: false },
+            { label: 'Freeze Business Account', onPress: () => onFreezeAccount?.(), danger: true },
             { label: 'Delete Business Account', onPress: () => onDeleteAccount?.(), danger: true },
           ]} />
         </div>

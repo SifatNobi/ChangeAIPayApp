@@ -22,7 +22,7 @@ interface FeatureRow {
 }
 
 const PLANS: PlanDef[] = [
-  { id: 'free',  name: 'Free',  price: '$0',     priceNote: 'forever',   color: 'rgba(175,197,255,0.5)', tagline: 'Essential banking' },
+  { id: 'free',  name: 'Free',  price: '$0',     priceNote: '/month',    color: 'rgba(175,197,255,0.5)', tagline: 'Essential banking' },
   { id: 'edge',  name: 'Edge',  price: '$24.99', priceNote: '/month',    color: '#3FE7FF',               tagline: 'Better limits' },
   { id: 'prime', name: 'Prime', price: '$39.99', priceNote: '/month',    color: '#0066FF',               tagline: 'Most popular' },
   { id: 'apex',  name: 'Apex',  price: '$64.99', priceNote: '/month',    color: '#F5B700',               tagline: 'Power users' },
@@ -30,12 +30,12 @@ const PLANS: PlanDef[] = [
 
 const FEATURES: FeatureRow[] = [
   // Transfers
-  { category: 'Transfers', label: 'Monthly limit',       free: '$400',     edge: '$1,500',   prime: '$10,000',  apex: 'Unlimited'  },
-  { category: 'Transfers', label: 'Daily limit',         free: '$400',     edge: '$750',     prime: '$2,500',   apex: 'Unlimited'  },
-  { category: 'Transfers', label: 'Zero domestic fees',  free: false,      edge: true,       prime: true,       apex: true         },
-  { category: 'Transfers', label: 'Zero FX fees',        free: false,      edge: false,      prime: true,       apex: true         },
-  { category: 'Transfers', label: 'International sends', free: '+1.75%',   edge: 'Free $1,500/mo · 0.95% over',   prime: '+0.5%',    apex: 'Free'       },
-  { category: 'Transfers', label: 'Instant transfers',   free: true,       edge: true,       prime: true,       apex: true         },
+  { category: 'Transfers', label: 'Monthly limit',            free: '$400 (Full Free)\n$100 (Free Lite)',  edge: '$1,500',   prime: '$10,000',  apex: '$50,000'    },
+  { category: 'Transfers', label: 'Daily limit',              free: '$400 (Full Free)',                    edge: '$750',     prime: '$2,500',   apex: '$10,000'    },
+  { category: 'Transfers', label: 'Zero domestic fees',       free: false,                                 edge: true,       prime: true,       apex: true         },
+  { category: 'Transfers', label: 'FX fee (0% allowance)',    free: '$0 allowance · 1.45% rate',           edge: '0% up to $1,500/mo · 0.95% after',  prime: '0% up to $3,000/mo · 0.72% after',  apex: '0% up to $6,000/mo · 0.58% after', note: 'None of these plans offer unlimited zero-rate FX — each has a monthly 0%-rate allowance, then the rate shown applies.' },
+  { category: 'Transfers', label: 'International sends',      free: 'FX rate: 1.45%',                      edge: '0% up to $1,500/mo\n0.95% thereafter',  prime: '0% up to $3,000/mo\n0.72% thereafter',  apex: '0% up to $6,000/mo\n0.58% thereafter' },
+  { category: 'Transfers', label: 'Instant transfers',        free: true,                                  edge: true,       prime: true,       apex: true         },
   // Crypto
   { category: 'Crypto',    label: 'Buy & sell crypto',   free: true,       edge: true,       prime: true,       apex: true         },
   { category: 'Crypto',    label: 'Crypto trading fee',  free: '1.5%',     edge: '1.0%',     prime: '0.5%',     apex: '0.25%'      },
@@ -69,7 +69,13 @@ function Cell({ val, color }: { val: string | boolean; color: string }) {
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="rgba(175,197,255,0.2)" strokeWidth="1.2" strokeLinecap="round" /></svg>
     </div>
   )
-  return <p className="font-body text-[10px] text-center leading-tight" style={{ color }}>{val}</p>
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      {String(val).split('\n').map((line, i) => (
+        <p key={i} className="font-body text-[9px] text-center leading-tight" style={{ color }}>{line}</p>
+      ))}
+    </div>
+  )
 }
 
 interface ComparePlansProps {

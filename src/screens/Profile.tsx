@@ -17,6 +17,7 @@ interface ProfileProps {
   onSupport?: () => void
   onLogout?: () => void
   onDeleteAccount?: () => void
+  onFreezeAccount?: () => void
   onBack?: () => void
 }
 
@@ -46,7 +47,7 @@ export default function Profile({
   kycStatus = 'complete',
   onPersonalInfo, onSecurity, onDevices, onNotifications, onLanguage,
   onAISettings, onSubscription, onStatements, onTaxDocuments,
-  onHelp, onSupport, onLogout, onDeleteAccount, onBack,
+  onHelp, onSupport, onLogout, onDeleteAccount, onFreezeAccount, onBack,
 }: ProfileProps) {
   const SECTIONS: Section[] = [
     {
@@ -89,6 +90,7 @@ export default function Profile({
       title: 'Session',
       items: [
         { id: 'logout', label: 'Log Out',                 icon: iconLogout(),                  danger: false, accent: 'rgba(175,197,255,0.5)' },
+        { id: 'freeze', label: 'Freeze My Account',       sub: 'Block all outgoing transfers',  icon: iconFreeze(),     danger: true },
         { id: 'delete', label: 'Delete Account',          sub: 'Permanent — cannot be undone', icon: iconTrash(),      danger: true },
       ],
     },
@@ -98,7 +100,7 @@ export default function Profile({
     personal: onPersonalInfo, security: onSecurity, devices: onDevices,
     notifs: onNotifications, language: onLanguage, ai: onAISettings,
     plan: onSubscription, statements: onStatements, tax: onTaxDocuments,
-    help: onHelp, support: onSupport, logout: onLogout, delete: onDeleteAccount,
+    help: onHelp, support: onSupport, logout: onLogout, freeze: onFreezeAccount, delete: onDeleteAccount,
   }
 
   return (
@@ -246,6 +248,9 @@ function iconChat() {
 }
 function iconLogout() {
   return <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 4.5L12 7l-3 2.5M12 7H5.5M7 2H3a.5.5 0 0 0-.5.5v9A.5.5 0 0 0 3 12h4" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" /></svg>
+}
+function iconFreeze() {
+  return <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v12M1 7h12M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" /></svg>
 }
 function iconTrash() {
   return <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 4h9M5 4V2.5h4V4M4 4l.5 7.5h5L10 4" stroke="currentColor" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" /></svg>

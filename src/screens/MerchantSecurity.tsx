@@ -69,9 +69,10 @@ function ToggleRow({ label, sub, on, onChange }: ToggleRowProps) {
 
 interface MerchantSecurityProps {
   onBack?: () => void
+  onFreezeAccount?: () => void
 }
 
-export default function MerchantSecurity({ onBack }: MerchantSecurityProps) {
+export default function MerchantSecurity({ onBack, onFreezeAccount }: MerchantSecurityProps) {
   const [activeTab, setActiveTab] = useState<SecurityTab>('security')
   const [biometric, setBiometric] = useState(true)
   const [twoFa, setTwoFa] = useState(true)
@@ -189,6 +190,29 @@ export default function MerchantSecurity({ onBack }: MerchantSecurityProps) {
               )}
             </div>
           </>
+        )}
+
+        {/* Emergency freeze */}
+        {activeTab === 'security' && (
+          <button
+            onClick={onFreezeAccount}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[--radius-xl] transition-all active:scale-[0.98]"
+            style={{ background: 'rgba(255,77,90,0.04)', border: '1px solid rgba(255,77,90,0.2)' }}
+          >
+            <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(255,77,90,0.1)', border: '1px solid rgba(255,77,90,0.25)' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M8 2v12M2 8h12M4 4l8 8M12 4l-8 8" stroke="#FF4D5A" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="flex-1 text-left">
+              <p className="font-body text-sm font-semibold" style={{ color: '#FF4D5A' }}>Freeze Business Account</p>
+              <p className="font-body text-[10px] text-text-muted">Block all outgoing payouts immediately</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 3l4 4-4 4" stroke="rgba(255,77,90,0.5)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         )}
 
         {/* Sessions tab */}

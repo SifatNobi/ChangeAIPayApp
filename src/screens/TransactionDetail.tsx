@@ -101,6 +101,7 @@ interface TransactionDetailProps {
   onRefund?: () => void
   onReport?: () => void
   onFileDispute?: () => void
+  onMistakenPayment?: () => void
   onBack?: () => void
 }
 
@@ -128,6 +129,7 @@ export default function TransactionDetail({
   onRefund,
   onReport,
   onFileDispute,
+  onMistakenPayment,
   onBack,
 }: TransactionDetailProps) {
   const s = STATUS_CONFIG[transaction.status]
@@ -289,6 +291,19 @@ export default function TransactionDetail({
                 <path d="M2 2v3h3" stroke="rgba(175,197,255,0.6)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
               Request Refund
+            </button>
+          )}
+          {transaction.type === 'sent' && transaction.status === 'completed' && (
+            <button
+              onClick={onMistakenPayment}
+              className="w-full h-10 font-body text-sm flex items-center justify-center gap-1.5 transition-colors"
+              style={{ color: 'rgba(245,183,0,0.8)' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1L1 11h10L6 1Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+                <path d="M6 4.5v2.5M6 8.5v.3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+              </svg>
+              Sent to the wrong person?
             </button>
           )}
           <button

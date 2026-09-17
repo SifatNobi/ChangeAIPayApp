@@ -138,9 +138,12 @@ function HealthChart({ d, peakIdx }: { d: PeriodData; peakIdx: number }) {
 interface BusinessHealthProps {
   onBack?: () => void
   onViewRevenue?: () => void
+  onViewRecap?: () => void
+  onViewHealthMeter?: () => void
+  businessHealthScore?: number | null
 }
 
-export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealthProps) {
+export default function BusinessHealth({ onBack, onViewRevenue, onViewRecap, onViewHealthMeter, businessHealthScore = null }: BusinessHealthProps) {
   const [period, setPeriod] = useState<Period>('Month')
   const d = DATA[period]
   const peakIdx = d.values.indexOf(Math.max(...d.values))
@@ -226,6 +229,46 @@ export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealth
           <HealthChart d={d} peakIdx={peakIdx} />
         </div>
 
+        {/* ── Business Health Score compact widget ── */}
+        <button
+          onClick={onViewHealthMeter}
+          className="w-full text-left rounded-[--radius-2xl] px-4 py-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform"
+          style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}
+        >
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(0,102,255,0.08)', border: '1px solid rgba(0,102,255,0.2)' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="9" cy="9" r="7" stroke="rgba(0,102,255,0.5)" strokeWidth="1.3" strokeDasharray="3 2" />
+              <path d="M5.5 9l2.5 2.5 4.5-5" stroke="#3FE7FF" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-body text-xs font-semibold text-white">Business Health Score</p>
+            {businessHealthScore === null || businessHealthScore === undefined ? (
+              <p className="font-body text-[11px] mt-0.5" style={{ color: 'rgba(175,197,255,0.4)' }}>
+                Not enough data yet · <span style={{ color: 'rgba(63,231,255,0.7)' }}>Tap to set up</span>
+              </p>
+            ) : (
+              <p className="font-body text-[11px] mt-0.5" style={{ color: 'rgba(175,197,255,0.5)' }}>
+                <span
+                  className="font-mono font-bold"
+                  style={{
+                    color: businessHealthScore >= 80 ? '#22C55E' : businessHealthScore >= 50 ? '#F5B700' : '#FF4D6A',
+                  }}
+                >
+                  {businessHealthScore}
+                </span>
+                {' '}· <span style={{ color: 'rgba(63,231,255,0.7)' }}>View breakdown</span>
+              </p>
+            )}
+          </div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="rgba(175,197,255,0.35)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
         {/* Key metrics — 4 items, 2×2 grid */}
         <div>
           <p className="font-body text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">Key Metrics</p>
@@ -265,6 +308,20 @@ export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealth
           </div>
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 4l4 4-4 4" stroke="rgba(175,197,255,0.4)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
+        {/* Monthly recap shortcut */}
+        <button
+          onClick={onViewRecap}
+          className="flex items-center justify-between w-full px-4 py-4 rounded-[--radius-xl] transition-all active:scale-[0.99]"
+          style={{ background: 'rgba(63,231,255,0.04)', border: '1px solid rgba(63,231,255,0.15)' }}>
+          <div>
+            <p className="font-body text-sm font-semibold text-text text-left">Monthly Recap</p>
+            <p className="font-body text-xs text-text-muted">Real revenue summary — shareable card</p>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4l4 4-4 4" stroke="rgba(63,231,255,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
 

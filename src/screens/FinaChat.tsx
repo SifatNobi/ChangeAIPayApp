@@ -19,13 +19,49 @@ const SUGGESTIONS = [
   "What's coming up?",
 ]
 
+interface LoggedAsset {
+  name: string
+  value: number
+  category: 'cash' | 'investment' | 'physical' | 'debt'
+}
+
+function detectAssets(text: string): LoggedAsset[] {
+  const results: LoggedAsset[] = []
+  const pattern = /(?:have|got|hold|own)\s+\$?([\d,]+(?:\.\d{1,2})?)\s*(?:k|K)?\s+(?:in\s+(?:my\s+)?)?([^,.]+)/gi
+  let m: RegExpExecArray | null
+  while ((m = pattern.exec(text)) !== null) {
+    const raw = m[1].replace(/,/g, '')
+    const multiplier = /k/i.test(m[0]) ? 1000 : 1
+    const value = parseFloat(raw) * multiplier
+    const desc = m[2].trim().toLowerCase()
+    const category: LoggedAsset['category'] =
+      /cash|check|saving|bank|wallet/.test(desc) ? 'cash' :
+      /stock|etf|fund|invest|bond|share/.test(desc) ? 'investment' :
+      /debt|loan|mortgage|credit/.test(desc) ? 'debt' : 'cash'
+    if (value > 0) results.push({ name: m[2].trim(), value, category })
+  }
+  return results
+}
+
 interface FinaChatProps {
   onBack?: () => void
   onHistory?: () => void
   onVoice?: () => void
+  onLogAsset?: (asset: LoggedAsset) => void
+  onInitiateSend?: (details: { recipientName: string; amount: string }) => void
 }
 
-export default function FinaChat({ onBack, onHistory, onVoice }: FinaChatProps) {
+function detectSendIntent(text: string): { recipientName: string; amount: string } | null {
+  const match = text.match(/send\s+\$?([\d,]+(?:\.\d{1,2})?)\s*(?:to\s+)?([A-Za-z][A-Za-z\s]{1,30}?)(?:\s|$|[.,!?])/i)
+    || text.match(/(?:pay|transfer)\s+([A-Za-z][A-Za-z\s]{1,30}?)\s+\$?([\d,]+(?:\.\d{1,2})?)/i)
+  if (!match) return null
+  const amount = match[1].replace(',', '')
+  const recipientName = match[2]?.trim() || match[1]?.trim()
+  if (!amount || !recipientName || isNaN(parseFloat(amount))) return null
+  return { recipientName, amount }
+}
+
+export default function FinaChat({ onBack, onHistory, onVoice, onLogAsset, onInitiateSend }: FinaChatProps) {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isThinking, setIsThinking] = useState(false)
@@ -49,10 +85,29 @@ export default function FinaChat({ onBack, onHistory, onVoice }: FinaChatProps) 
 
     setTimeout(() => {
       setIsThinking(false)
+      const sendIntent = detectSendIntent(trimmed)
+      const detected = detectAssets(trimmed)
+      let replyText = "Great question! Let me pull that up for you right now."
+      if (sendIntent && onInitiateSend) {
+        replyText = `I'll take you to the Send screen pre-filled with $${sendIntent.amount} to ${sendIntent.recipientName}. You'll need to confirm before anything is sent.`
+        const reply: Message = {
+          id: `f${Date.now()}`,
+          role: 'fina',
+          text: replyText,
+          time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        }
+        setMessages(prev => [...prev, reply])
+        setTimeout(() => onInitiateSend(sendIntent), 1200)
+        return
+      } else if (detected.length > 0) {
+        detected.forEach(a => onLogAsset?.(a))
+        const summary = detected.map(a => `${a.name} ($${a.value.toLocaleString()})`).join(', ')
+        replyText = `Got it — I've recorded ${summary} in your Net Worth overview. You can review and edit it there anytime. Anything else you'd like to log?`
+      }
       const reply: Message = {
         id: `f${Date.now()}`,
         role: 'fina',
-        text: "Great question! Let me pull that up for you right now.",
+        text: replyText,
         time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
       }
       setMessages(prev => [...prev, reply])

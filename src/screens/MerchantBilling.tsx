@@ -195,6 +195,15 @@ export default function MerchantBilling({ onBack, onChangePlan }: MerchantBillin
             Cancel before <span className="text-text font-semibold">{nextBilling}</span> to avoid the next charge. Without a subscription, the {currentTier.standardFee}% standard platform fee applies per transaction.
           </p>
         </div>
+
+        <button
+          className="w-full h-11 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent mt-2"
+          onClick={() => {
+            /* Integration point: trigger RevenueCat/App Store restore entitlements */
+          }}
+        >
+          Restore Purchases
+        </button>
       </div>
     </div>
   )

@@ -6,6 +6,7 @@ type View  = 'category' | 'merchant'
 interface SpendingInsightsProps {
   onBack?: () => void
   onOpenBudget?: () => void
+  onViewRecap?: () => void
 }
 
 // Chart helpers
@@ -52,7 +53,7 @@ const CATEGORIES: { label: string; amount: number; pct: number; color: string; p
 
 const MERCHANTS: { name: string; amount: number; visits: number; category: string; color: string; flag: boolean }[] = []
 
-export default function SpendingInsights({ onBack, onOpenBudget }: SpendingInsightsProps) {
+export default function SpendingInsights({ onBack, onOpenBudget, onViewRecap }: SpendingInsightsProps) {
   const [range, setRange] = useState<Range>('1M')
   const [view,  setView]  = useState<View>('category')
 
@@ -78,6 +79,11 @@ export default function SpendingInsights({ onBack, onOpenBudget }: SpendingInsig
           className="flex items-center gap-1.5 h-9 px-3 rounded-full font-body text-xs font-semibold hover:bg-surface-hi transition-all"
           style={{ border: '1px solid rgba(175,197,255,0.15)', color: '#AFC5FF' }}>
           Budget
+        </button>
+        <button onClick={onViewRecap}
+          className="flex items-center gap-1.5 h-9 px-3 rounded-full font-body text-xs font-semibold hover:bg-surface-hi transition-all"
+          style={{ border: '1px solid rgba(63,231,255,0.2)', color: '#3FE7FF' }}>
+          Recap
         </button>
       </div>
 

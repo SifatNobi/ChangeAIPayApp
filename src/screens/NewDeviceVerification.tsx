@@ -11,7 +11,7 @@ interface NewDeviceVerificationProps {
   onBack: () => void
 }
 
-type State = 'idle' | 'loading' | 'error' | 'success'
+type State = 'idle' | 'loading' | 'error'
 
 function DeviceIcon({ type }: { type: string }) {
   const isPhone = type.toLowerCase().includes('phone') || type.toLowerCase().includes('mobile')
@@ -48,6 +48,7 @@ export default function NewDeviceVerification({
 }: NewDeviceVerificationProps) {
   const [otp, setOtp] = useState('')
   const [state, setState] = useState<State>('idle')
+  const [verified, setVerified] = useState(false)
   const [otpError, setOtpError] = useState('')
 
   const now = new Date()
@@ -67,8 +68,34 @@ export default function NewDeviceVerification({
       setOtpError('Incorrect code. Check your email and try again.')
       return
     }
-    setState('success')
-    setTimeout(onConfirm, 800)
+    setVerified(true)
+    setTimeout(onConfirm, 2200)
+  }
+
+  if (verified) {
+    return (
+      <div className="flex flex-col items-center justify-center bg-bg px-5 animate-fade-in" style={{ minHeight: 785 }}>
+        <div className="relative flex items-center justify-center mb-8">
+          <div className="absolute w-32 h-32 rounded-full" style={{ background: 'rgba(34,197,94,0.04)', animation: 'ping 1.2s ease-out 0.1s infinite' }} />
+          <div className="absolute w-24 h-24 rounded-full" style={{ background: 'rgba(34,197,94,0.07)', animation: 'ping 1.2s ease-out 0.4s infinite' }} />
+          <div className="w-20 h-20 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(34,197,94,0.12)', border: '2px solid rgba(34,197,94,0.4)', boxShadow: '0 0 32px rgba(34,197,94,0.25)' }}>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <path d="M10 20l7 7 13-14" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
+        <h2 className="font-display text-2xl font-extrabold text-text text-center mb-2">Verified Successfully</h2>
+        <p className="font-body text-sm text-text-2 text-center mb-3">Your device has been verified.</p>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+          style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M5 1L1.5 2.5v3.2C1.5 7.7 2.9 9 5 9.5c2.1-.5 3.5-1.8 3.5-3.8V2.5L5 1Z" fill="rgba(34,197,94,0.3)" stroke="#22C55E" strokeWidth="0.8" />
+          </svg>
+          <p className="font-body text-[10px] font-semibold" style={{ color: '#22C55E' }}>Verified and secure</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -163,10 +190,10 @@ export default function NewDeviceVerification({
         <Button
           variant="primary" fullWidth
           loading={state === 'loading'}
-          disabled={otp.length < 6 || state === 'loading' || state === 'success'}
+          disabled={otp.length < 6 || state === 'loading' || verified}
           onClick={handleVerify}
         >
-          {state === 'success' ? "Verified ✓" : "This Was Me — Verify"}
+          {verified ? "Verified ✓" : "This Was Me — Verify"}
         </Button>
         <Button variant="danger" fullWidth onClick={onDeny}>
           This Was Not Me — Deny Access

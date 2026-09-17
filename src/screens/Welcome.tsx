@@ -78,39 +78,6 @@ function HeroIllustration() {
   )
 }
 
-/* ── Star rating ─────────────────────────────────────────────── */
-function StarRating({ rating = 4.9, count = '50k+' }: { rating?: number; count?: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-0.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg key={i} width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M7 1.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6L7 9.6l-3.2 1.7.6-3.6L2 5.3l3.6-.5L7 1.5Z"
-              fill={i < Math.floor(rating) ? '#F5B700' : 'rgba(245,183,0,0.25)'}
-            />
-          </svg>
-        ))}
-      </div>
-      <p className="font-mono text-xs text-text-2">
-        {rating} · {count} reviews
-      </p>
-    </div>
-  )
-}
-
-/* ── Product of month badge ──────────────────────────────────── */
-function ProductBadge() {
-  return (
-    <div className="flex items-center gap-2 px-3 h-7 rounded-full bg-warning/10 border border-warning/25">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M6 1l1.5 3h3l-2.5 2 1 3L6 7.5 3 9l1-3L1.5 4h3L6 1Z" fill="#F5B700" />
-      </svg>
-      <span className="font-body text-xs font-semibold text-warning">Product of the Month</span>
-    </div>
-  )
-}
-
 /* ── Fee comparison module ───────────────────────────────────── */
 const AMOUNTS = [100, 500, 1_000, 2_500, 5_000, 10_000]
 const TRADITIONAL_RATE = 0.0349  // ~3.49% avg (banks + remittance services)
@@ -293,12 +260,6 @@ export default function Welcome({ onGoogle, onApple, onEmail, onLogin }: Welcome
 
         {/* ── Hero ─────────────────────────────────────────────── */}
         <div className="mb-8">
-          {/* Social proof row — sits above the dominant headline */}
-          <div className="flex items-center justify-between mb-6">
-            <StarRating />
-            <ProductBadge />
-          </div>
-
           {/* Dominant headline — asymmetric, large focal element */}
           <div className="relative">
             {/* The focal element: "$0 fees" dominates */}
@@ -310,7 +271,7 @@ export default function Welcome({ onGoogle, onApple, onEmail, onLogin }: Welcome
               </h1>
             </div>
             <p className="font-body text-sm text-text-2 mt-4 max-w-[260px] leading-relaxed">
-              AI-powered payments, zero unnecessary costs. Send money anywhere on the planet — without paying for the privilege.
+              AI-powered payments, zero unnecessary costs. Send money anywhere on the planet without paying for the privilege.
             </p>
           </div>
 

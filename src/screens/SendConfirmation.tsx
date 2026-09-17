@@ -12,10 +12,14 @@ interface SendConfirmationProps {
   total?: string
   eta?: string
   note?: string
+  isFirstTimeRecipient?: boolean
+  isLargeAmount?: boolean
+  recipientKycVerified?: boolean
   onConfirm?: () => void
   onEditRecipient?: () => void
   onEditAmount?: () => void
   onBack?: () => void
+  onViewTrustProfile?: () => void
 }
 
 type AuthState = 'idle' | 'biometric' | 'pin' | 'success'
@@ -33,10 +37,14 @@ export default function SendConfirmation({
   total = '$50.00',
   eta = 'Instant',
   note = '',
+  isFirstTimeRecipient = false,
+  isLargeAmount = false,
+  recipientKycVerified = false,
   onConfirm,
   onEditRecipient,
   onEditAmount,
   onBack,
+  onViewTrustProfile,
 }: SendConfirmationProps) {
   const [authState, setAuthState] = useState<AuthState>('idle')
   const [pinDigits, setPinDigits] = useState<string[]>([])
@@ -152,6 +160,41 @@ export default function SendConfirmation({
           </p>
         </div>
       </div>
+
+      {/* First-time recipient caution nudge — non-blocking awareness moment */}
+      {isFirstTimeRecipient && isLargeAmount && authState === 'idle' && (
+        <div className="px-5 mb-3">
+          <div className="rounded-[--radius-xl] px-4 py-3.5 flex flex-col gap-2"
+            style={{ background: 'rgba(245,183,0,0.08)', border: '1px solid rgba(245,183,0,0.25)' }}>
+            <div className="flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M7 1L1 12h12L7 1Z" stroke="#F5B700" strokeWidth="1.2" strokeLinejoin="round" />
+                <line x1="7" y1="5.5" x2="7" y2="8" stroke="#F5B700" strokeWidth="1.2" strokeLinecap="round" />
+                <circle cx="7" cy="10" r="0.7" fill="#F5B700" />
+              </svg>
+              <p className="font-body text-xs font-semibold" style={{ color: '#F5B700' }}>First time sending to this person</p>
+            </div>
+            <p className="font-body text-[10px] text-text-muted leading-relaxed">
+              Take a moment to confirm you know {recipientName}. This payment cannot be automatically reversed once sent.
+            </p>
+            <div className="flex items-center gap-2 mt-0.5">
+              {recipientKycVerified ? (
+                <span className="flex items-center gap-1 font-body text-[10px] font-semibold" style={{ color: '#22C55E' }}>
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1L1.5 2.4v2.8C1.5 7.4 2.9 8.7 5 9c2.1-.3 3.5-1.6 3.5-3.8V2.4L5 1Z" fill="rgba(34,197,94,0.2)" stroke="#22C55E" strokeWidth="0.8" /></svg>
+                  Identity verified
+                </span>
+              ) : (
+                <span className="font-body text-[10px]" style={{ color: 'rgba(175,197,255,0.45)' }}>Identity not verified</span>
+              )}
+              {onViewTrustProfile && (
+                <button onClick={onViewTrustProfile} className="font-body text-[10px] font-semibold underline underline-offset-2 ml-auto" style={{ color: '#3FE7FF' }}>
+                  View trust profile
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirm button / auth inline */}
       <div className="px-5 pb-8">

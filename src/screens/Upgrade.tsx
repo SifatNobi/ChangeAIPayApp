@@ -11,8 +11,8 @@ interface PlanInfo {
 
 const PLANS: Record<PlanId, PlanInfo> = {
   edge:  { name: 'Edge',  price: 9.99,  color: '#3FE7FF', features: [{ label: '$1,500/mo limit', sub: 'vs $400 on Free' }, { label: 'Zero domestic fees', sub: 'Save ~$6/mo avg' }, { label: '10 savings goals', sub: 'vs 3 on Free' }] },
-  prime: { name: 'Prime', price: 39.99, color: '#0066FF', features: [{ label: '$10,000/mo limit', sub: 'vs $1,500 on Edge' }, { label: 'Zero FX fees', sub: 'Save avg $18/mo on FX' }, { label: 'Voice Mode + reports', sub: 'Weekly AI reports' }] },
-  apex:  { name: 'Apex',  price: 64.99, color: '#F5B700', features: [{ label: 'Unlimited transfers', sub: 'No caps, ever' }, { label: 'Dedicated support manager', sub: 'Direct line, priority queue' }, { label: 'Real-time AI reports', sub: 'Continuous monitoring' }] },
+  prime: { name: 'Prime', price: 39.99, color: '#0066FF', features: [{ label: '$10,000/mo limit', sub: 'vs $1,500 on Edge' }, { label: '0% FX up to $3,000/mo', sub: '0.72% rate thereafter' }, { label: 'Voice Mode + reports', sub: 'Weekly AI reports' }] },
+  apex:  { name: 'Apex',  price: 64.99, color: '#F5B700', features: [{ label: '$50,000/mo limit', sub: '$10,000 daily limit' }, { label: '0% FX up to $6,000/mo', sub: '0.58% rate thereafter' }, { label: 'Real-time AI reports', sub: 'Continuous monitoring' }] },
 }
 
 interface UpgradeProps {

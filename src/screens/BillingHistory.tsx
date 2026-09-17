@@ -98,6 +98,16 @@ export default function BillingHistory({ onBack, onViewInvoice }: BillingHistory
           )
         })}
       </div>
+      <div className="px-5 pb-6 pt-2" style={{ borderTop: '1px solid rgba(175,197,255,0.08)' }}>
+        <button
+          className="w-full h-11 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
+          onClick={() => {
+            /* Integration point: trigger RevenueCat/App Store restore entitlements */
+          }}
+        >
+          Restore Purchases
+        </button>
+      </div>
     </div>
   )
 }

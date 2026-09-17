@@ -41,20 +41,109 @@ const STATUS_ORDER: BadgeStatus[] = ['earned', 'inProgress', 'locked']
 interface AchievementBadgesProps {
   onBack?: () => void
   onViewCircle?: () => void
+  activeConnections?: number
+  completedGoals?: number
+  autoSaveMonths?: number
+  budgetMonths?: number
+  activeGoals?: number
+  insightReviews?: number
+  savingStreakDays?: number
+  paidDebts?: number
 }
 
-export default function AchievementBadges({ onBack, onViewCircle }: AchievementBadgesProps) {
+function computeBadges(props: AchievementBadgesProps): Badge[] {
+  const {
+    activeConnections = 0,
+    completedGoals = 0,
+    autoSaveMonths = 0,
+    budgetMonths = 0,
+    activeGoals = 0,
+    insightReviews = 0,
+    savingStreakDays = 0,
+    paidDebts = 0,
+  } = props
+
+  return BADGES.map(b => {
+    let status: BadgeStatus = 'locked'
+    let progress: number | undefined
+    let progressMax: number | undefined
+
+    switch (b.id) {
+      case 'w1':
+        status = completedGoals >= 1 ? 'earned' : 'locked'
+        break
+      case 'w2':
+        if (savingStreakDays >= 30) status = 'earned'
+        else if (savingStreakDays > 0) { status = 'inProgress'; progress = savingStreakDays; progressMax = 30 }
+        break
+      case 'w3':
+        if (budgetMonths >= 1) status = 'earned'
+        else if (budgetMonths > 0) { status = 'inProgress'; progress = budgetMonths; progressMax = 1 }
+        break
+      case 'w4':
+        if (autoSaveMonths >= 3) status = 'earned'
+        else if (autoSaveMonths > 0) { status = 'inProgress'; progress = autoSaveMonths; progressMax = 3 }
+        break
+      case 'w5':
+        if (activeGoals >= 3) status = 'earned'
+        else if (activeGoals > 0) { status = 'inProgress'; progress = activeGoals; progressMax = 3 }
+        break
+      case 'w6':
+        if (insightReviews >= 5) status = 'earned'
+        else if (insightReviews > 0) { status = 'inProgress'; progress = insightReviews; progressMax = 5 }
+        break
+      case 'w7':
+        if (savingStreakDays >= 90) status = 'earned'
+        else if (savingStreakDays > 0) { status = 'inProgress'; progress = savingStreakDays; progressMax = 90 }
+        break
+      case 'w8':
+        status = paidDebts >= 1 ? 'earned' : 'locked'
+        break
+      case 'c1':
+        status = activeConnections >= 1 ? 'earned' : 'locked'
+        break
+      case 'c2':
+        if (activeConnections >= 3) status = 'earned'
+        else if (activeConnections >= 1) { status = 'inProgress'; progress = activeConnections; progressMax = 3 }
+        break
+      case 'c3':
+        if (activeConnections >= 5) status = 'earned'
+        else if (activeConnections >= 1) { status = 'inProgress'; progress = activeConnections; progressMax = 5 }
+        break
+      case 'c4':
+        if (activeConnections >= 10) status = 'earned'
+        else if (activeConnections >= 1) { status = 'inProgress'; progress = activeConnections; progressMax = 10 }
+        break
+      case 'c5':
+        if (activeConnections >= 25) status = 'earned'
+        else if (activeConnections >= 1) { status = 'inProgress'; progress = activeConnections; progressMax = 25 }
+        break
+      case 'c6':
+        if (activeConnections >= 50) status = 'earned'
+        else if (activeConnections >= 1) { status = 'inProgress'; progress = activeConnections; progressMax = 50 }
+        break
+    }
+
+    return { ...b, status, progress, progressMax }
+  })
+}
+
+export default function AchievementBadges(props: AchievementBadgesProps) {
+  const { onBack, onViewCircle } = props
   const [filter, setFilter] = useState<BadgeSystem | 'all'>('all')
   const [selected, setSelected] = useState<Badge | null>(null)
 
-  const visible = BADGES
+  const badges = computeBadges(props)
+
+  const visible = badges
     .filter(b => filter === 'all' || b.system === filter)
     .sort((a, b) => STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status))
 
-  const earned    = BADGES.filter(b => b.status === 'earned').length
-  const total     = BADGES.length
-  const earnedWellness = BADGES.filter(b => b.system === 'wellness' && b.status === 'earned').length
-  const earnedCircle   = BADGES.filter(b => b.system === 'circle'  && b.status === 'earned').length
+
+  const earned    = badges.filter(b => b.status === 'earned').length
+  const total     = badges.length
+  const earnedWellness = badges.filter(b => b.system === 'wellness' && b.status === 'earned').length
+  const earnedCircle   = badges.filter(b => b.system === 'circle'  && b.status === 'earned').length
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
@@ -75,8 +164,8 @@ export default function AchievementBadges({ onBack, onViewCircle }: AchievementB
       <div className="flex gap-2.5 px-5 pb-3 shrink-0">
         {[
           { id: 'all',      label: `All (${earned}/${total})`,                      color: '#3FE7FF' },
-          { id: 'wellness', label: `Wellness (${earnedWellness}/${BADGES.filter(b => b.system === 'wellness').length})`, color: '#22C55E' },
-          { id: 'circle',   label: `Circle (${earnedCircle}/${BADGES.filter(b => b.system === 'circle').length})`,   color: '#F5B700' },
+          { id: 'wellness', label: `Wellness (${earnedWellness}/${badges.filter(b => b.system === 'wellness').length})`, color: '#22C55E' },
+          { id: 'circle',   label: `Circle (${earnedCircle}/${badges.filter(b => b.system === 'circle').length})`,   color: '#F5B700' },
         ].map(f => (
           <button key={f.id} onClick={() => setFilter(f.id as typeof filter)}
             className="h-8 px-3 rounded-full font-body text-[10px] font-semibold transition-all shrink-0"

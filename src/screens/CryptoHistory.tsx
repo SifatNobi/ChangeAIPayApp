@@ -20,15 +20,7 @@ interface CryptoTx {
   status: 'completed' | 'pending' | 'failed'
 }
 
-const CRYPTO_TX: CryptoTx[] = [
-  { id: 'cx1',  kind: 'buy',      symbol: 'BTC', name: 'Bitcoin',  color: '#F7931A', amountCrypto: 0.001602, amountUSD: 100.00, date: 'Aug 31, 2026', time: '10:42 AM', dateGroup: 'Today',    status: 'completed' },
-  { id: 'cx2',  kind: 'sell',     symbol: 'ETH', name: 'Ethereum', color: '#627EEA', amountCrypto: 0.15,    amountUSD: 492.30, date: 'Aug 31, 2026', time: '09:05 AM', dateGroup: 'Today',    status: 'completed' },
-  { id: 'cx3',  kind: 'buy',      symbol: 'SOL', name: 'Solana',   color: '#9945FF', amountCrypto: 2.0,     amountUSD: 295.60, date: 'Aug 30, 2026', time: '03:22 PM', dateGroup: 'Yesterday',status: 'completed' },
-  { id: 'cx4',  kind: 'deposit',  symbol: 'BTC', name: 'Bitcoin',  color: '#F7931A', amountCrypto: 0.005,   amountUSD: 312.05, date: 'Aug 29, 2026', time: '11:10 AM', dateGroup: 'Aug 29',   status: 'pending'   },
-  { id: 'cx5',  kind: 'buy',      symbol: 'ETH', name: 'Ethereum', color: '#627EEA', amountCrypto: 0.30,    amountUSD: 984.60, date: 'Aug 27, 2026', time: '02:15 PM', dateGroup: 'Aug 27',   status: 'completed' },
-  { id: 'cx6',  kind: 'withdraw', symbol: 'SOL', name: 'Solana',   color: '#9945FF', amountCrypto: 1.5,     amountUSD: 221.70, date: 'Aug 25, 2026', time: '07:42 PM', dateGroup: 'Aug 25',   status: 'completed' },
-  { id: 'cx7',  kind: 'sell',     symbol: 'BTC', name: 'Bitcoin',  color: '#F7931A', amountCrypto: 0.008,   amountUSD: 499.28, date: 'Aug 22, 2026', time: '01:55 PM', dateGroup: 'Aug 22',   status: 'failed'    },
-]
+const CRYPTO_TX: CryptoTx[] = []
 
 const KIND_CONFIG: Record<TxKind, { label: string; labelColor: string; sign: string; signColor: string; icon: React.ReactNode }> = {
   buy:      { label: 'Buy',      labelColor: '#3FE7FF', sign: '-', signColor: 'rgba(175,197,255,0.7)', icon: <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 11l9-9M11 2H5M11 2v6" stroke="#3FE7FF" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg> },

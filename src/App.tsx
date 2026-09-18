@@ -1,7 +1,12 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { type Transaction } from '@/data/transactions'
-
-import { ReEngagementProvider } from './components/ReEngagementProvider'
+import { trackEvent } from '@/lib/analytics'
+import {
+  initPurchases,
+  getCustomerInfo,
+  hasProAccess,
+  subscribeToCustomerInfo,
+} from '@/lib/purchases'
 
 import PhoneFrame from './components/PhoneFrame'
 import Splash from './screens/Splash'
@@ -13,6 +18,7 @@ import Welcome from './screens/Welcome'
 import Permissions from './screens/Permissions'
 import AccountType from './screens/AccountType'
 import CreateAccount from './screens/CreateAccount'
+import UnderageGate from './screens/UnderageGate'
 import OTPVerification from './screens/OTPVerification'
 import AccountCreated from './screens/AccountCreated'
 import SetPIN from './screens/SetPIN'
@@ -61,6 +67,8 @@ import ContactPicker from './screens/ContactPicker'
 import SendAmount from './screens/SendAmount'
 import SendConfirmation from './screens/SendConfirmation'
 import SendSuccess from './screens/SendSuccess'
+import DemoPaymentSuccess from './screens/DemoPaymentSuccess'
+import DemoMerchantPaymentSuccess from './screens/DemoMerchantPaymentSuccess'
 import SendFailed from './screens/SendFailed'
 import SendPending from './screens/SendPending'
 import Receive from './screens/Receive'
@@ -121,6 +129,8 @@ import SavedResponses from './screens/SavedResponses'
 import AIMemory from './screens/AIMemory'
 import AIPrivacy from './screens/AIPrivacy'
 import VoiceMode from './screens/VoiceMode'
+import AinaVoiceMode from './screens/AinaVoiceMode'
+import SystemUpdate from './screens/SystemUpdate'
 import FinancialReport from './screens/FinancialReport'
 import SuggestedBudget from './screens/SuggestedBudget'
 import SpendingInsights from './screens/SpendingInsights'
@@ -247,16 +257,69 @@ import LightVaultComingSoon from './screens/LightVaultComingSoon'
 import RealCostConsumer from './screens/RealCostConsumer'
 import RealCostMerchant from './screens/RealCostMerchant'
 import RemittanceCost from './screens/RemittanceCost'
-import NanoReceive from './screens/NanoReceive'
-import NanoSend from './screens/NanoSend'
-import NanoExportKey from './screens/NanoExportKey'
-import NanoTransparency from './screens/NanoTransparency'
-import QuickActionToolbar from './components/QuickActionToolbar'
+import PayBillsHub, { type Biller } from './screens/PayBillsHub'
+import PayBillsAccount from './screens/PayBillsAccount'
+import PayBillsAmount from './screens/PayBillsAmount'
+import PayBillsConfirmation from './screens/PayBillsConfirmation'
+import ReceiveNano from './screens/ReceiveNano'
+import SendNanoExternal from './screens/SendNanoExternal'
+import ExportNanoWallet from './screens/ExportNanoWallet'
+import NanoNetworkTransparency from './screens/NanoNetworkTransparency'
+import IntentCapture, { type UserIntent } from './screens/IntentCapture'
+import InstDashboard from './screens/inst/InstDashboard'
+import InstOverview from './screens/inst/InstOverview'
+import InstTradeDetail from './screens/inst/InstTradeDetail'
+import InstMonitor from './screens/inst/InstMonitor'
+import InstExceptions from './screens/inst/InstExceptions'
+import InstHistory from './screens/inst/InstHistory'
+import InstCounterparty from './screens/inst/InstCounterparty'
+import InstRisk from './screens/inst/InstRisk'
+import InstTimeline from './screens/inst/InstTimeline'
+import InstConfirmation from './screens/inst/InstConfirmation'
+import PaymentLinksHub from './screens/PaymentLinksHub'
+import CreatePaymentLink from './screens/CreatePaymentLink'
+import PaymentLinkDetail from './screens/PaymentLinkDetail'
+import PayoutSettings from './screens/PayoutSettings'
+import RiskFraudCenter from './screens/RiskFraudCenter'
+import FlaggedTransactionDetail from './screens/FlaggedTransactionDetail'
+import FileDispute from './screens/FileDispute'
+import RespondToDispute from './screens/RespondToDispute'
+import DisputeStatus from './screens/DisputeStatus'
+import DeveloperSettings from './screens/DeveloperSettings'
+import MerchantStatements from './screens/MerchantStatements'
+import RecurringBillingHub from './screens/RecurringBillingHub'
+import CreateBillingPlan from './screens/CreateBillingPlan'
+import BillingPlanDetail from './screens/BillingPlanDetail'
+import MyCapSubscriptions from './screens/MyCapSubscriptions'
+import BusinessEntitiesHub from './screens/BusinessEntitiesHub'
+import CreateBusinessEntity from './screens/CreateBusinessEntity'
+import NetWorthOverview from './screens/NetWorthOverview'
+import AddManualAsset from './screens/AddManualAsset'
+import FinancialCalendar from './screens/FinancialCalendar'
+import DocumentVault from './screens/DocumentVault'
+import AITokenUsage from './screens/AITokenUsage'
+import BuyTokens from './screens/BuyTokens'
+import CreateAccountBusiness from './screens/CreateAccountBusiness'
+import MonthlyRecapCard from './screens/MonthlyRecapCard'
+import BusinessMonthlyRecap from './screens/BusinessMonthlyRecap'
+import ConductComplaint from './screens/ConductComplaint'
+import ConductDisputeResponse from './screens/ConductDisputeResponse'
+import MistakenPaymentRequest from './screens/MistakenPaymentRequest'
+import TrustProfile from './screens/TrustProfile'
+import TransactionHoldExplained from './screens/TransactionHoldExplained'
+import FreezeAccount from './screens/FreezeAccount'
+import FreezeMerchantAccount from './screens/FreezeMerchantAccount'
+import ReceiptScanner from './screens/ReceiptScanner'
+import ReceiptReview from './screens/ReceiptReview'
+import ReceiptDashboard from './screens/ReceiptDashboard'
+import ReceiptDetail from './screens/ReceiptDetail'
+import FinancialHealthMeter from './screens/FinancialHealthMeter'
+import BusinessHealthMeter from './screens/BusinessHealthMeter'
 
 type Screen =
   | 'splash' | 'welcome'
   | 'appUpdate' | 'maintenance' | 'noInternet' | 'serverError'
-  | 'permissions' | 'accountType' | 'createAccount'
+  | 'permissions' | 'accountType' | 'intentCapture' | 'createAccount' | 'underageGate'
   | 'otpVerification' | 'accountCreated'
   | 'setPIN' | 'enableBiometrics' | 'enable2FA'
   | 'login' | 'forgotPassword' | 'resetPassword' | 'passwordResetSuccess'
@@ -271,6 +334,7 @@ type Screen =
   | 'quickActions' | 'dashboardCustomization' | 'refreshState'
   | 'paymentsHub' | 'sendMethod' | 'contactPicker' | 'sendAmount'
   | 'sendConfirmation' | 'sendSuccess' | 'sendFailed' | 'sendPending' | 'receive'
+  | 'demoSendConfirmation' | 'demoSendSuccess' | 'demoMerchantConfirmation' | 'demoMerchantSuccess'
   | 'qrHub' | 'scanQR' | 'invalidQR' | 'expiredQR'
   | 'splitPayment' | 'splitSuccess' | 'paymentNote'
   | 'refundRequest' | 'refundResult'
@@ -305,7 +369,13 @@ type Screen =
   | 'invoice' | 'merchantQR' | 'payout'
   | 'merchantTransactionHistory' | 'businessHealth' | 'revenueOverview'
   | 'customerInsights' | 'cashFlow'
-  | 'ainaChat' | 'revenueReport' | 'businessInsights'
+  | 'ainaChat' | 'ainaVoiceMode' | 'revenueReport' | 'businessInsights' | 'systemUpdate'
+  | 'paymentLinksHub' | 'createPaymentLink' | 'paymentLinkDetail'
+  | 'payoutSettings' | 'riskFraudCenter' | 'flaggedTransactionDetail'
+  | 'fileDispute' | 'respondToDispute' | 'disputeStatus'
+  | 'developerSettings' | 'merchantStatements'
+  | 'recurringBillingHub' | 'createBillingPlan' | 'billingPlanDetail'
+  | 'myCapSubscriptions'
   | 'merchantProfile' | 'teamMembers' | 'roles'
   | 'merchantSecurity' | 'merchantSettings'
   | 'merchantDeleteAccount' | 'merchantDeleteConfirmation' | 'merchantLogout'
@@ -323,10 +393,24 @@ type Screen =
   | 'appReviewRequest' | 'rateApp'
   | 'lightCardComingSoon' | 'lightVaultComingSoon'
   | 'realCostConsumer' | 'realCostMerchant' | 'remittanceCost'
-  | 'nanoReceive' | 'nanoSend' | 'nanoExportKey' | 'nanoTransparency'
+  | 'payBillsHub' | 'payBillsAccount' | 'payBillsAmount' | 'payBillsConfirmation'
+  | 'receiveNano' | 'sendNanoExternal' | 'exportNanoWallet' | 'nanoNetworkTransparency'
   | 'languageSelection' | 'currencySelection' | 'regionalSettings' | 'timeZone'
   | 'emptyTransactions' | 'emptyNotifications' | 'emptyGoals' | 'emptyAI' | 'emptyFeatures'
   | 'noSearchResults' | 'genericError' | 'notFound' | 'retryLoading' | 'somethingWentWrong'
+  | 'instDashboard' | 'instOverview' | 'instTradeDetail' | 'instMonitor' | 'instExceptions'
+  | 'instHistory' | 'instCounterparty' | 'instRisk' | 'instTimeline' | 'instConfirmation'
+  | 'businessEntitiesHub' | 'createBusinessEntity'
+  | 'netWorthOverview' | 'addManualAsset'
+  | 'financialCalendar' | 'documentVault'
+  | 'aiTokenUsage' | 'buyTokens'
+  | 'createAccountBusiness'
+  | 'monthlyRecapCard' | 'businessMonthlyRecap'
+  | 'conductComplaint' | 'conductDisputeResponse'
+  | 'mistakenPaymentRequest' | 'trustProfile' | 'transactionHoldExplained'
+  | 'freezeAccount' | 'freezeMerchantAccount'
+  | 'receiptScanner' | 'receiptReview' | 'receiptDashboard' | 'receiptDetail'
+  | 'financialHealthMeter' | 'businessHealthMeter'
 
 const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'splash',               label: '01 Splash',               group: 'System' },
@@ -433,6 +517,7 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'aiMemory',            label: '114 AI Memory',            group: 'App' },
   { id: 'aiPrivacy',           label: '115 AI Privacy',           group: 'App' },
   { id: 'voiceMode',           label: '116 Voice Mode',           group: 'App' },
+  { id: 'systemUpdate',        label: '116b System Update',       group: 'App' },
   { id: 'financialReport',     label: '117 Financial Report',     group: 'App' },
   { id: 'suggestedBudget',     label: '118 Suggested Budget',     group: 'App' },
   { id: 'spendingInsights',    label: '119 Spending Insights',    group: 'App' },
@@ -495,6 +580,7 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'customerInsights',    label: '176 Customer Insights',    group: 'Merchant' },
   { id: 'cashFlow',            label: '177 Cash Flow',            group: 'Merchant' },
   { id: 'ainaChat',           label: '178 Aina Chat',            group: 'Merchant' },
+  { id: 'ainaVoiceMode',      label: '178b Aina Voice Mode',     group: 'Merchant' },
   { id: 'revenueReport',      label: '179 Revenue Report',       group: 'Merchant' },
   { id: 'businessInsights',   label: '180 Business Insights',    group: 'Merchant' },
   { id: 'merchantProfile',    label: '181 Merchant Profile',     group: 'Merchant' },
@@ -502,6 +588,21 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'roles',              label: '183 Roles',                group: 'Merchant' },
   { id: 'merchantSecurity',   label: '184 Merchant Security',    group: 'Merchant' },
   { id: 'merchantSettings',   label: '185 Merchant Settings',    group: 'Merchant' },
+  { id: 'paymentLinksHub',      label: '186a Payment Links Hub',   group: 'Merchant' },
+  { id: 'createPaymentLink',    label: '186b Create Payment Link', group: 'Merchant' },
+  { id: 'paymentLinkDetail',    label: '186c Payment Link Detail', group: 'Merchant' },
+  { id: 'payoutSettings',       label: '186d Payout Settings',     group: 'Merchant' },
+  { id: 'riskFraudCenter',      label: '186e Risk & Fraud Center', group: 'Merchant' },
+  { id: 'flaggedTransactionDetail', label: '186f Flagged Tx Detail', group: 'Merchant' },
+  { id: 'respondToDispute',     label: '186g Respond to Dispute',  group: 'Merchant' },
+  { id: 'developerSettings',    label: '186h Developer Settings',  group: 'Merchant' },
+  { id: 'merchantStatements',   label: '186i Merchant Statements', group: 'Merchant' },
+  { id: 'recurringBillingHub',  label: '186j Recurring Billing',   group: 'Merchant' },
+  { id: 'createBillingPlan',    label: '186k Create Billing Plan', group: 'Merchant' },
+  { id: 'billingPlanDetail',    label: '186l Billing Plan Detail', group: 'Merchant' },
+  { id: 'fileDispute',          label: '186m File Dispute',        group: 'App' },
+  { id: 'disputeStatus',        label: '186n Dispute Status',      group: 'App' },
+  { id: 'myCapSubscriptions',   label: '186o My Subscriptions',    group: 'App' },
   { id: 'merchantDeleteAccount', label: '186 Delete Account',    group: 'Merchant' },
   { id: 'merchantDeleteConfirmation', label: '187 Delete Confirm', group: 'Merchant' },
   { id: 'merchantLogout',     label: '188 Merchant Logout',      group: 'Merchant' },
@@ -512,6 +613,16 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'merchantDowngrade',  label: '193 Downgrade',            group: 'Merchant' },
   { id: 'merchantBilling',    label: '194 Billing',              group: 'Merchant' },
   { id: 'enterpriseContact',  label: '195 Enterprise Contact',   group: 'Merchant' },
+  { id: 'instDashboard',      label: 'Inst Dashboard',           group: 'Enterprise' },
+  { id: 'instOverview',       label: 'Inst Overview',            group: 'Enterprise' },
+  { id: 'instTradeDetail',    label: 'Inst Trade Detail',        group: 'Enterprise' },
+  { id: 'instMonitor',        label: 'Inst Monitor',             group: 'Enterprise' },
+  { id: 'instExceptions',     label: 'Inst Exceptions',          group: 'Enterprise' },
+  { id: 'instHistory',        label: 'Inst History',             group: 'Enterprise' },
+  { id: 'instCounterparty',   label: 'Inst Counterparty',        group: 'Enterprise' },
+  { id: 'instRisk',           label: 'Inst Risk & AI',           group: 'Enterprise' },
+  { id: 'instTimeline',       label: 'Inst Timeline',            group: 'Enterprise' },
+  { id: 'instConfirmation',   label: 'Inst Confirmation',        group: 'Enterprise' },
   { id: 'universalBroadcast', label: '204 Universal Broadcast',  group: 'System' },
   { id: 'updateDetail',       label: '205 Update Detail',        group: 'System' },
   { id: 'promotionalCampaign', label: '206 Promotional Campaign', group: 'System' },
@@ -544,10 +655,14 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'realCostConsumer',        label: '247 Real Cost Consumer',   group: 'Onboarding' },
   { id: 'realCostMerchant',        label: '248 Real Cost Merchant',   group: 'Onboarding' },
   { id: 'remittanceCost',          label: '249 Remittance Cost',      group: 'Onboarding' },
-  { id: 'nanoReceive',             label: '250 Nano Receive',         group: 'App' },
-  { id: 'nanoSend',                label: '251 Nano Send',            group: 'App' },
-  { id: 'nanoExportKey',           label: '252 Nano Export Key',      group: 'App' },
-  { id: 'nanoTransparency',        label: '253 Nano Transparency',    group: 'App' },
+  { id: 'payBillsHub',             label: 'Pay Bills Hub',            group: 'App' },
+  { id: 'payBillsAccount',         label: 'Pay Bills Account',        group: 'App' },
+  { id: 'payBillsAmount',          label: 'Pay Bills Amount',         group: 'App' },
+  { id: 'payBillsConfirmation',    label: 'Pay Bills Confirm',        group: 'App' },
+  { id: 'receiveNano',             label: '250 Receive NANO',         group: 'App' },
+  { id: 'sendNanoExternal',        label: '251 Send NANO External',   group: 'App' },
+  { id: 'exportNanoWallet',        label: '252 Export Nano Wallet',   group: 'App' },
+  { id: 'nanoNetworkTransparency', label: '253 Nano Transparency',    group: 'App' },
   { id: 'languageSelection',  label: '233 Language Selection',   group: 'System' },
   { id: 'currencySelection',  label: '234 Currency Selection',   group: 'System' },
   { id: 'regionalSettings',   label: '235 Regional Settings',    group: 'System' },
@@ -564,6 +679,7 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'somethingWentWrong', label: '232 Something Went Wrong', group: 'System' },
   { id: 'permissions',          label: '07 Permissions',          group: 'Onboarding' },
   { id: 'accountType',          label: '08 Account Type',         group: 'Onboarding' },
+  { id: 'intentCapture',        label: '08b Intent Capture',      group: 'Onboarding' },
   { id: 'createAccount',        label: '09 Create Account',       group: 'Onboarding' },
   { id: 'otpVerification',      label: '10 OTP Verify',           group: 'Onboarding' },
   { id: 'accountCreated',       label: '11 Account Created',      group: 'Onboarding' },
@@ -574,6 +690,35 @@ const NAV_ITEMS: { id: Screen; label: string; group: string }[] = [
   { id: 'forgotPassword',       label: '16 Forgot Password',      group: 'Auth' },
   { id: 'resetPassword',        label: '17 Reset Password',       group: 'Auth' },
   { id: 'passwordResetSuccess', label: '18 Reset Success',        group: 'Auth' },
+  { id: 'createAccountBusiness', label: 'Create Acct Currency/Tax', group: 'Onboarding' },
+  { id: 'businessEntitiesHub',  label: 'Business Entities Hub',  group: 'App' },
+  { id: 'createBusinessEntity', label: 'Create Business Entity',  group: 'App' },
+  { id: 'netWorthOverview',     label: 'Net Worth Overview',      group: 'App' },
+  { id: 'addManualAsset',       label: 'Add Manual Asset',        group: 'App' },
+  { id: 'financialCalendar',    label: 'Financial Calendar',      group: 'App' },
+  { id: 'documentVault',        label: 'Document Vault',          group: 'App' },
+  { id: 'aiTokenUsage',         label: 'AI Token Usage',          group: 'App' },
+  { id: 'buyTokens',            label: 'Buy AI Tokens',           group: 'App' },
+  { id: 'monthlyRecapCard',     label: 'Monthly Recap Card',      group: 'App' },
+  { id: 'businessMonthlyRecap', label: 'Business Monthly Recap',  group: 'Merchant' },
+  { id: 'conductComplaint',        label: 'Conduct Complaint',        group: 'App' },
+  { id: 'conductDisputeResponse',  label: 'Conduct Dispute Response', group: 'App' },
+  { id: 'mistakenPaymentRequest',  label: 'Mistaken Payment Request', group: 'App' },
+  { id: 'trustProfile',            label: 'Trust Profile',            group: 'App' },
+  { id: 'transactionHoldExplained', label: 'Transaction Hold Explained', group: 'App' },
+  { id: 'freezeAccount',           label: 'Freeze Account',             group: 'App' },
+  { id: 'freezeMerchantAccount',   label: 'Freeze Business Account',    group: 'Merchant' },
+  { id: 'receiptScanner',          label: 'Receipt Scanner',            group: 'App' },
+  { id: 'receiptReview',           label: 'Receipt Review',             group: 'App' },
+  { id: 'receiptDashboard',        label: 'Receipt Dashboard',          group: 'App' },
+  { id: 'receiptDetail',           label: 'Receipt Detail',             group: 'App' },
+  // DEMO FLOWS — isolated, removable
+  { id: 'demoSendConfirmation',    label: '★ Demo: Consumer Review',    group: 'App' },
+  { id: 'demoSendSuccess',         label: '★ Demo: Consumer Success',   group: 'App' },
+  { id: 'demoMerchantConfirmation',label: '★ Demo: Merchant Review',    group: 'App' },
+  { id: 'demoMerchantSuccess',     label: '★ Demo: Merchant Success',   group: 'App' },
+  { id: 'financialHealthMeter',    label: 'Financial Health Meter',     group: 'App' },
+  { id: 'businessHealthMeter',     label: 'Business Health Meter',      group: 'Merchant' },
 ]
 
 const GROUPS = ['App', 'Merchant', 'System', 'Session', 'KYC', 'Onboarding', 'Security', 'Auth']
@@ -582,6 +727,8 @@ export default function App() {
   const [current, setCurrent] = useState<Screen>('splash')
   const [showNav, setShowNav] = useState(false)
   const [accountType, setAccountType] = useState<'personal' | 'business'>('personal')
+  const [userIntent, setUserIntent] = useState<UserIntent | null>(null)
+  const [sendMethodBack, setSendMethodBack] = useState<Screen>('paymentsHub')
   const [userData, setUserData] = useState({ name: 'Maya Patel', email: 'maya@example.com', phone: '' })
   const [kycPersonal, setKycPersonal] = useState<PersonalData | null>(null)
   const [kycIDSel, setKycIDSel] = useState<IDSelectionData | null>(null)
@@ -593,58 +740,27 @@ export default function App() {
   const [sellConfirmOrder, setSellConfirmOrder] = useState<SellConfirmationOrder | null>(null)
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null)
   const [recommendedPlan, setRecommendedPlan] = useState<'prime' | 'apex'>('prime')
+  const [premiumActive, setPremiumActive] = useState(false)
   const [kybBusinessData, setKybBusinessData] = useState<BusinessDetailsData | null>(null)
   const [kybAddressData, setKybAddressData] = useState<KYBAddressData | null>(null)
   const [kybStakeholders, setKybStakeholders] = useState<Stakeholder[] | null>(null)
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null)
-  const [selectedMerchantTier, setSelectedMerchantTier] = useState<TierName>('Scale')
-
-  // Payment flow state - SINGLE SOURCE OF TRUTH for transaction data
-  const [selectedContact, setSelectedContact] = useState<{ id: string; name: string; handle: string; initials: string; color: string; verified: boolean } | null>(null)
-  const [paymentTransaction, setPaymentTransaction] = useState({ amount: '', currency: 'USD', note: '', fee: 'Free', total: '' })
-  const [splitPaymentData, setSplitPaymentData] = useState<{ total: string; participants: { id: string; name: string; initials: string; color: string; handle: string; customAmount?: string; customPct?: string }[]; method: 'equal' | 'custom' | 'percentage' }>({ total: '', participants: [], method: 'equal' })
-  const [refundData, setRefundData] = useState({ transactionAmount: '' })
-  
-  // Banking flow state
-  const [bankingData, setBankingData] = useState({ amount: '', bankId: '', speed: '', operation: 'add' as 'add' | 'withdraw' })
-  
-  // Crypto withdrawal state
-  const [cryptoWithdrawData, setCryptoWithdrawData] = useState({ amount: '', address: '' })
-
-  // Goal state
-  const [goalData, setGoalData] = useState({ name: '', emoji: '🏠', targetAmount: 0, recurringAmount: 0, fundingMethod: 'manual' })
-
-  // Subscription checkout state
-  const [subscriptionCheckoutData, setSubscriptionCheckoutData] = useState({ plan: 'prime' as 'edge' | 'prime' | 'apex', cycle: 'monthly' as 'monthly' | 'annual', price: 39.99 })
+  const [selectedMerchantTier, setSelectedMerchantTier] = useState<TierName>('Enterprise')
+  const [instTradeId, setInstTradeId] = useState<string | undefined>(undefined)
+  const [instCpId, setInstCpId] = useState<string | undefined>(undefined)
+  const [selectedLinkId, setSelectedLinkId] = useState<string | undefined>(undefined)
+  const [selectedFlagId, setSelectedFlagId] = useState<string | undefined>(undefined)
+  const [selectedPlanId, setSelectedPlanId] = useState<string | undefined>(undefined)
+  const [sendFlow, setSendFlow] = useState<{ amount: string; currency: string; note: string }>({ amount: '0.00', currency: 'USD', note: '' })
+  // DEMO flow state — isolated, removable with demo cases below
+  const [demoAmount, setDemoAmount] = useState('25.00')
+  const [billFlow, setBillFlow] = useState<{ biller: Biller | null; accountNumber: string; amount: string }>({ biller: null, accountNumber: '', amount: '0.00' })
+  const [splitTotal, setSplitTotal] = useState<string>('120.00')
 
   const go = useCallback((screen: Screen) => {
     setCurrent(screen)
     setShowNav(false)
   }, [])
-
-  // Helper to get current consumer nav active item from screen
-  const getConsumerNav = useCallback((): string => {
-    if (current === 'home') return 'home'
-    if (current === 'paymentsHub' || current === 'sendMethod' || current === 'contactPicker' || current === 'sendAmount' || current === 'sendConfirmation' || current === 'sendSuccess' || current === 'sendFailed' || current === 'sendPending' || current === 'receive' || current === 'qrHub' || current === 'scanQR' || current === 'invalidQR' || current === 'expiredQR' || current === 'splitPayment' || current === 'splitSuccess' || current === 'paymentNote' || current === 'refundRequest' || current === 'refundResult') return 'payments'
-    if (current === 'subscriptionPlans' || current === 'comparePlans' || current === 'checkout' || current === 'upgrade' || current === 'downgrade' || current === 'billingHistory' || current === 'invoiceDownload' || current === 'statements' || current === 'taxDocuments') return 'subscription'
-    if (current === 'finaChat' || current === 'chatHistory' || current === 'savedResponses' || current === 'aiMemory' || current === 'aiPrivacy' || current === 'voiceMode' || current === 'financialReport' || current === 'suggestedBudget' || current === 'spendingInsights' || current === 'subscriptionReview' || current === 'goalPlanner' || current === 'aiSettings') return 'ai'
-    if (current === 'feedback' || current === 'contactSupport') return 'requests'
-    if (current === 'transactionHistory' || current === 'transactionDetail' || current === 'receipt' || current === 'shareReceipt' || current === 'export' || current === 'transactionSearch' || current === 'filters' || current === 'recurring' || current === 'scheduled' || current === 'cancelScheduled') return 'history'
-    if (current === 'profile' || current === 'personalInformation' || current === 'security' || current === 'devices' || current === 'notificationPreferences' || current === 'language' || current === 'inviteFriends' || current === 'changeCircle' || current === 'circleMomentum' || current === 'milestoneUnlocks' || current === 'milestoneReveal' || current === 'changeVault' || current === 'milestoneSurprise' || current === 'referralTerms' || current === 'changeImpactSummary' || current === 'leaderboard' || current === 'savingsLeaderboard' || current === 'monthlyRankings' || current === 'achievementBadges' || current === 'communityChallenges' || current === 'savingsMilestones' || current === 'supportDevelopment' || current === 'deleteAccount' || current === 'deleteConfirmation' || current === 'logoutConfirm') return 'profile'
-    return 'home'
-  }, [current])
-
-  // Helper to get current merchant nav active item from screen
-  const getMerchantNav = useCallback((): string => {
-    if (current === 'merchantHome') return 'home'
-    if (current === 'merchantPaymentsHub' || current === 'invoice' || current === 'merchantQR' || current === 'payout') return 'payments'
-    if (current === 'merchantPlans' || current === 'merchantComparePlans' || current === 'merchantCheckout' || current === 'merchantUpgrade' || current === 'merchantDowngrade' || current === 'merchantBilling' || current === 'enterpriseContact') return 'plans'
-    if (current === 'ainaChat') return 'ai'
-    if (current === 'businessHealth' || current === 'revenueOverview' || current === 'customerInsights' || current === 'cashFlow' || current === 'revenueReport' || current === 'businessInsights') return 'insights'
-    if (current === 'feedback') return 'requests'
-    if (current === 'merchantProfile' || current === 'teamMembers' || current === 'roles' || current === 'merchantSecurity' || current === 'merchantSettings' || current === 'merchantDeleteAccount' || current === 'merchantDeleteConfirmation' || current === 'merchantLogout') return 'profile'
-    return 'home'
-  }, [current])
 
   const consumerNav = useCallback((tab: string) => {
     if (tab === 'home') go('home')
@@ -660,11 +776,30 @@ export default function App() {
     if (item === 'home') go('merchantHome')
     else if (item === 'payments') go('merchantPaymentsHub')
     else if (item === 'ai') go('ainaChat')
-    else if (item === 'insights') go('businessHealth')
     else if (item === 'plans') go('merchantPlans')
     else if (item === 'requests') go('feedback')
+    else if (item === 'insights') go('businessHealth')
     else if (item === 'profile') go('merchantProfile')
   }, [go])
+
+  // RevenueCat: configure on startup (native Android only), restore/refresh entitlements,
+  // and keep the Premium unlock in sync with RevenueCat CustomerInfo.
+  useEffect(() => {
+    let mounted = true
+    let unsubscribe: (() => void) | null = null
+    ;(async () => {
+      if (!(await initPurchases())) return
+      const info = await getCustomerInfo()
+      if (mounted && info) setPremiumActive(hasProAccess(info))
+      unsubscribe = await subscribeToCustomerInfo(ci => {
+        if (mounted) setPremiumActive(hasProAccess(ci))
+      })
+    })().catch(() => {})
+    return () => {
+      mounted = false
+      unsubscribe?.()
+    }
+  }, [])
 
   const renderScreen = () => {
     switch (current) {
@@ -725,15 +860,8 @@ export default function App() {
         return (
           <RealCostConsumer
             onContinue={() => go('remittanceCost')}
-            onBack={() => go('accountType')}
-          />
-        )
-
-      case 'realCostMerchant':
-        return (
-          <RealCostMerchant
-            onContinue={() => go('kybIntro')}
-            onBack={() => go('accountType')}
+            onSkip={() => go('createAccount')}
+            onBack={() => go('intentCapture')}
           />
         )
 
@@ -741,38 +869,33 @@ export default function App() {
         return (
           <RemittanceCost
             onContinue={() => go('createAccount')}
+            onSkip={() => go('createAccount')}
             onBack={() => go('realCostConsumer')}
           />
         )
 
-      case 'nanoReceive':
+      case 'receiveNano':
         return (
-          <NanoReceive
+          <ReceiveNano
             onBack={() => go('walletDetail')}
-            onDone={() => go('walletDetail')}
           />
         )
 
-      case 'nanoSend':
+      case 'sendNanoExternal':
         return (
-          <NanoSend
+          <SendNanoExternal
             onBack={() => go('walletDetail')}
-            onSuccess={() => go('walletDetail')}
+            onDone={() => go('walletDetail')}
             onScanQR={() => go('scanQR')}
           />
         )
 
-      case 'nanoExportKey':
+      case 'realCostMerchant':
         return (
-          <NanoExportKey
-            onBack={() => go('security')}
-          />
-        )
-
-      case 'nanoTransparency':
-        return (
-          <NanoTransparency
-            onBack={() => go('security')}
+          <RealCostMerchant
+            onContinue={() => go('createAccount')}
+            onSkip={() => go('createAccount')}
+            onBack={() => go('intentCapture')}
           />
         )
 
@@ -781,10 +904,26 @@ export default function App() {
           <AccountType
             onSelect={type => {
               setAccountType(type)
-              if (type === 'business') go('realCostMerchant')
-              else go('realCostConsumer')
+              go('intentCapture')
             }}
             onBack={() => go('welcome')}
+          />
+        )
+
+      case 'intentCapture':
+        return (
+          <IntentCapture
+            onSelect={intent => {
+              setUserIntent(intent)
+              trackEvent('intent_captured', { intent })
+              if (accountType === 'business') go('realCostMerchant')
+              else go('realCostConsumer')
+            }}
+            onSkip={() => {
+              if (accountType === 'business') go('realCostMerchant')
+              else go('realCostConsumer')
+            }}
+            onBack={() => go('accountType')}
           />
         )
 
@@ -793,10 +932,14 @@ export default function App() {
           <CreateAccount
             accountType={accountType}
             onSubmit={data => { setUserData(d => ({ ...d, ...data })); go('otpVerification') }}
+            onUnderage={() => go('underageGate')}
             onBack={() => go('accountType')}
             onLogin={() => go('login')}
           />
         )
+
+      case 'underageGate':
+        return <UnderageGate onBack={() => go('createAccount')} />
 
       case 'otpVerification':
         return (
@@ -808,6 +951,7 @@ export default function App() {
         )
 
       case 'accountCreated':
+        trackEvent('account_created', { accountType })
         return (
           <AccountCreated
             name={userData.name}
@@ -837,8 +981,8 @@ export default function App() {
       case 'enable2FA':
         return (
           <Enable2FA
-            onEnable={() => go('login')}
-            onSkip={() => go('login')}
+            onEnable={() => go('home')}
+            onSkip={() => go('home')}
             onBack={() => go('enableBiometrics')}
           />
         )
@@ -850,8 +994,6 @@ export default function App() {
             onForgotPassword={() => go('forgotPassword')}
             onSignUp={() => go('permissions')}
             biometricEnabled={false}
-            onGoogle={() => go('accountType')}
-            onApple={() => go('accountType')}
           />
         )
 
@@ -1063,16 +1205,20 @@ export default function App() {
           />
         )
 
-      case 'home':
+      case 'home': {
+        let hiddenWidgets = new Set<string>()
+        try {
+          const stored = localStorage.getItem('cap_hidden_widgets')
+          if (stored) hiddenWidgets = new Set(JSON.parse(stored) as string[])
+        } catch { /* ignore */ }
         return (
           <Home
             userName={userData.name}
             accountType={accountType}
             kycStatus="complete"
-            plan="free"
-            currentNav={getConsumerNav()}
+            plan={premiumActive ? 'prime' : 'free'}
             onNavigate={consumerNav}
-            onSend={() => go('sendMethod')}
+            onSend={() => { setSendMethodBack('home'); go('sendMethod') }}
             onRequest={() => go('receive')}
             onAddMoney={() => go('addMoney')}
             onScan={() => go('scanQR')}
@@ -1081,8 +1227,10 @@ export default function App() {
             onVerify={() => go('verificationGate')}
             onUpgrade={(rec) => { if (rec) setRecommendedPlan(rec); go('comparePlans') }}
             onWalletDetail={() => go('walletDetail')}
+            hiddenWidgets={hiddenWidgets}
           />
         )
+      }
 
       case 'walletDetail':
         return (
@@ -1093,8 +1241,8 @@ export default function App() {
             onAddMoney={() => go('addMoney')}
             onWithdraw={() => go('withdraw')}
             onNotifications={() => go('notifications')}
-            onNanoReceive={() => go('nanoReceive')}
-            onNanoSend={() => go('nanoSend')}
+            onReceiveNano={() => go('receiveNano')}
+            onSendNano={() => go('sendNanoExternal')}
           />
         )
 
@@ -1176,9 +1324,8 @@ export default function App() {
         return (
           <SubscriptionPlans
             accountType={accountType}
-            currentPlan="free"
+            currentPlan={premiumActive ? 'prime' : 'free'}
             kycComplete={false}
-            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onBack={() => go('home')}
             onNotifications={() => go('notifications')}
@@ -1211,7 +1358,6 @@ export default function App() {
         return (
           <AISuggestionsWidget
             accountType={accountType}
-            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onBack={() => go('home')}
             onNotifications={() => go('notifications')}
@@ -1226,11 +1372,11 @@ export default function App() {
             onNavigate={consumerNav}
             onBack={() => go('home')}
             onNotifications={() => go('notifications')}
-            onSend={() => go('verificationGate')}
-            onRequest={() => go('verificationGate')}
-            onAddMoney={() => go('walletDetail')}
+            onSend={() => { setSendMethodBack('home'); go('sendMethod') }}
+            onRequest={() => go('receive')}
+            onAddMoney={() => go('addMoney')}
             onScan={() => go('scanQR')}
-            onPayBills={() => go('paymentsHub')}
+            onPayBills={() => go('payBillsHub')}
             onSplitBill={() => go('splitPayment')}
           />
         )
@@ -1261,14 +1407,15 @@ export default function App() {
         return (
           <PaymentsHub
             accountType={accountType}
-            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onNotifications={() => go('notifications')}
-            onSend={() => go('sendMethod')}
+            onSend={() => { setSendMethodBack('paymentsHub'); go('sendMethod') }}
             onRequest={() => go('receive')}
-            onAddMoney={() => go('walletDetail')}
+            onAddMoney={() => go('addMoney')}
             onSplitBill={() => go('splitPayment')}
-            onPayBills={() => go('paymentsHub')}
+            onPayBills={() => go('payBillsHub')}
+            onMySubscriptions={() => go('myCapSubscriptions')}
+            onDemoPayment={() => go('demoSendConfirmation')}
           />
         )
 
@@ -1280,17 +1427,14 @@ export default function App() {
             onEmail={() => go('contactPicker')}
             onBankDomestic={() => go('contactPicker')}
             onBankInternational={() => go('contactPicker')}
-            onBack={() => go('paymentsHub')}
+            onBack={() => go(sendMethodBack)}
           />
         )
 
       case 'contactPicker':
         return (
           <ContactPicker
-            onSelect={(contact) => {
-              setSelectedContact(contact)
-              go('sendAmount')
-            }}
+            onSelect={() => go('sendAmount')}
             onBack={() => go('sendMethod')}
             onAddNew={() => {}}
           />
@@ -1299,90 +1443,174 @@ export default function App() {
       case 'sendAmount':
         return (
           <SendAmount
-            recipientName={selectedContact?.name}
-            recipientHandle={selectedContact?.handle}
-            recipientInitials={selectedContact?.initials}
-            recipientColor={selectedContact?.color}
-            onContinue={(amount, currency, note) => {
-              // Calculate fee and total based on actual amount
-              const numAmount = parseFloat(amount.replace(/,/g, '')) || 0
-              const feeRate = currency !== 'USD' ? 0.0175 : 0
-              const fee = feeRate * numAmount
-              const total = numAmount + fee
-              const currencySymbol = currency === 'USD' ? '$' : currency === 'GBP' ? '£' : '€'
-              
-              setPaymentTransaction({
-                amount,
-                currency,
-                note,
-                fee: fee > 0 ? `${fee.toFixed(2)}` : 'Free',
-                total: `${currencySymbol}${total.toFixed(2)}`,
-              })
-              go('sendConfirmation')
-            }}
+            onContinue={(amount, currency, note) => { setSendFlow({ amount, currency, note }); go('sendConfirmation') }}
             onBack={() => go('contactPicker')}
             onLimitReached={() => go('transactionLimitReached')}
           />
         )
 
-      case 'sendConfirmation':
+      case 'payBillsHub':
+        return (
+          <PayBillsHub
+            onBack={() => go('home')}
+            onSelectBiller={biller => {
+              setBillFlow(f => ({ ...f, biller }))
+              go('payBillsAccount')
+            }}
+          />
+        )
+
+      case 'payBillsAccount':
+        return (
+          <PayBillsAccount
+            biller={billFlow.biller ?? undefined}
+            onBack={() => go('payBillsHub')}
+            onContinue={accountNumber => {
+              setBillFlow(f => ({ ...f, accountNumber }))
+              go('payBillsAmount')
+            }}
+          />
+        )
+
+      case 'payBillsAmount':
+        return (
+          <PayBillsAmount
+            biller={billFlow.biller ?? undefined}
+            accountNumber={billFlow.accountNumber}
+            onBack={() => go('payBillsAccount')}
+            onContinue={amount => {
+              setBillFlow(f => ({ ...f, amount }))
+              go('payBillsConfirmation')
+            }}
+          />
+        )
+
+      case 'payBillsConfirmation':
+        return (
+          <PayBillsConfirmation
+            biller={billFlow.biller ?? undefined}
+            accountNumber={billFlow.accountNumber}
+            amount={billFlow.amount}
+            onBack={() => go('payBillsAmount')}
+            onConfirm={() => go('sendSuccess')}
+          />
+        )
+
+      case 'sendConfirmation': {
+        const sfFee = 'Free'
+        const sfTotal = `${sendFlow.currency === 'GBP' ? '£' : sendFlow.currency === 'EUR' ? '€' : '$'}${sendFlow.amount}`
         return (
           <SendConfirmation
-            recipientName={selectedContact?.name}
-            recipientHandle={selectedContact?.handle}
-            recipientInitials={selectedContact?.initials}
-            recipientColor={selectedContact?.color}
-            amount={paymentTransaction.amount}
-            currency={paymentTransaction.currency}
-            fee={paymentTransaction.fee}
-            total={paymentTransaction.total}
-            note={paymentTransaction.note}
+            amount={sendFlow.amount}
+            currency={sendFlow.currency}
+            fee={sfFee}
+            total={sfTotal}
             onConfirm={() => go('sendSuccess')}
             onBack={() => go('sendAmount')}
             onEditRecipient={() => go('contactPicker')}
             onEditAmount={() => go('sendAmount')}
+            onViewTrustProfile={() => go('trustProfile')}
           />
         )
+      }
 
       case 'sendSuccess':
+        trackEvent('first_send_success', { amount: sendFlow.amount, currency: sendFlow.currency })
         return (
           <SendSuccess
-            recipientName={selectedContact?.name}
-            recipientHandle={selectedContact?.handle}
-            recipientInitials={selectedContact?.initials}
-            recipientColor={selectedContact?.color}
-            amount={paymentTransaction.amount}
-            currency={paymentTransaction.currency}
-            fee={paymentTransaction.fee}
+            amount={sendFlow.amount}
+            currency={sendFlow.currency}
+            fee="Free"
             onDone={() => go('paymentsHub')}
             onShareReceipt={() => go('shareReceipt')}
             onAddFavorite={() => {}}
           />
         )
 
-      case 'sendFailed':
+      // ── DEMO FLOWS (isolated, removable) ──────────────────────────────
+      // No trackEvent, no real payment, no blockchain call.
+      // Consumer flow: paymentsHub → demoSendConfirmation → demoSendSuccess → paymentsHub
+      case 'demoSendConfirmation':
+        return (
+          <SendConfirmation
+            recipientName="Demo Merchant"
+            recipientHandle="@demo-merchant"
+            recipientInitials="DM"
+            recipientColor="#F5B700"
+            amount={demoAmount}
+            currency="USD"
+            fee="$0.00"
+            total={`$${demoAmount}`}
+            onConfirm={() => go('demoSendSuccess')}
+            onBack={() => go('paymentsHub')}
+            onEditRecipient={() => {}}
+            onEditAmount={() => {}}
+          />
+        )
+      case 'demoSendSuccess':
+        return (
+          <DemoPaymentSuccess
+            recipientName="Demo Merchant"
+            amount={demoAmount}
+            currency="USD"
+            onDone={() => go('paymentsHub')}
+          />
+        )
+      // Merchant flow: merchantPaymentsHub → demoMerchantConfirmation → demoMerchantSuccess → merchantPaymentsHub
+      case 'demoMerchantConfirmation':
+        return (
+          <SendConfirmation
+            recipientName="Demo Customer"
+            recipientHandle="@demo-customer"
+            recipientInitials="DC"
+            recipientColor="#F5B700"
+            amount={demoAmount}
+            currency="USD"
+            fee="$0.00"
+            total={`$${demoAmount}`}
+            onConfirm={() => go('demoMerchantSuccess')}
+            onBack={() => go('merchantPaymentsHub')}
+            onEditRecipient={() => {}}
+            onEditAmount={() => {}}
+          />
+        )
+      case 'demoMerchantSuccess':
+        return (
+          <DemoMerchantPaymentSuccess
+            customerName="Demo Customer"
+            amount={demoAmount}
+            currency="USD"
+            businessName={kybBusinessData?.legalName ?? 'Your Business'}
+            onDone={() => go('merchantPaymentsHub')}
+          />
+        )
+      // ── END DEMO FLOWS ────────────────────────────────────────────────
+
+      case 'sendFailed': {
+        const sym = sendFlow.currency === 'GBP' ? '£' : sendFlow.currency === 'EUR' ? '€' : '$'
         return (
           <SendFailed
+            amount={`${sym}${sendFlow.amount}`}
             reason="network_error"
-            amount={paymentTransaction.amount}
-            recipientName={selectedContact?.name}
             onRetry={() => go('sendConfirmation')}
             onSupport={() => go('support')}
             onCancel={() => go('paymentsHub')}
           />
         )
+      }
 
-      case 'sendPending':
+      case 'sendPending': {
+        const sym = sendFlow.currency === 'GBP' ? '£' : sendFlow.currency === 'EUR' ? '€' : '$'
         return (
           <SendPending
+            amount={`${sym}${sendFlow.amount}`}
+            currency={sendFlow.currency}
             reason="bank_settlement"
-            recipientName={selectedContact?.name}
-            amount={paymentTransaction.amount}
-            currency={paymentTransaction.currency}
             onViewReceipt={() => go('receipt')}
             onDone={() => go('paymentsHub')}
           />
         )
+      }
 
       case 'receive':
         return (
@@ -1436,10 +1664,7 @@ export default function App() {
       case 'splitPayment':
         return (
           <SplitPayment
-            onSendRequests={(total, participants, method) => {
-              setSplitPaymentData({ total, participants, method })
-              go('splitSuccess')
-            }}
+            onSendRequests={(total) => { setSplitTotal(total); go('splitSuccess') }}
             onBack={() => go('paymentsHub')}
             onAddContact={() => go('contactPicker')}
           />
@@ -1448,15 +1673,7 @@ export default function App() {
       case 'splitSuccess':
         return (
           <SplitSuccess
-            total={splitPaymentData.total}
-            entries={splitPaymentData.participants.map(p => ({
-              name: p.name,
-              initials: p.initials,
-              color: p.color,
-              handle: p.handle,
-              amount: (parseFloat(splitPaymentData.total) / splitPaymentData.participants.length).toFixed(2),
-              status: 'sent' as const,
-            }))}
+            total={splitTotal}
             onShare={() => {}}
             onDone={() => go('paymentsHub')}
           />
@@ -1473,7 +1690,6 @@ export default function App() {
       case 'refundRequest':
         return (
           <RefundRequest
-            transactionAmount={refundData.transactionAmount}
             onSubmit={() => go('refundResult')}
             onBack={() => go('home')}
           />
@@ -1483,7 +1699,8 @@ export default function App() {
         return (
           <RefundResult
             outcome="approved"
-            refundAmount={refundData.transactionAmount}
+            refundAmount={selectedTx ? selectedTx.amount.replace(/^[£€$]/, '') : '24.50'}
+            merchantName={selectedTx?.merchant ?? 'Coffee & Co'}
             onDone={() => go('home')}
             onAppeal={() => go('refundRequest')}
             onSupport={() => go('support')}
@@ -1537,6 +1754,7 @@ export default function App() {
         )
 
       case 'linkedSuccess':
+        trackEvent('first_bank_linked')
         return (
           <LinkedSuccess
             onViewDetail={() => go('linkedBankDetail')}
@@ -1557,10 +1775,7 @@ export default function App() {
       case 'addMoney':
         return (
           <AddMoney
-            onConfirm={(amount, bankId, speed) => {
-              setBankingData({ amount, bankId, speed, operation: 'add' })
-              go('home')
-            }}
+            onConfirm={() => go('home')}
             onBack={() => go('walletDetail')}
           />
         )
@@ -1568,10 +1783,7 @@ export default function App() {
       case 'withdraw':
         return (
           <Withdraw
-            onConfirm={(amount, bankId, speed) => {
-              setBankingData({ amount, bankId, speed, operation: 'withdraw' })
-              go('home')
-            }}
+            onConfirm={() => go('home')}
             onLimitReached={() => go('transactionLimitReached')}
             onBack={() => go('linkedBankDetail')}
           />
@@ -1589,7 +1801,6 @@ export default function App() {
         return (
           <TransactionHistory
             accountType={accountType}
-            currentNav={getConsumerNav()}
             onNavigate={consumerNav}
             onSelectTransaction={tx => { setSelectedTx(tx); go('transactionDetail') }}
             onSearch={() => go('transactionSearch')}
@@ -1607,6 +1818,8 @@ export default function App() {
             onShare={() => go('shareReceipt')}
             onRefund={() => go('refundRequest')}
             onReport={() => {}}
+            onFileDispute={() => go('fileDispute')}
+            onMistakenPayment={() => go('mistakenPaymentRequest')}
             onBack={() => go('transactionHistory')}
           />
         )
@@ -1620,18 +1833,21 @@ export default function App() {
           />
         )
 
-      case 'shareReceipt':
+      case 'shareReceipt': {
+        const txId = selectedTx?.transactionId ?? 'receipt'
+        const receiptMsg = `ChangeAIPay receipt ${txId} — ${selectedTx?.amount ?? ''} on ${selectedTx?.date ?? ''}`
         return (
           <ShareReceipt
-            transactionId={selectedTx?.transactionId}
-            onMessage={() => go('transactionDetail')}
-            onEmail={() => go('transactionDetail')}
+            transactionId={txId}
+            onMessage={() => { window.open(`sms:?body=${encodeURIComponent(receiptMsg)}`); go('transactionDetail') }}
+            onEmail={() => { window.open(`mailto:?subject=${encodeURIComponent('ChangeAIPay Receipt')}&body=${encodeURIComponent(receiptMsg)}`); go('transactionDetail') }}
             onSavePDF={() => go('transactionDetail')}
             onSaveImage={() => go('transactionDetail')}
-            onCopyLink={() => go('transactionDetail')}
+            onCopyLink={() => { navigator.clipboard?.writeText(receiptMsg).catch(() => {}); go('transactionDetail') }}
             onDismiss={() => go('transactionDetail')}
           />
         )
+      }
 
       case 'export':
         return (
@@ -1700,6 +1916,7 @@ export default function App() {
           <CryptoBuy
             onContinue={order => { setBuyOrder(order); go('cryptoProviderComparison') }}
             onBack={() => go('cryptoHome')}
+            onNetworkTransparency={() => go('nanoNetworkTransparency')}
           />
         )
 
@@ -1711,7 +1928,7 @@ export default function App() {
               setSelectedProviderId(providerId)
               const providerNames: Record<string, string> = { 'liquidity-a': 'LiquidX', 'liquidity-b': 'CoinRoute', 'liquidity-c': 'TradeNova' }
               if (buyOrder) {
-                const fee = buyOrder.amountUSD * 0.0015
+                const fee = buyOrder.zeroFee ? 0 : buyOrder.amountUSD * 0.0015
                 setReviewOrder({
                   ...buyOrder,
                   providerId,
@@ -1833,22 +2050,14 @@ export default function App() {
             onSelectGoal={goal => { setSelectedGoal(goal); go('goalDetail') }}
             onAutoSave={() => go('autoSave')}
             onBack={() => go('home')}
+            onViewRecap={() => go('monthlyRecapCard')}
           />
         )
 
       case 'createGoal':
         return (
           <CreateGoal
-            onSave={(data) => {
-              setGoalData({ 
-                name: data.name, 
-                emoji: data.emoji, 
-                targetAmount: data.targetAmount,
-                recurringAmount: data.recurringAmount || 0,
-                fundingMethod: data.fundingMethod
-              })
-              go('goals')
-            }}
+            onSave={() => { trackEvent('first_goal_created'); go('goals') }}
             onBack={() => go('goals')}
           />
         )
@@ -1915,6 +2124,8 @@ export default function App() {
             onBack={() => go('home')}
             onHistory={() => go('chatHistory')}
             onVoice={() => go('voiceMode')}
+            onLogAsset={() => go('netWorthOverview')}
+            onInitiateSend={() => go('sendMethod')}
           />
         )
 
@@ -1980,6 +2191,7 @@ export default function App() {
           <SpendingInsights
             onBack={() => go('home')}
             onOpenBudget={() => go('suggestedBudget')}
+            onViewRecap={() => go('monthlyRecapCard')}
           />
         )
 
@@ -2017,6 +2229,7 @@ export default function App() {
             email={userData.email}
             accountType={accountType}
             kycStatus="complete"
+            isPremium={premiumActive}
             onPersonalInfo={() => go('personalInformation')}
             onSecurity={() => go('security')}
             onDevices={() => go('devices')}
@@ -2030,6 +2243,7 @@ export default function App() {
             onSupport={() => go('support')}
             onLogout={() => go('logoutConfirm')}
             onDeleteAccount={() => go('deleteAccount')}
+            onFreezeAccount={() => go('freezeAccount')}
             onBack={() => go('home')}
           />
         )
@@ -2050,8 +2264,23 @@ export default function App() {
             onChangePin={() => go('setPIN')}
             onBiometric={() => go('enableBiometrics')}
             onTwoFactor={() => go('enable2FA')}
-            onExportNanoKey={() => go('nanoExportKey')}
-            onNanoTransparency={() => go('nanoTransparency')}
+            onExportWallet={() => go('exportNanoWallet')}
+            onNetworkTransparency={() => go('nanoNetworkTransparency')}
+            onFreezeAccount={() => go('freezeAccount')}
+          />
+        )
+
+      case 'exportNanoWallet':
+        return (
+          <ExportNanoWallet
+            onBack={() => go('security')}
+          />
+        )
+
+      case 'nanoNetworkTransparency':
+        return (
+          <NanoNetworkTransparency
+            onBack={() => go('security')}
           />
         )
 
@@ -2144,7 +2373,7 @@ export default function App() {
       case 'comparePlans':
         return (
           <ComparePlans
-            currentPlan="free"
+            currentPlan={premiumActive ? 'prime' : 'free'}
             recommendedPlan={recommendedPlan}
             onSelectPlan={plan => { setRecommendedPlan(plan === 'free' ? 'prime' : plan as 'prime' | 'apex'); go('checkout') }}
             onBack={() => go('subscriptionPlans')}
@@ -2155,18 +2384,11 @@ export default function App() {
         return (
           <Checkout
             plan={recommendedPlan === 'apex' ? 'apex' : 'prime'}
-            onConfirm={(plan, cycle) => {
-              const PLAN_PRICES: Record<string, { monthly: number; annual: number }> = {
-                edge: { monthly: 9.99, annual: 99.99 },
-                prime: { monthly: 39.99, annual: 399.99 },
-                apex: { monthly: 64.99, annual: 649.99 },
-              }
-              const price = PLAN_PRICES[plan]?.[cycle] || 39.99
-              setSubscriptionCheckoutData({ plan, cycle, price })
-              go('home')
-            }}
+            onConfirm={() => go('home')}
             onBack={() => go('comparePlans')}
             onComparePlans={() => go('comparePlans')}
+            onPurchased={hasAccess => { if (hasAccess) setPremiumActive(true) }}
+            onRestored={hasAccess => setPremiumActive(hasAccess)}
           />
         )
 
@@ -2195,6 +2417,7 @@ export default function App() {
           <BillingHistory
             onBack={() => go('profile')}
             onViewInvoice={(id) => { setSelectedInvoiceId(id); go('invoiceDownload') }}
+            onRestored={hasAccess => setPremiumActive(hasAccess)}
           />
         )
 
@@ -2422,6 +2645,9 @@ export default function App() {
             onSeeAllTransactions={() => go('merchantTransactionHistory')}
             onPlans={() => go('merchantPlans')}
             onFeatureRequests={() => go('feedback')}
+            isEnterprise={selectedMerchantTier === 'Enterprise'}
+            onInstitutionalPayments={() => go('instDashboard')}
+            onRiskFraud={() => go('riskFraudCenter')}
           />
         )
 
@@ -2440,7 +2666,11 @@ export default function App() {
             onCreateInvoice={() => go('invoice')}
             onGenerateQR={() => go('merchantQR')}
             onRequestPayment={() => go('receive')}
+            onPaymentLinks={() => go('paymentLinksHub')}
+            onRecurringBilling={() => go('recurringBillingHub')}
+            onDisputes={() => go('respondToDispute')}
             onBack={() => go('merchantHome')}
+            onDemoPayment={() => go('demoMerchantConfirmation')}
           />
         )
 
@@ -2484,6 +2714,8 @@ export default function App() {
           <BusinessHealth
             onBack={() => go('merchantHome')}
             onViewRevenue={() => go('revenueOverview')}
+            onViewRecap={() => go('businessMonthlyRecap')}
+            onViewHealthMeter={() => go('businessHealthMeter')}
           />
         )
 
@@ -2514,9 +2746,111 @@ export default function App() {
           <AinaChat
             onBack={() => go('merchantHome')}
             onHistory={() => go('chatHistory')}
-            onVoice={() => go('voiceMode')}
+            onVoice={() => go('ainaVoiceMode')}
           />
         )
+
+      case 'ainaVoiceMode':
+        return (
+          <AinaVoiceMode
+            onEnd={() => go('ainaChat')}
+            onSwitchToText={() => go('ainaChat')}
+          />
+        )
+
+      case 'systemUpdate':
+        return (
+          <div className="relative" style={{ width: 390, height: 844 }}>
+            <div className="w-full h-full bg-bg" />
+            <SystemUpdate
+              onRestart={() => go('home')}
+              onDismiss={() => go('home')}
+            />
+          </div>
+        )
+
+      case 'paymentLinksHub':
+        return <PaymentLinksHub onBack={() => go('merchantPaymentsHub')} onCreateLink={() => go('createPaymentLink')} onLinkDetail={id => { setSelectedLinkId(id); go('paymentLinkDetail') }} />
+
+      case 'createPaymentLink':
+        return <CreatePaymentLink onBack={() => go('paymentLinksHub')} onCreate={() => go('paymentLinksHub')} />
+
+      case 'paymentLinkDetail':
+        return <PaymentLinkDetail linkId={selectedLinkId} onBack={() => go('paymentLinksHub')} onShare={() => {}} onDeactivate={() => go('paymentLinksHub')} />
+
+      case 'payoutSettings':
+        return <PayoutSettings onBack={() => go('merchantSettings')} onHistory={() => go('transactionHistory')} />
+
+      case 'riskFraudCenter':
+        return <RiskFraudCenter onBack={() => go('merchantHome')} onTransactionDetail={id => { setSelectedFlagId(id); go('flaggedTransactionDetail') }} />
+
+      case 'flaggedTransactionDetail':
+        return <FlaggedTransactionDetail flagId={selectedFlagId} onBack={() => go('riskFraudCenter')} onApprove={() => go('riskFraudCenter')} onBlock={() => go('riskFraudCenter')} />
+
+      case 'fileDispute':
+        return <FileDispute onBack={() => go('transactionDetail')} onSubmit={() => go('disputeStatus')} onConductComplaint={() => go('conductComplaint')} />
+
+      case 'conductComplaint':
+        return <ConductComplaint onBack={() => go('fileDispute')} onSubmit={() => go('disputeStatus')} />
+
+      case 'conductDisputeResponse':
+        return <ConductDisputeResponse onBack={() => go('respondToDispute')} onSubmit={() => go('disputeStatus')} />
+
+      case 'mistakenPaymentRequest':
+        return <MistakenPaymentRequest onBack={() => go('transactionDetail')} />
+
+      case 'trustProfile':
+        return <TrustProfile onBack={() => go('sendConfirmation')} onContinue={() => go('sendConfirmation')} />
+
+      case 'transactionHoldExplained':
+        return <TransactionHoldExplained onBack={() => go('transactionDetail')} onAppeal={() => go('contactSupport')} />
+
+      case 'freezeAccount':
+        return <FreezeAccount onBack={() => go('security')} onFreeze={() => go('home')} onUnfreeze={() => go('home')} />
+
+      case 'freezeMerchantAccount':
+        return <FreezeMerchantAccount onBack={() => go('merchantSecurity')} onFreeze={() => go('merchantHome')} onUnfreeze={() => go('merchantHome')} />
+
+      case 'receiptScanner':
+        return <ReceiptScanner onBack={() => go('receiptDashboard')} onCaptured={() => go('receiptReview')} />
+
+      case 'receiptReview':
+        return <ReceiptReview onBack={() => go('receiptScanner')} onSave={() => go('receiptDashboard')} />
+
+      case 'receiptDashboard':
+        return <ReceiptDashboard onBack={() => go('documentVault')} onScanReceipt={() => go('receiptScanner')} onSelectReceipt={() => go('receiptDetail')} />
+      case 'receiptDetail':
+        return <ReceiptDetail onBack={() => go('receiptDashboard')} />
+
+      case 'financialHealthMeter':
+        return <FinancialHealthMeter onBack={() => go('netWorthOverview')} />
+
+      case 'businessHealthMeter':
+        return <BusinessHealthMeter onBack={() => go('businessHealth')} />
+
+      case 'respondToDispute':
+        return <RespondToDispute onBack={() => go('merchantPaymentsHub')} onSubmit={() => go('disputeStatus')} />
+
+      case 'disputeStatus':
+        return <DisputeStatus onBack={() => go('transactionDetail')} />
+
+      case 'developerSettings':
+        return <DeveloperSettings onBack={() => go('merchantSettings')} />
+
+      case 'merchantStatements':
+        return <MerchantStatements onBack={() => go('merchantProfile')} onDownload={() => {}} />
+
+      case 'recurringBillingHub':
+        return <RecurringBillingHub onBack={() => go('merchantPaymentsHub')} onCreatePlan={() => go('createBillingPlan')} onPlanDetail={id => { setSelectedPlanId(id); go('billingPlanDetail') }} />
+
+      case 'createBillingPlan':
+        return <CreateBillingPlan onBack={() => go('recurringBillingHub')} onCreate={() => go('recurringBillingHub')} />
+
+      case 'billingPlanDetail':
+        return <BillingPlanDetail planId={selectedPlanId} onBack={() => go('recurringBillingHub')} onEdit={() => go('createBillingPlan')} onPause={() => go('recurringBillingHub')} onCancel={() => go('recurringBillingHub')} />
+
+      case 'myCapSubscriptions':
+        return <MyCapSubscriptions onBack={() => go('paymentsHub')} />
 
       case 'revenueReport':
         return (
@@ -2545,13 +2879,17 @@ export default function App() {
             onRoles={() => go('roles')}
             onSecurity={() => go('merchantSecurity')}
             onSettings={() => go('merchantSettings')}
-            onStatements={() => go('statements')}
+            onStatements={() => go('merchantStatements')}
+            onPayoutSettings={() => go('payoutSettings')}
+            onDeveloperSettings={() => go('developerSettings')}
             onTaxDocuments={() => go('taxDocuments')}
             onHelp={() => go('help')}
             onSupport={() => go('support')}
             onDeleteAccount={() => go('merchantDeleteAccount')}
+            onFreezeAccount={() => go('freezeMerchantAccount')}
             onLogout={() => go('merchantLogout')}
             onAinaChat={() => go('ainaChat')}
+            isEnterprise={selectedMerchantTier === 'Enterprise'}
           />
         )
 
@@ -2574,6 +2912,7 @@ export default function App() {
         return (
           <MerchantSecurity
             onBack={() => go('merchantProfile')}
+            onFreezeAccount={() => go('freezeMerchantAccount')}
           />
         )
 
@@ -2675,6 +3014,110 @@ export default function App() {
           <EnterpriseContact
             onBack={() => go('merchantPlans')}
             onSelfServe={() => { setSelectedMerchantTier('Enterprise'); go('merchantCheckout') }}
+          />
+        )
+
+      // ── Institutional Payments Module ───────────────────────────
+      case 'instDashboard':
+        return (
+          <InstDashboard
+            onNavigate={tab => {
+              const map: Record<string, Screen> = { dashboard: 'instDashboard', overview: 'instOverview', monitor: 'instMonitor', exceptions: 'instExceptions', history: 'instHistory', risk: 'instRisk' }
+              go(map[tab] as Screen)
+            }}
+            onTradeTap={id => { setInstTradeId(id); go('instTradeDetail') }}
+            onCounterpartyTap={id => { setInstCpId(id); go('instCounterparty') }}
+          />
+        )
+
+      case 'instOverview':
+        return (
+          <InstOverview
+            onNavigate={tab => {
+              const map: Record<string, Screen> = { dashboard: 'instDashboard', overview: 'instOverview', monitor: 'instMonitor', exceptions: 'instExceptions', history: 'instHistory', risk: 'instRisk' }
+              go(map[tab] as Screen)
+            }}
+          />
+        )
+
+      case 'instTradeDetail':
+        return (
+          <InstTradeDetail
+            tradeId={instTradeId}
+            onBack={() => go('instMonitor')}
+            onViewTimeline={id => { setInstTradeId(id); go('instTimeline') }}
+            onFlagException={id => { setInstTradeId(id); go('instExceptions') }}
+          />
+        )
+
+      case 'instMonitor':
+        return (
+          <InstMonitor
+            onNavigate={tab => {
+              const map: Record<string, Screen> = { dashboard: 'instDashboard', overview: 'instOverview', monitor: 'instMonitor', exceptions: 'instExceptions', history: 'instHistory', risk: 'instRisk' }
+              go(map[tab] as Screen)
+            }}
+            onTradeTap={id => { setInstTradeId(id); go('instTradeDetail') }}
+          />
+        )
+
+      case 'instExceptions':
+        return (
+          <InstExceptions
+            onNavigate={tab => {
+              const map: Record<string, Screen> = { dashboard: 'instDashboard', overview: 'instOverview', monitor: 'instMonitor', exceptions: 'instExceptions', history: 'instHistory', risk: 'instRisk' }
+              go(map[tab] as Screen)
+            }}
+          />
+        )
+
+      case 'instHistory':
+        return (
+          <InstHistory
+            onNavigate={tab => {
+              const map: Record<string, Screen> = { dashboard: 'instDashboard', overview: 'instOverview', monitor: 'instMonitor', exceptions: 'instExceptions', history: 'instHistory', risk: 'instRisk' }
+              go(map[tab] as Screen)
+            }}
+            onTradeTap={id => { setInstTradeId(id); go('instTradeDetail') }}
+            onExport={() => go('export')}
+          />
+        )
+
+      case 'instCounterparty':
+        return (
+          <InstCounterparty
+            counterpartyId={instCpId}
+            onBack={() => go('instDashboard')}
+            onViewTrades={id => { setInstCpId(id); go('instHistory') }}
+          />
+        )
+
+      case 'instRisk':
+        return (
+          <InstRisk
+            onNavigate={tab => {
+              const map: Record<string, Screen> = { dashboard: 'instDashboard', overview: 'instOverview', monitor: 'instMonitor', exceptions: 'instExceptions', history: 'instHistory', risk: 'instRisk' }
+              go(map[tab] as Screen)
+            }}
+            onInsightTap={id => { setInstTradeId(id); go('instTradeDetail') }}
+            onCounterpartyTap={id => { setInstCpId(id); go('instCounterparty') }}
+          />
+        )
+
+      case 'instTimeline':
+        return (
+          <InstTimeline
+            tradeId={instTradeId}
+            onBack={() => go('instTradeDetail')}
+          />
+        )
+
+      case 'instConfirmation':
+        return (
+          <InstConfirmation
+            tradeId={instTradeId}
+            onDone={() => go('instDashboard')}
+            onDownload={() => {}}
           />
         )
 
@@ -3023,6 +3466,93 @@ export default function App() {
           />
         )
 
+      case 'createAccountBusiness':
+        return (
+          <CreateAccountBusiness
+            onBack={() => go('createAccount')}
+            onContinue={() => go('otpVerification')}
+          />
+        )
+
+      case 'businessEntitiesHub':
+        return (
+          <BusinessEntitiesHub
+            onBack={() => go('profile')}
+            onAddEntity={() => go('createBusinessEntity')}
+          />
+        )
+
+      case 'createBusinessEntity':
+        return (
+          <CreateBusinessEntity
+            onBack={() => go('businessEntitiesHub')}
+            onCreated={() => go('businessEntitiesHub')}
+          />
+        )
+
+      case 'netWorthOverview':
+        return (
+          <NetWorthOverview
+            onBack={() => go('home')}
+            onAddAsset={() => go('addManualAsset')}
+            onViewHealthMeter={() => go('financialHealthMeter')}
+          />
+        )
+
+      case 'addManualAsset':
+        return (
+          <AddManualAsset
+            onBack={() => go('netWorthOverview')}
+            onAdded={() => go('netWorthOverview')}
+          />
+        )
+
+      case 'financialCalendar':
+        return (
+          <FinancialCalendar
+            onBack={() => go('home')}
+            onAddReminder={() => {}}
+          />
+        )
+
+      case 'documentVault':
+        return (
+          <DocumentVault
+            onBack={() => go('home')}
+            onCaptureDocument={() => {}}
+          />
+        )
+
+      case 'aiTokenUsage':
+        return (
+          <AITokenUsage
+            onBack={() => go('profile')}
+            onBuyTokens={() => go('buyTokens')}
+          />
+        )
+
+      case 'buyTokens':
+        return (
+          <BuyTokens
+            onBack={() => go('aiTokenUsage')}
+            onPurchased={() => go('aiTokenUsage')}
+          />
+        )
+
+      case 'monthlyRecapCard':
+        return (
+          <MonthlyRecapCard
+            onBack={() => go('spendingInsights')}
+          />
+        )
+
+      case 'businessMonthlyRecap':
+        return (
+          <BusinessMonthlyRecap
+            onBack={() => go('businessHealth')}
+          />
+        )
+
       default:
         return null
     }
@@ -3030,70 +3560,44 @@ export default function App() {
 
   return (
     /* PhoneFrame provides the 390×844 canvas and status bar */
-    <ReEngagementProvider>
-      <PhoneFrame>
+    <PhoneFrame>
       <div
         key={current}
         className="animate-fade-in relative"
         style={{ animationDuration: current === 'splash' ? '0ms' : '180ms', minHeight: '100%' }}
       >
         {renderScreen()}
-        {/* Quick-action toolbar — shown only while inside the app */}
-        {['home','paymentsHub','sendMethod','contactPicker','walletDetail','transactionHistory',
-          'goals','finaChat','ainaChat','notifications','merchantHome','merchantNotifications',
-          'merchantPaymentsHub','cryptoHome','profile','merchantProfile',
-        ].includes(current) && (
-          <QuickActionToolbar
-            onSend={() => go('sendMethod')}
-            onScanQR={() => go('scanQR')}
-            onAI={() => go(accountType === 'business' ? 'ainaChat' : 'finaChat')}
-            onNotifications={() => go(accountType === 'business' ? 'merchantNotifications' : 'notifications')}
-          />
-        )}
       </div>
 
-      {/* ── Dev navigator — docked inside the phone, hidden during splash ── */}
+      {/* ── Dev navigator — screen picker, hidden during splash ── */}
       {current !== 'splash' && (
         <>
           <button
             onClick={() => setShowNav(n => !n)}
-            style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 50 }}
+            style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}
             className="w-11 h-11 rounded-full bg-surface border border-[color:var(--color-border)] flex items-center justify-center shadow-[var(--shadow-lg)] transition-all duration-[250ms] hover:border-accent/40"
             aria-label="Screen navigator"
           >
-            <svg
-              width="16" height="16" viewBox="0 0 16 16" fill="none"
-              className={`transition-transform duration-[250ms] ${showNav ? 'rotate-45' : ''}`}
-            >
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"
+              className={`transition-transform duration-[250ms] ${showNav ? 'rotate-45' : ''}`}>
               <path d="M2 4h12M2 8h12M2 12h12" stroke="#AFC5FF" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </button>
-
           {showNav && (
-            <div
-              style={{ position: 'fixed', bottom: 80, right: 24, zIndex: 50, width: 200, maxHeight: '70vh' }}
-              className="rounded-[--radius-2xl] glass border border-[color:var(--color-border)] shadow-[var(--shadow-lg)] animate-scale-in overflow-hidden"
-            >
+            <div style={{ position: 'fixed', bottom: 80, right: 24, zIndex: 9999, width: 200, maxHeight: '70vh' }}
+              className="rounded-[--radius-2xl] glass border border-[color:var(--color-border)] shadow-[var(--shadow-lg)] animate-scale-in overflow-hidden">
               <div className="px-4 py-3 border-b border-[color:var(--color-border)]">
                 <p className="font-body text-xs text-text-muted uppercase tracking-widest">Screens</p>
               </div>
               <div className="overflow-y-auto" style={{ maxHeight: 'calc(70vh - 48px)' }}>
                 {GROUPS.map(group => (
                   <div key={group}>
-                    <p className="px-4 pt-3 pb-1 font-body text-[10px] text-text-muted uppercase tracking-widest">
-                      {group}
-                    </p>
+                    <p className="px-4 pt-3 pb-1 font-body text-[10px] text-text-muted uppercase tracking-widest">{group}</p>
                     {NAV_ITEMS.filter(i => i.group === group).map(item => (
-                      <button
-                        key={item.id}
-                        onClick={() => go(item.id)}
-                        className={`w-full flex items-center gap-2 px-4 py-2 font-body text-xs transition-colors duration-[200ms] text-left
-                          ${current === item.id ? 'text-accent bg-primary/8' : 'text-text-2 hover:text-text hover:bg-surface'}`}
-                      >
+                      <button key={item.id} onClick={() => go(item.id)}
+                        className={`w-full flex items-center gap-2 px-4 py-2 font-body text-xs transition-colors duration-[200ms] text-left ${current === item.id ? 'text-accent bg-primary/8' : 'text-text-2 hover:text-text hover:bg-surface'}`}>
                         <span className="flex-1">{item.label}</span>
-                        {current === item.id && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
-                        )}
+                        {current === item.id && <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />}
                       </button>
                     ))}
                   </div>
@@ -3104,6 +3608,5 @@ export default function App() {
         </>
       )}
     </PhoneFrame>
-    </ReEngagementProvider>
   )
 }

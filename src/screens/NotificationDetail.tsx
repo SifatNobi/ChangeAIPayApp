@@ -18,44 +18,13 @@ const NOTIFICATION_DATA: Record<string, {
   ctaLabel?: string
   ctaVariant?: 'primary' | 'warning' | 'secondary'
   details?: { label: string; value: string }[]
-}> = {
-  '1': {
-    type: 'payment', title: 'Payment Received',
-    body: "Alex Johnson sent you $500.00 via ChangeAIPay. The funds are now available in your wallet.",
-    time: '2 min ago', fullDate: 'August 8, 2026 at 2:34 PM',
-    ctaLabel: 'View Transaction', ctaVariant: 'primary',
-    details: [
-      { label: 'From', value: 'Alex Johnson' }, { label: 'Amount', value: '$500.00' },
-      { label: 'Note', value: '"For the concert tickets"' }, { label: 'Status', value: 'Completed' },
-    ],
-  },
-  '2': {
-    type: 'security', title: 'New Login Detected',
-    body: "A new login was detected on your account from Chrome browser on MacOS in San Francisco, CA. If this was you, no action is needed. If not, secure your account immediately.",
-    time: '1 hr ago', fullDate: 'August 8, 2026 at 1:40 PM',
-    ctaLabel: "It wasn't me — Secure Account", ctaVariant: 'warning',
-    details: [
-      { label: 'Device', value: 'Chrome on MacOS' }, { label: 'Location', value: 'San Francisco, CA' },
-      { label: 'IP Address', value: '198.51.100.42' }, { label: 'Time', value: '1:40 PM' },
-    ],
-  },
-  '6': {
-    type: 'promo', title: 'Limited Offer: 40% Off Edge',
-    body: "Unlock unlimited FX-free international transfers, priority support, and advanced spending analytics. This offer expires in 48 hours.",
-    time: '2 days ago', fullDate: 'August 6, 2026 at 10:00 AM',
-    ctaLabel: 'View Plans', ctaVariant: 'primary',
-    details: [
-      { label: 'Offer', value: '40% off first 3 months' }, { label: 'Expires', value: 'Aug 10, 2026' },
-      { label: 'Plan', value: 'Edge' },
-    ],
-  },
-}
+}> = {}
 
 const FALLBACK = {
   type: 'system' as const,
   title: 'Notification',
   body: 'No additional details available.',
-  time: 'Recently', fullDate: 'August 8, 2026',
+  time: 'Recently', fullDate: '',
   ctaLabel: undefined, ctaVariant: undefined as 'primary' | 'warning' | 'secondary' | undefined,
   details: [],
 }
@@ -106,7 +75,7 @@ const CTA_STYLES: Record<string, string> = {
 
 export default function NotificationDetail({
   accountType = 'personal',
-  notificationId = '2',
+  notificationId = '',
   onNavigate,
   onBack,
   onNotifications,

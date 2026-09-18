@@ -16,16 +16,16 @@ interface ChangeImpactSummaryProps {
 }
 
 export default function ChangeImpactSummary({
-  activeConnections = 3,
-  changeEarned = 1500,
-  rewardsUnlocked = 4,
-  premiumDays = 10,
-  weeksOfMomentum = 7,
-  currentStatus = 'Connector',
-  currentStatusEmoji = '🔗',
+  activeConnections = 0,
+  changeEarned = 0,
+  rewardsUnlocked = 0,
+  premiumDays = 0,
+  weeksOfMomentum = 0,
+  currentStatus = '',
+  currentStatusEmoji = '',
   currentStatusColor = '#3FE7FF',
-  nextTierLabel = 'Amplifier',
-  connectionsToNextTier = 2,
+  nextTierLabel = '',
+  connectionsToNextTier = 0,
   onBack, onInvite, onViewCircle, onViewVault,
 }: ChangeImpactSummaryProps) {
   return (

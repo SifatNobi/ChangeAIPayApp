@@ -1,6 +1,7 @@
 import { GOALS, type Goal } from '@/data/goals'
 
 interface GoalsProps {
+  onViewRecap?: () => void
   onCreateGoal?: () => void
   onSelectGoal?: (goal: Goal) => void
   onAutoSave?: () => void
@@ -81,7 +82,7 @@ function GoalCard({ goal, onSelect }: { goal: Goal; onSelect: () => void }) {
   )
 }
 
-export default function Goals({ onCreateGoal, onSelectGoal, onAutoSave, onBack }: GoalsProps) {
+export default function Goals({ onCreateGoal, onSelectGoal, onAutoSave, onBack, onViewRecap }: GoalsProps) {
   const totalSaved = GOALS.reduce((s, g) => s + g.currentAmount, 0)
   const totalTarget = GOALS.reduce((s, g) => s + g.targetAmount, 0)
 
@@ -105,6 +106,12 @@ export default function Goals({ onCreateGoal, onSelectGoal, onAutoSave, onBack }
               stroke="#AFC5FF" strokeWidth="1.1" strokeLinecap="round" />
           </svg>
           Auto Save
+        </button>
+        <button
+          onClick={onViewRecap}
+          className="flex items-center h-9 px-3 rounded-full font-body text-xs font-semibold transition-all hover:bg-surface-hi"
+          style={{ border: '1px solid rgba(63,231,255,0.2)', color: '#3FE7FF' }}>
+          Recap
         </button>
       </div>
 

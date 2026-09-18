@@ -65,28 +65,36 @@ interface MerchantProfileProps {
   onSecurity?: () => void
   onSettings?: () => void
   onStatements?: () => void
+  onPayoutSettings?: () => void
+  onDeveloperSettings?: () => void
   onTaxDocuments?: () => void
   onHelp?: () => void
   onSupport?: () => void
   onDeleteAccount?: () => void
+  onFreezeAccount?: () => void
   onLogout?: () => void
   onAinaChat?: () => void
+  isEnterprise?: boolean
 }
 
 export default function MerchantProfile({
-  businessName = 'Apex Studio LLC',
+  businessName = '',
   onNavigate,
   onTeamMembers,
   onRoles,
   onSecurity,
   onSettings,
   onStatements,
+  onPayoutSettings,
+  onDeveloperSettings,
   onTaxDocuments,
   onHelp,
   onSupport,
   onDeleteAccount,
+  onFreezeAccount,
   onLogout,
   onAinaChat,
+  isEnterprise = false,
 }: MerchantProfileProps) {
   const [activeNav, setActiveNav] = useState<MerchantNavItem>('profile')
   const initials = businessName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
@@ -137,9 +145,9 @@ export default function MerchantProfile({
             style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.09)' }}
           >
             {[
-              { label: 'Monthly Rev', value: '$39,400' },
-              { label: 'Transactions', value: '312' },
-              { label: 'Team', value: '4 members' },
+              { label: 'Monthly Rev', value: '$0' },
+              { label: 'Transactions', value: '0' },
+              { label: 'Team', value: '0 members' },
             ].map((s, i) => (
               <div key={i} className="flex-1 text-center">
                 <p className="font-mono text-sm font-bold text-text">{s.value}</p>
@@ -163,13 +171,18 @@ export default function MerchantProfile({
 
         <div className="px-5 pt-5 flex flex-col gap-5">
           <NavSection title="Management" rows={[
-            { label: 'Team Members', sub: '4 active members', onPress: () => onTeamMembers?.() },
+            { label: 'Team Members', sub: '0 active members', onPress: () => onTeamMembers?.() },
             { label: 'Roles & Permissions', sub: 'Owner, Admin, Staff', onPress: () => onRoles?.() },
           ]} />
 
           <NavSection title="Account" rows={[
             { label: 'Security', sub: 'Password, PIN, 2FA, sessions', onPress: () => onSecurity?.() },
             { label: 'Settings', sub: 'Business hours, notifications', onPress: () => onSettings?.() },
+          ]} />
+
+          <NavSection title="Payments" rows={[
+            { label: 'Payout Settings', sub: 'Schedule, bank account, history', onPress: () => onPayoutSettings?.() },
+            ...(isEnterprise ? [{ label: 'Developer & API Settings', sub: 'API keys, webhooks, sandbox', onPress: () => onDeveloperSettings?.() }] : []),
           ]} />
 
           <NavSection title="Documents" rows={[
@@ -184,6 +197,7 @@ export default function MerchantProfile({
 
           <NavSection title="Account Actions" rows={[
             { label: 'Log out', onPress: () => onLogout?.(), danger: false },
+            { label: 'Freeze Business Account', onPress: () => onFreezeAccount?.(), danger: true },
             { label: 'Delete Business Account', onPress: () => onDeleteAccount?.(), danger: true },
           ]} />
         </div>

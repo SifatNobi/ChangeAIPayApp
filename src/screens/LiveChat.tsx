@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import Pulse from '@/components/Pulse'
+import finaSrc from '@/imports/Fina.png.jpeg'
+import ainaSrc from '@/imports/Aina.png.jpeg'
 
 type Sender = 'ai' | 'user' | 'system' | 'agent'
 
@@ -145,27 +147,18 @@ export default function LiveChat({ onBack, aiAssistant = 'fina' }: LiveChatProps
           </svg>
         </button>
 
-        <div className="w-9 h-9 rounded-full shrink-0 flex items-center justify-center relative"
-          style={{
-            background: humanJoined
-              ? 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.08))'
-              : aiAssistant === 'aina'
-                ? 'linear-gradient(135deg, rgba(0,102,255,0.2), rgba(63,231,255,0.08))'
-                : 'linear-gradient(135deg, rgba(153,69,255,0.2), rgba(63,231,255,0.08))',
-            border: `1px solid ${humanJoined ? 'rgba(34,197,94,0.25)' : aiAssistant === 'aina' ? 'rgba(0,102,255,0.25)' : 'rgba(153,69,255,0.25)'}`,
-          }}>
+        <div className="w-9 h-9 rounded-full shrink-0 overflow-hidden relative"
+          style={{ border: `1.5px solid ${humanJoined ? 'rgba(34,197,94,0.4)' : aiAssistant === 'aina' ? 'rgba(63,231,255,0.4)' : 'rgba(63,231,255,0.3)'}` }}>
           {humanJoined ? (
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="6" r="3" stroke="#22C55E" strokeWidth="1.1" />
-              <path d="M2 14c0-3 2.5-5 6-5s6 2 6 5" stroke="#22C55E" strokeWidth="1.1" strokeLinecap="round" />
-            </svg>
+            <div className="w-full h-full flex items-center justify-center"
+              style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.2), rgba(34,197,94,0.08))' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="6" r="3" stroke="#22C55E" strokeWidth="1.1" />
+                <path d="M2 14c0-3 2.5-5 6-5s6 2 6 5" stroke="#22C55E" strokeWidth="1.1" strokeLinecap="round" />
+              </svg>
+            </div>
           ) : (
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1.5a6.5 6.5 0 1 1 0 13 6.5 6.5 0 0 1 0-13z"
-                stroke={aiAssistant === 'aina' ? '#3FE7FF' : '#9945FF'} strokeWidth="1.1" />
-              <path d="M5 7h6M5 10h4"
-                stroke={aiAssistant === 'aina' ? '#3FE7FF' : '#9945FF'} strokeWidth="1.1" strokeLinecap="round" />
-            </svg>
+            <img src={aiAssistant === 'aina' ? ainaSrc : finaSrc} alt={aiName} className="w-full h-full object-cover" />
           )}
           <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full"
             style={{ background: '#22C55E', border: '1.5px solid var(--color-bg)' }} />

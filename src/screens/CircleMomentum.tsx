@@ -28,7 +28,7 @@ interface CircleMomentumProps {
   onInvite?: () => void
 }
 
-export default function CircleMomentum({ activeConnections = 3, momentumScore = 248, onBack, onViewMilestones, onInvite }: CircleMomentumProps) {
+export default function CircleMomentum({ activeConnections = 0, momentumScore = 0, onBack, onViewMilestones, onInvite }: CircleMomentumProps) {
   const [showBreakdown, setShowBreakdown] = useState(false)
 
   const currentTier = TIERS.slice().reverse().find(t => activeConnections >= t.minConnections) ?? TIER_CONFIG['first_spark']

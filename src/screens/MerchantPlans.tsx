@@ -33,6 +33,7 @@ export default function MerchantPlans({
   currentTier = null,
 }: MerchantPlansProps) {
   const [billing, setBilling] = useState<'annual' | 'monthly'>('annual')
+  const [expandedTiers, setExpandedTiers] = useState<Record<string, boolean>>({})
   const recommended = getRecommendedTier(annualVolume)
   const stdFees = calcStandardFees(annualVolume, recommended.standardFee)
   const savings = calcAnnualSavings(annualVolume, recommended)
@@ -86,7 +87,7 @@ export default function MerchantPlans({
               { label: 'Standard platform fees', value: fmt(stdFees), highlight: '#F87171' },
               { label: `${recommended.name} subscription`, value: `${fmtPrice(recommended.annualPrice)}/yr`, color: recommended.color },
               { label: 'Your net saving', value: `${fmt(savings)}/yr`, highlight: '#22C55E' },
-              { label: 'Advanced AI features', value: 'Unlocked', highlight: '#22C55E' },
+              { label: 'AI-assisted business tools', value: 'Unlocked', highlight: '#22C55E' },
             ].map((row, i) => (
               <div key={i} className="flex items-center justify-between">
                 <p className="font-body text-[11px] text-text-muted">{row.label}</p>
@@ -282,17 +283,35 @@ export default function MerchantPlans({
 
                   {/* Features */}
                   <div className="flex flex-wrap gap-1.5 mb-4">
-                    {tier.features.slice(0, 3).map((f, i) => (
+                    {(expandedTiers[tier.name] ? tier.features : tier.features.slice(0, 3)).map((f, i) => (
                       <span key={i} className="px-2 py-1 rounded-full font-body text-[10px]"
                         style={{ background: 'rgba(175,197,255,0.05)', color: 'rgba(175,197,255,0.6)', border: '1px solid rgba(175,197,255,0.09)' }}>
-                        {f}
+                        {f === 'AI call handling and messaging' ? (
+                          <span title="AI Agent takes calls for merchants when busy or unavailable, helps book a service when needed by checking and matching available time slots, and sends and receives messages if a customer prefers messaging instead of calls after customer approval.">
+                            AI call handling and messaging ⓘ
+                          </span>
+                        ) : f}
                       </span>
                     ))}
-                    {tier.features.length > 3 && (
-                      <span className="px-2 py-1 rounded-full font-body text-[10px]"
+                    {tier.features.length > 3 && !expandedTiers[tier.name] && (
+                      <button
+                        onClick={() => setExpandedTiers(p => ({ ...p, [tier.name]: true }))}
+                        aria-expanded={false}
+                        aria-label={`Show ${tier.features.length - 3} more features for ${tier.name} tier`}
+                        className="px-2 py-1 rounded-full font-body text-[10px] transition-colors hover:border-[rgba(175,197,255,0.18)]"
                         style={{ color: 'rgba(175,197,255,0.4)', border: '1px solid rgba(175,197,255,0.07)' }}>
                         +{tier.features.length - 3} more
-                      </span>
+                      </button>
+                    )}
+                    {expandedTiers[tier.name] && (
+                      <button
+                        onClick={() => setExpandedTiers(p => ({ ...p, [tier.name]: false }))}
+                        aria-expanded={true}
+                        aria-label={`Show less features for ${tier.name} tier`}
+                        className="px-2 py-1 rounded-full font-body text-[10px] transition-colors hover:border-[rgba(175,197,255,0.18)]"
+                        style={{ color: 'rgba(175,197,255,0.4)', border: '1px solid rgba(175,197,255,0.07)' }}>
+                        Show less
+                      </button>
                     )}
                   </div>
 

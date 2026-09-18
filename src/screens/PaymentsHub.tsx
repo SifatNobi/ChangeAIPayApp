@@ -4,7 +4,6 @@ import { GlassCard, TransactionRow } from '@/components/Card'
 
 interface PaymentsHubProps {
   accountType?: 'personal' | 'business'
-  currentNav?: string
   onNavigate: (tab: string) => void
   onNotifications?: () => void
   onSend?: () => void
@@ -12,25 +11,16 @@ interface PaymentsHubProps {
   onAddMoney?: () => void
   onSplitBill?: () => void
   onPayBills?: () => void
+  onMySubscriptions?: () => void
   onSearch?: () => void
   onContact?: (name: string) => void
   onTransaction?: () => void
+  onDemoPayment?: () => void
 }
 
-const RECENT_CONTACTS = [
-  { initials: 'AJ', name: 'Alex',   color: '#0066FF', verified: true },
-  { initials: 'SK', name: 'Sarah',  color: '#3FE7FF', verified: true },
-  { initials: 'MW', name: 'Marcus', color: '#AFC5FF', verified: false },
-  { initials: 'JL', name: 'Jamie',  color: '#7B4FFF', verified: true },
-  { initials: 'RP', name: 'Raj',    color: '#FF6B6B', verified: false },
-]
+const RECENT_CONTACTS: { initials: string; name: string; color: string; verified: boolean }[] = []
 
-const RECENT_ACTIVITY = [
-  { icon: <span className="text-lg">💸</span>, merchant: 'Sent to Alex Johnson', category: 'Payment', amount: '$50.00', date: 'Today', status: 'completed' as const, positive: false },
-  { icon: <span className="text-lg">💰</span>, merchant: 'Received from Sarah Kim', category: 'Payment', amount: '$120.00', date: 'Yesterday', status: 'completed' as const, positive: true },
-  { icon: <span className="text-lg">🏠</span>, merchant: 'Rent — Split bill', category: 'Bills', amount: '$425.00', date: 'Aug 1', status: 'completed' as const, positive: false },
-  { icon: <span className="text-lg">⏳</span>, merchant: 'International transfer', category: 'Cross-border', amount: '$200.00', date: 'Jul 31', status: 'pending' as const, positive: false },
-]
+const RECENT_ACTIVITY: { icon: React.ReactNode; merchant: string; category: string; amount: string; date: string; status: 'completed' | 'pending' | 'failed'; positive: boolean }[] = []
 
 const ACTIONS = [
   {
@@ -67,11 +57,10 @@ const ACTIONS = [
 
 export default function PaymentsHub({
   accountType = 'personal',
-  currentNav = 'payments',
   onNavigate,
   onNotifications,
-  onSend, onRequest, onAddMoney, onSplitBill, onPayBills,
-  onSearch, onContact, onTransaction,
+  onSend, onRequest, onAddMoney, onSplitBill, onPayBills, onMySubscriptions,
+  onSearch, onContact, onTransaction, onDemoPayment,
 }: PaymentsHubProps) {
   const [pressed, setPressed] = useState<string | null>(null)
 
@@ -81,7 +70,7 @@ export default function PaymentsHub({
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
-      <Header notificationCount={3} onNotification={onNotifications} />
+      <Header notificationCount={0} onNotification={onNotifications} />
 
       <div className="overflow-y-auto pb-28 flex-1" style={{ scrollbarWidth: 'none' }}>
         <div className="px-5 pt-4 flex flex-col gap-5">
@@ -170,6 +159,65 @@ export default function PaymentsHub({
             </div>
           </div>
 
+          {/* My ChangeAIPay Subscriptions shortcut */}
+          <button
+            onClick={onMySubscriptions}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[--radius-xl] text-left transition-all active:scale-[0.98]"
+            style={{ background: 'rgba(175,197,255,0.03)', border: '1px solid rgba(175,197,255,0.09)' }}
+          >
+            <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(0,102,255,0.1)', border: '1px solid rgba(0,102,255,0.2)' }}>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="5.5" stroke="#3FE7FF" strokeWidth="1.2" />
+                <path d="M6 8h2.5v-2.5" stroke="#3FE7FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="flex-1">
+              <p className="font-body text-xs font-semibold text-text">My Subscriptions</p>
+              <p className="font-body text-[10px] text-text-muted">Recurring charges from ChangeAIPay merchants</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 3l4 4-4 4" stroke="rgba(175,197,255,0.4)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+
+          {/* DEMO entry point — isolated, removable */}
+          {onDemoPayment && (
+            <button
+              onClick={onDemoPayment}
+              className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[--radius-2xl] transition-all active:scale-[0.98] text-left"
+              style={{
+                background: 'linear-gradient(135deg, rgba(245,183,0,0.08) 0%, rgba(245,183,0,0.04) 100%)',
+                border: '1px solid rgba(245,183,0,0.3)',
+              }}
+            >
+              <div
+                className="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0"
+                style={{ background: 'rgba(245,183,0,0.12)', border: '1px solid rgba(245,183,0,0.25)' }}
+              >
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                  <circle cx="9" cy="9" r="7.5" stroke="#F5B700" strokeWidth="1.2" />
+                  <path d="M9 5.5v7M6 9l3-3 3 3" stroke="#F5B700" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="font-body text-sm font-bold text-text">Demo Payment</p>
+                  <span
+                    className="px-1.5 py-0.5 rounded-full font-body text-[9px] font-bold uppercase tracking-wider shrink-0"
+                    style={{ background: 'rgba(245,183,0,0.15)', color: '#F5B700', border: '1px solid rgba(245,183,0,0.3)' }}
+                  >
+                    TEST
+                  </span>
+                </div>
+                <p className="font-body text-[10px] text-text-muted">Send a $0.00-fee test payment · No real money</p>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M5 3l4 4-4 4" stroke="rgba(245,183,0,0.5)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          )}
+
           {/* Recent activity */}
           <div>
             <div className="flex items-center justify-between mb-2">
@@ -184,7 +232,7 @@ export default function PaymentsHub({
         </div>
       </div>
 
-      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
+      <BottomNav active="payments" accountType={accountType} onChange={tab => onNavigate(tab)} />
     </div>
   )
 }

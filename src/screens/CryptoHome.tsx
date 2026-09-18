@@ -20,11 +20,7 @@ interface CryptoAsset {
   colorDim: string
 }
 
-const ASSETS: CryptoAsset[] = [
-  { symbol: 'BTC', name: 'Bitcoin',  holding: 0.012,   holdingValue: 748.92, price: 62410.00, change24h:  2.34, color: '#F7931A', colorDim: 'rgba(247,147,26,0.15)' },
-  { symbol: 'ETH', name: 'Ethereum', holding: 0.45,    holdingValue: 1476.90, price:  3282.00, change24h: -1.12, color: '#627EEA', colorDim: 'rgba(98,126,234,0.15)' },
-  { symbol: 'SOL', name: 'Solana',   holding: 4.2,     holdingValue: 620.76, price:   147.80, change24h:  5.61, color: '#9945FF', colorDim: 'rgba(153,69,255,0.15)' },
-]
+const ASSETS: CryptoAsset[] = []
 
 const TOTAL_VALUE = ASSETS.reduce((s, a) => s + a.holdingValue, 0)
 
@@ -35,10 +31,10 @@ const CHART_POINTS_1M = [0.30,0.40,0.35,0.50,0.55,0.48,0.60,0.65,0.58,0.72,0.68,
 const CHART_POINTS_1Y = [0.20,0.30,0.25,0.40,0.35,0.48,0.42,0.55,0.60,0.50,0.65,0.78]
 
 const RANGE_DATA: Record<string, { pts: number[]; label: string; change: string; positive: boolean }> = {
-  '1D': { pts: CHART_POINTS_1D, label: 'Aug 31',  change: '+4.12%', positive: true  },
-  '1W': { pts: CHART_POINTS_1W, label: 'Aug 25',  change: '+8.93%', positive: true  },
-  '1M': { pts: CHART_POINTS_1M, label: 'Aug 1',   change: '+22.1%', positive: true  },
-  '1Y': { pts: CHART_POINTS_1Y, label: 'Sep 2025',change: '+61.4%', positive: true  },
+  '1D': { pts: CHART_POINTS_1D, label: 'Aug 31',  change: '0.00%', positive: true  },
+  '1W': { pts: CHART_POINTS_1W, label: 'Aug 25',  change: '0.00%', positive: true  },
+  '1M': { pts: CHART_POINTS_1M, label: 'Aug 1',   change: '0.00%', positive: true  },
+  '1Y': { pts: CHART_POINTS_1Y, label: 'Sep 2025',change: '0.00%', positive: true  },
 }
 
 const W = 330, H = 110
@@ -255,7 +251,12 @@ export default function CryptoHome({
                   <span style={{ color: asset.color }}>{asset.symbol.slice(0, 1)}</span>
                 </div>
                 <div className="flex-1 text-left">
-                  <p className="font-body text-sm font-semibold text-text">{asset.name}</p>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-body text-sm font-semibold text-text">{asset.name}</p>
+                    {asset.symbol === 'XNO' && (
+                      <span className="px-1.5 py-0.5 rounded-full font-body text-[8px] font-bold" style={{ background: 'rgba(63,231,255,0.12)', color: '#3FE7FF' }}>Zero Fee</span>
+                    )}
+                  </div>
                   <p className="font-body text-xs text-text-muted">
                     {asset.holding} {asset.symbol} · ${asset.price.toLocaleString()}
                   </p>

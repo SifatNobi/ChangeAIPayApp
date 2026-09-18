@@ -19,12 +19,7 @@ interface SplitPaymentProps {
 
 type SplitMethod = 'equal' | 'custom' | 'percentage'
 
-const PRESET_CONTACTS: Participant[] = [
-  { id: 'c1', name: 'Alex Johnson',  initials: 'AJ', color: '#0066FF', handle: '@alexj' },
-  { id: 'c2', name: 'Sarah Kim',     initials: 'SK', color: '#3FE7FF', handle: '@sarahk' },
-  { id: 'c3', name: 'Marcus Webb',   initials: 'MW', color: '#AFC5FF', handle: '@marcuswebb' },
-  { id: 'c4', name: 'Jamie Lee',     initials: 'JL', color: '#7B4FFF', handle: '@jamielee' },
-]
+const PRESET_CONTACTS: Participant[] = []
 
 const METHOD_LABELS: Record<SplitMethod, string> = {
   equal: 'Equal',
@@ -33,10 +28,8 @@ const METHOD_LABELS: Record<SplitMethod, string> = {
 }
 
 export default function SplitPayment({ onSendRequests, onBack, onAddContact }: SplitPaymentProps) {
-  const [total, setTotal] = useState('120.00')
-  const [participants, setParticipants] = useState<Participant[]>([
-    PRESET_CONTACTS[0], PRESET_CONTACTS[1],
-  ])
+  const [total, setTotal] = useState('')
+  const [participants, setParticipants] = useState<Participant[]>([])
   const [method, setMethod] = useState<SplitMethod>('equal')
   const [showContacts, setShowContacts] = useState(false)
   const [customAmounts, setCustomAmounts] = useState<Record<string, string>>({})

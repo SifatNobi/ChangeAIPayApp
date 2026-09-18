@@ -14,7 +14,7 @@ interface CancelScheduledProps {
 export default function CancelScheduled({
   recipient = 'Sarah Kim',
   handle = '@sarahk',
-  amount = '',
+  amount = '$200.00',
   scheduledDate = 'Sep 5, 2026',
   scheduledTime = '09:00 AM',
   isRecurring = false,
@@ -79,7 +79,7 @@ export default function CancelScheduled({
               <p className="font-body text-sm font-semibold text-text">{recipient}</p>
               <p className="font-mono text-xs text-text-muted">{handle}</p>
             </div>
-            <p className="font-body text-sm font-semibold text-text-2 ml-auto">{amount || '—'}</p>
+            <p className="font-body text-sm font-semibold text-text-2 ml-auto">{amount}</p>
           </div>
 
           <div className="border-t border-[color:var(--color-border)]" />

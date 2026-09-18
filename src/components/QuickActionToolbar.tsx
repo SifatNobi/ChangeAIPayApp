@@ -155,26 +155,6 @@ export default function QuickActionToolbar({
           </button>
         </div>
 
-        {/* Trigger button — top-right header area, near notification bell */}
-        {!open && (
-          <button
-            onClick={() => setOpen(true)}
-            className="absolute flex items-center justify-center rounded-full transition-all active:scale-90"
-            style={{
-              top: 14,
-              right: 16,
-              width: 32,
-              height: 32,
-              background: 'rgba(175,197,255,0.07)',
-              border: '1px solid rgba(175,197,255,0.14)',
-            }}
-            aria-label="Open quick actions"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <path d="M2 4h10M2 7h10M2 10h10" stroke="rgba(175,197,255,0.6)" strokeWidth="1.4" strokeLinecap="round" />
-            </svg>
-          </button>
-        )}
       </div>
     </div>
   )

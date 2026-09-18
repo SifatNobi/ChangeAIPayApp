@@ -11,12 +11,7 @@ interface DeviceEntry {
   type: 'phone' | 'tablet' | 'laptop' | 'desktop'
 }
 
-const INITIAL_DEVICES: DeviceEntry[] = [
-  { id: 'd1', name: 'My iPhone',     model: 'iPhone 16 Pro',    os: 'iOS 18.4',     lastSeen: 'Now',            trusted: true,  current: true,  type: 'phone'   },
-  { id: 'd2', name: 'Work Mac',      model: 'MacBook Pro 16"',  os: 'macOS 15.4',   lastSeen: '2 hours ago',    trusted: true,  current: false, type: 'laptop'  },
-  { id: 'd3', name: 'iPad',          model: 'iPad Pro 13"',     os: 'iPadOS 18.3',  lastSeen: 'Yesterday',      trusted: true,  current: false, type: 'tablet'  },
-  { id: 'd4', name: 'Unknown device',model: 'Android device',   os: 'Android 14',   lastSeen: 'Aug 28, 10:41',  trusted: false, current: false, type: 'phone'   },
-]
+const INITIAL_DEVICES: DeviceEntry[] = []
 
 function DeviceIcon({ type, trusted }: { type: DeviceEntry['type']; trusted: boolean }) {
   const color = trusted ? '#3FE7FF' : '#FF4D5A'
@@ -47,7 +42,7 @@ interface DevicesProps {
 }
 
 export default function Devices({ onBack, onAddDevice, onSuspiciousLogin }: DevicesProps) {
-  const [devices, setDevices] = useState(INITIAL_DEVICES)
+  const [devices, setDevices] = useState<DeviceEntry[]>(INITIAL_DEVICES)
   const [removingId, setRemovingId] = useState<string | null>(null)
   const [trustingId, setTrustingId] = useState<string | null>(null)
   const [expandedId, setExpandedId] = useState<string | null>(null)

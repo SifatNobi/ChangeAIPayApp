@@ -12,10 +12,14 @@ interface CryptoSellConfirmationProps {
   onBack?: () => void
 }
 
-export default function CryptoSellConfirmation({ order, onConfirm, onBack }: CryptoSellConfirmationProps) {
-  const [confirming, setConfirming] = useState(false)
+const DEFAULT_ORDER: SellConfirmationOrder = {
+  symbol: 'BTC', name: 'Bitcoin', color: '#F7931A',
+  amountCrypto: 0.006, amountUSD: 374.46, price: 62410,
+  availableCrypto: 0.012, fee: 0, proceeds: 374.46,
+}
 
-  if (!order) return null
+export default function CryptoSellConfirmation({ order = DEFAULT_ORDER, onConfirm, onBack }: CryptoSellConfirmationProps) {
+  const [confirming, setConfirming] = useState(false)
 
   const handle = () => {
     if (confirming) return

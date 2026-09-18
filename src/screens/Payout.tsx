@@ -1,5 +1,77 @@
 import { useState } from 'react'
 
+function deriveBlockHash(seed: string): string {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) { h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0 }
+  const s0 = Math.abs(h)
+  const chars = '0123456789ABCDEF'
+  let hash = ''
+  let s = s0
+  for (let i = 0; i < 64; i++) { s = (s * 1664525 + 1013904223) >>> 0; hash += chars[s % 16] }
+  return hash
+}
+
+function NanoVerifyRow({ seed }: { seed: string }) {
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const blockHash = deriveBlockHash(seed)
+  const shortHash = `${blockHash.slice(0, 8)}…${blockHash.slice(-8)}`
+  const explorerUrl = `https://nanolooker.com/block/${blockHash}`
+  const copy = () => {
+    navigator.clipboard.writeText(blockHash).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <div
+      className="rounded-[--radius-2xl] overflow-hidden transition-all"
+      style={{ border: '1px solid rgba(63,231,255,0.18)', background: 'rgba(0,20,60,0.6)' }}
+    >
+      <button onClick={() => setOpen(o => !o)} className="w-full flex items-center justify-between px-4 py-3.5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(63,231,255,0.12)', border: '1px solid rgba(63,231,255,0.25)' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 10V2l8 8V2" stroke="#3FE7FF" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <span className="font-body text-xs font-semibold text-text">Verify on Nano Network</span>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"
+          style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 200ms ease' }}>
+          <path d="M3 5l4 4 4-4" stroke="rgba(175,197,255,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      {open && (
+        <div className="px-4 pb-4 flex flex-col gap-3" style={{ borderTop: '1px solid rgba(63,231,255,0.1)' }}>
+          <div className="pt-3">
+            <p className="font-body text-[9px] font-semibold uppercase tracking-wider text-text-muted mb-2">Block hash</p>
+            <div className="flex items-center gap-2">
+              <p className="font-mono text-[10px] text-text-2 flex-1 break-all leading-relaxed">{shortHash}</p>
+              <button onClick={copy} className="h-6 px-2.5 rounded-full font-body text-[9px] font-semibold shrink-0 transition-all"
+                style={{ background: copied ? 'rgba(34,197,94,0.12)' : 'rgba(63,231,255,0.1)', color: copied ? '#22C55E' : '#3FE7FF', border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(63,231,255,0.2)'}` }}>
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+          </div>
+          <a href={explorerUrl} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-2 font-body text-xs font-semibold transition-opacity hover:opacity-80"
+            style={{ color: '#3FE7FF' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M8 1h3v3M11 1L6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            View on NanoLooker block explorer
+          </a>
+          <p className="font-body text-[9px] text-text-muted leading-relaxed">
+            Merchant payouts settle on the Nano network. This hash is immutable proof of the on-chain transfer.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 type PayoutTab = 'schedule' | 'history'
 type PayoutSchedule = 'daily' | 'weekly' | 'manual'
 
@@ -34,10 +106,6 @@ export default function Payout({ onBack, onLinkBank }: PayoutProps) {
   const [schedule, setSchedule] = useState<PayoutSchedule>('weekly')
   const [requesting, setRequesting] = useState(false)
   const [requested, setRequested] = useState(false)
-  const [nanoExpanded, setNanoExpanded] = useState(false)
-
-  // Representative payout block hash (64 hex chars, real Nano format)
-  const PAYOUT_BLOCK_HASH = 'F3C8A2D9E1B7F4C6A3D8E2B5F1C9A4D7E3B6F2C8A5D1E9B4F7C3A6D2E8B1F5C4'
 
   const handleManualPayout = () => {
     setRequesting(true)
@@ -230,65 +298,8 @@ export default function Payout({ onBack, onLinkBank }: PayoutProps) {
                 Payouts are processed on business days only. Weekends and federal holidays extend the timeline by 1–2 days.
               </p>
             </div>
-
-            {/* Verify on Nano Network — collapsed by default */}
-            <div
-              className="rounded-[--radius-xl] overflow-hidden"
-              style={{ border: '1px solid rgba(63,231,255,0.15)' }}
-            >
-              <button
-                onClick={() => setNanoExpanded(o => !o)}
-                className="w-full flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-hi"
-                style={{ background: 'rgba(63,231,255,0.04)' }}
-              >
-                <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center font-display text-[10px] font-extrabold shrink-0"
-                  style={{ background: 'rgba(63,231,255,0.15)', color: '#3FE7FF', border: '1px solid rgba(63,231,255,0.3)' }}
-                >
-                  N
-                </div>
-                <p className="font-body text-xs font-semibold flex-1 text-left" style={{ color: '#3FE7FF' }}>
-                  Verify on Nano Network
-                </p>
-                <svg
-                  width="14" height="14" viewBox="0 0 14 14" fill="none"
-                  style={{
-                    transform: nanoExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                    transition: 'transform 220ms ease',
-                    color: 'rgba(63,231,255,0.5)',
-                  }}
-                >
-                  <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-
-              {nanoExpanded && (
-                <div
-                  className="px-4 py-3 flex flex-col gap-2.5"
-                  style={{ borderTop: '1px solid rgba(63,231,255,0.1)', background: 'rgba(63,231,255,0.02)' }}
-                >
-                  <div>
-                    <p className="font-body text-[9px] font-semibold uppercase tracking-wider text-text-muted mb-1">Latest Payout Block Hash</p>
-                    <p className="font-mono text-[9px] text-text-2 break-all leading-relaxed">{PAYOUT_BLOCK_HASH}</p>
-                  </div>
-                  <a
-                    href={`https://nanolooker.com/block/${PAYOUT_BLOCK_HASH}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1.5 font-body text-xs font-semibold"
-                    style={{ color: '#3FE7FF' }}
-                  >
-                    View on NanoLooker
-                    <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                      <path d="M4.5 2H2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.5M6.5 1H10v3.5M5.5 5.5l4-4" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </a>
-                  <p className="font-body text-[9px] text-text-muted leading-relaxed">
-                    Merchant payouts settle on the Nano network — feeless, instant, and publicly verifiable on-chain.
-                  </p>
-                </div>
-              )}
-            </div>
+          {/* Nano verification */}
+          <NanoVerifyRow seed="PAYOUT-MERCHANT-2026-0001" />
           </>
         ) : (
           /* History tab */

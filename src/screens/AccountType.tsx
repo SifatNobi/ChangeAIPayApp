@@ -27,6 +27,7 @@ const businessBenefits = [
 
 export default function AccountType({ onSelect, onBack }: AccountTypeProps) {
   const [hovered, setHovered] = useState<'personal' | 'business' | null>(null)
+  const [businessExpanded, setBusinessExpanded] = useState(false)
 
   return (
     <div className="flex flex-col min-h-screen bg-bg px-5 pt-4 pb-10">
@@ -138,25 +139,40 @@ export default function AccountType({ onSelect, onBack }: AccountTypeProps) {
               </svg>
             </div>
 
-            {/* Compact benefits */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              {businessBenefits.slice(0, 3).map(b => (
-                <span key={b} className="px-2.5 h-6 rounded-full bg-surface border border-[color:var(--color-border)] font-body text-xs text-text-2 flex items-center">
-                  {b}
-                </span>
+            {/* Compact benefits — matching Personal card checkmark treatment */}
+            <div className="mt-4 flex flex-col gap-2">
+              {(businessExpanded ? businessBenefits : businessBenefits.slice(0, 3)).map(b => (
+                <div key={b} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-primary/12 flex items-center justify-center shrink-0">
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5l2 2 4-4" stroke="#3FE7FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                  <p className="font-body text-sm text-text-2">{b}</p>
+                </div>
               ))}
-              <span className="px-2.5 h-6 rounded-full bg-surface border border-[color:var(--color-border)] font-body text-xs text-text-muted flex items-center">
-                +{businessBenefits.length - 3} more
-              </span>
+              {!businessExpanded && (
+                <button
+                  onClick={e => { e.stopPropagation(); setBusinessExpanded(true) }}
+                  className="flex items-center gap-2 mt-1 min-h-[44px] w-fit"
+                >
+                  <div className="w-5 h-5 rounded-full bg-surface border border-[color:var(--color-border)] flex items-center justify-center shrink-0">
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                      <path d="M4 1v6M1 4h6" stroke="rgba(175,197,255,0.5)" strokeWidth="1.2" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                  <p className="font-body text-sm text-accent">+{businessBenefits.length - 3} more features</p>
+                </button>
+              )}
             </div>
 
             {/* Business CTA */}
             <div className="mt-4">
               <div
-                className="w-full h-10 rounded-[--radius-xl] flex items-center justify-center transition-all duration-[250ms]"
-                style={{ background: 'rgba(0,102,255,0.15)', border: '1px solid rgba(0,102,255,0.35)' }}
+                className="w-full h-11 rounded-[--radius-xl] flex items-center justify-center transition-all duration-[250ms]"
+                style={{ background: 'var(--gradient-primary)' }}
               >
-                <span className="font-body text-sm font-bold text-accent">Start as Business →</span>
+                <span className="font-body text-sm font-bold text-white">Start as Business →</span>
               </div>
             </div>
           </div>

@@ -10,17 +10,9 @@ interface SearchResultsProps {
 
 type Category = 'all' | 'people' | 'transactions' | 'help'
 
-const PEOPLE_RESULTS = [
-  { id: 'p1', name: 'Alex Johnson', handle: '@alex••••', initials: 'AJ', color: '#0066FF', lastSent: '$50.00', when: '2 days ago' },
-  { id: 'p2', name: 'Sarah Kim', handle: '@sarah••••', initials: 'SK', color: '#3FE7FF', lastSent: '$120.00', when: '1 week ago' },
-  { id: 'p3', name: 'Marcus Webb', handle: '@marc••••', initials: 'MW', color: '#AFC5FF', lastSent: '$18.00', when: '2 weeks ago' },
-]
+const PEOPLE_RESULTS: { id: string; name: string; handle: string; initials: string; color: string; lastSent: string; when: string }[] = []
 
-const TX_RESULTS = [
-  { id: 't1', icon: '🎬', merchant: 'Netflix', category: 'Entertainment', amount: '$15.99', date: 'Aug 7', status: 'completed' as const },
-  { id: 't2', icon: '🎬', merchant: 'Netflix', category: 'Entertainment', amount: '$15.99', date: 'Jul 7', status: 'completed' as const },
-  { id: 't3', icon: '🎬', merchant: 'Netflix', category: 'Entertainment', amount: '$15.99', date: 'Jun 7', status: 'completed' as const },
-]
+const TX_RESULTS: { id: string; icon: string; merchant: string; category: string; amount: string; date: string; status: 'completed' | 'pending' | 'failed' }[] = []
 
 const HELP_RESULTS = [
   { id: 'h1', title: 'How do I send money internationally?', section: 'Transfers', readTime: '2 min' },
@@ -39,7 +31,7 @@ export default function SearchResults({
   onNavigate,
   onBack,
 }: SearchResultsProps) {
-  const [query, setQuery] = useState('netflix')
+  const [query, setQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState<Category>('all')
 
   const totalResults = PEOPLE_RESULTS.length + TX_RESULTS.length + HELP_RESULTS.length

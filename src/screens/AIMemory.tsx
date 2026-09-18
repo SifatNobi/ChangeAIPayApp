@@ -33,19 +33,7 @@ const CAT_CONFIG: Record<MemoryCategory, { label: string; color: string; icon: R
   },
 }
 
-const INITIAL_MEMORIES: MemoryItem[] = [
-  { id: 'm1',  category: 'preferences', text: "Prefers concise summaries over detailed breakdowns", learnedAt: 'Aug 28', source: 'Chat feedback' },
-  { id: 'm2',  category: 'preferences', text: "Wants spending alerts when a category exceeds 20% of monthly budget", learnedAt: 'Aug 20', source: 'Auto Save settings' },
-  { id: 'm3',  category: 'preferences', text: "Uses voice mode primarily in the morning", learnedAt: 'Aug 15', source: 'Usage pattern' },
-  { id: 'm4',  category: 'goals',       text: "Top priority goal: Emergency Fund by December 2026 ($5,000)", learnedAt: 'Aug 1', source: 'Goals screen' },
-  { id: 'm5',  category: 'goals',       text: "Saving for vacation — flexible timeline, prefers round-ups for this goal", learnedAt: 'Aug 10', source: 'Chat: vacation planning' },
-  { id: 'm6',  category: 'goals',       text: "MacBook purchase planned for October 2026 — on track", learnedAt: 'Aug 5', source: 'Goals screen' },
-  { id: 'm7',  category: 'spending',    text: "Average food spend: $380–$420/month; spikes during travel", learnedAt: 'Aug 31', source: 'Transaction analysis' },
-  { id: 'm8',  category: 'spending',    text: "Recurring subscriptions total $67.95/month across 7 services", learnedAt: 'Aug 25', source: 'Auto-detected' },
-  { id: 'm9',  category: 'spending',    text: "Tends to over-spend on dining out in the last week of each month", learnedAt: 'Aug 31', source: 'Spending pattern' },
-  { id: 'm10', category: 'context',     text: "Paycheck arrives on the 1st and 15th of each month (~$3,400)", learnedAt: 'Aug 15', source: 'Direct deposit' },
-  { id: 'm11', category: 'context',     text: "Currently holds BTC and ETH. Not interested in altcoins", learnedAt: 'Aug 23', source: 'Chat: crypto' },
-]
+const INITIAL_MEMORIES: MemoryItem[] = []
 
 type FilterCat = MemoryCategory | 'all'
 
@@ -55,7 +43,7 @@ interface AIMemoryProps {
 }
 
 export default function AIMemory({ onBack, onPrivacySettings }: AIMemoryProps) {
-  const [memories, setMemories] = useState<MemoryItem[]>(INITIAL_MEMORIES)
+  const [memories, setMemories] = useState<MemoryItem[]>([])
   const [filter, setFilter] = useState<FilterCat>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')

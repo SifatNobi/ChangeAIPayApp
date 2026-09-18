@@ -2,6 +2,9 @@ import { useState } from 'react'
 import { Header, BottomNav } from '@/components/Nav'
 import { TransactionRow, Chip } from '@/components/Card'
 
+const NANO_ADDRESS = ''
+const NANO_BALANCE = '0'
+
 interface WalletDetailProps {
   accountType?: 'personal' | 'business'
   onNavigate: (tab: string) => void
@@ -9,26 +12,105 @@ interface WalletDetailProps {
   onAddMoney?: () => void
   onWithdraw?: () => void
   onNotifications?: () => void
-  onNanoReceive?: () => void
-  onNanoSend?: () => void
+  onReceiveNano?: () => void
+  onSendNano?: () => void
 }
 
-const ALL_TX = [
-  { icon: <span className="text-lg">🥗</span>, merchant: 'Pret A Manger', category: 'Food', amount: '$8.50', date: 'Today, 12:34 PM', status: 'completed' as const, positive: false },
-  { icon: <span className="text-lg">🎬</span>, merchant: 'Netflix', category: 'Entertainment', amount: '$15.99', date: 'Yesterday', status: 'completed' as const, positive: false },
-  { icon: <span className="text-lg">💰</span>, merchant: 'Incoming Transfer', category: 'Income', amount: '$500.00', date: 'Aug 5', status: 'completed' as const, positive: true },
-  { icon: <span className="text-lg">🛒</span>, merchant: 'Whole Foods', category: 'Groceries', amount: '$62.14', date: 'Aug 4', status: 'completed' as const, positive: false },
-  { icon: <span className="text-lg">⏳</span>, merchant: 'Stripe Payout', category: 'Income', amount: '$200.00', date: 'Aug 3', status: 'pending' as const, positive: true },
-  { icon: <span className="text-lg">☕</span>, merchant: 'Blue Bottle Coffee', category: 'Food', amount: '$6.50', date: 'Aug 2', status: 'completed' as const, positive: false },
-  { icon: <span className="text-lg">✈️</span>, merchant: 'British Airways', category: 'Travel', amount: '$320.00', date: 'Aug 1', status: 'completed' as const, positive: false },
-  { icon: <span className="text-lg">❌</span>, merchant: 'Amazon', category: 'Shopping', amount: '$89.99', date: 'Jul 30', status: 'failed' as const, positive: false },
-]
+const ALL_TX: { icon: React.ReactNode; merchant: string; category: string; amount: string; date: string; status: 'completed' | 'pending' | 'failed'; positive: boolean }[] = []
 
-const CURRENCIES = [
-  { code: 'USD', name: 'US Dollar',    balance: '$1,847.50', flag: '🇺🇸' },
-  { code: 'GBP', name: 'British Pound', balance: '£620.00',  flag: '🇬🇧' },
-  { code: 'EUR', name: 'Euro',          balance: '€380.00',  flag: '🇪🇺' },
-]
+const CURRENCIES: { code: string; name: string; balance: string; flag: string }[] = []
+
+function NanoBadge({ onReceive, onSend }: { onReceive?: () => void; onSend?: () => void }) {
+  const [copied, setCopied] = useState(false)
+  const short = `${NANO_ADDRESS.slice(0, 12)}…${NANO_ADDRESS.slice(-8)}`
+  const copy = () => {
+    navigator.clipboard.writeText(NANO_ADDRESS).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+  return (
+    <div
+      className="rounded-[--radius-2xl] overflow-hidden"
+      style={{ border: '1px solid rgba(63,231,255,0.2)', background: 'linear-gradient(135deg, rgba(0,30,80,0.85) 0%, rgba(13,26,74,0.95) 100%)' }}
+    >
+      {/* Header row */}
+      <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: '1px solid rgba(63,231,255,0.1)' }}>
+        <div className="flex items-center gap-2">
+          {/* Nano logo mark — stylised N */}
+          <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(63,231,255,0.15)', border: '1px solid rgba(63,231,255,0.3)' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 10V2l8 8V2" stroke="#3FE7FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <span className="font-body text-xs font-bold" style={{ color: '#3FE7FF' }}>Powered by Nano</span>
+        </div>
+        <span
+          className="px-2 py-0.5 rounded-full font-body text-[9px] font-bold uppercase tracking-wider"
+          style={{ background: 'rgba(34,197,94,0.12)', color: '#22C55E', border: '1px solid rgba(34,197,94,0.25)' }}
+        >
+          Feeless · Instant
+        </span>
+      </div>
+
+      <div className="px-4 py-3 flex flex-col gap-3">
+        {/* Address row */}
+        <div>
+          <p className="font-body text-[9px] font-semibold uppercase tracking-wider text-text-muted mb-1.5">Your Nano address</p>
+          <div className="flex items-center gap-2">
+            <p className="font-mono text-xs text-text-2 flex-1 truncate">{short}</p>
+            <button
+              onClick={copy}
+              className="h-7 px-3 rounded-full font-body text-[10px] font-semibold transition-all active:scale-95 shrink-0"
+              style={{
+                background: copied ? 'rgba(34,197,94,0.15)' : 'rgba(63,231,255,0.1)',
+                color: copied ? '#22C55E' : '#3FE7FF',
+                border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(63,231,255,0.25)'}`,
+              }}
+            >
+              {copied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
+        </div>
+
+        {/* Balance + description */}
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-body text-[9px] text-text-muted uppercase tracking-wider mb-0.5">Confirmed Nano balance</p>
+            <p className="font-mono text-sm font-bold text-text">{NANO_BALANCE} <span className="text-text-muted font-normal">XNO</span></p>
+          </div>
+          <p className="font-body text-[9px] text-text-muted text-right leading-relaxed max-w-[120px]">
+            All ChangeAIPay balances settle via Nano — $0 fees, sub-second finality
+          </p>
+        </div>
+
+        {/* Receive / Send external buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={onReceive}
+            className="flex-1 h-9 rounded-[--radius-xl] font-body text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+            style={{ background: 'rgba(63,231,255,0.1)', color: '#3FE7FF', border: '1px solid rgba(63,231,255,0.25)' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 2v8M3 7l3 3 3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Receive NANO
+          </button>
+          <button
+            onClick={onSend}
+            className="flex-1 h-9 rounded-[--radius-xl] font-body text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95"
+            style={{ background: 'rgba(175,197,255,0.07)', color: 'rgba(175,197,255,0.7)', border: '1px solid rgba(175,197,255,0.15)' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 10V2M3 5l3-3 3 3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Send NANO
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function WalletDetail({
   accountType = 'personal',
@@ -36,9 +118,9 @@ export default function WalletDetail({
   onBack,
   onAddMoney,
   onWithdraw,
+  onReceiveNano,
+  onSendNano,
   onNotifications,
-  onNanoReceive,
-  onNanoSend,
 }: WalletDetailProps) {
   const [filter, setFilter] = useState<'all' | 'incoming' | 'outgoing' | 'pending'>('all')
   const [exportMenuOpen, setExportMenuOpen] = useState(false)
@@ -52,7 +134,7 @@ export default function WalletDetail({
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
-      <Header notificationCount={3} onNotification={onNotifications} />
+      <Header notificationCount={0} onNotification={onNotifications} />
 
       <div className="overflow-y-auto pb-24 flex-1" style={{ scrollbarWidth: 'none' }}>
         {/* Back row + title */}
@@ -104,16 +186,16 @@ export default function WalletDetail({
           <div className="rounded-[--radius-2xl] p-4"
             style={{ background: 'linear-gradient(145deg, #0D1A4A 0%, #0066FF 70%, #3FE7FF 100%)' }}>
             <p className="font-body text-xs text-white/60 mb-1">Total Balance</p>
-            <p className="font-display text-3xl font-extrabold text-white tracking-tight">$2,847.50</p>
+            <p className="font-display text-3xl font-extrabold text-white tracking-tight">$0.00</p>
             <div className="flex items-center gap-3 mt-3">
               <div>
                 <p className="font-body text-[10px] text-white/50 mb-0.5">Available</p>
-                <p className="font-mono text-sm font-semibold text-white">$2,647.50</p>
+                <p className="font-mono text-sm font-semibold text-white">$0.00</p>
               </div>
               <div className="w-px h-8" style={{ background: 'rgba(255,255,255,0.2)' }} />
               <div>
                 <p className="font-body text-[10px] text-white/50 mb-0.5">Pending</p>
-                <p className="font-mono text-sm font-semibold text-white/80">$200.00</p>
+                <p className="font-mono text-sm font-semibold text-white/80">$0.00</p>
               </div>
               <div className="flex-1" />
               <Chip label="Personal" variant="info" />
@@ -177,84 +259,15 @@ export default function WalletDetail({
                 </svg>
               </div>
               <div className="flex-1">
-                <p className="font-body text-sm font-semibold text-text">Chase Bank</p>
-                <p className="font-body text-xs text-text-muted">Checking ••••4821</p>
+                <p className="font-body text-sm font-semibold text-text"></p>
+                <p className="font-body text-xs text-text-muted"></p>
               </div>
               <Chip label="Verified" variant="success" dot />
             </div>
           </div>
 
-          {/* Powered by Nano section */}
-          <div>
-            <p className="font-body text-sm font-semibold text-text mb-2">Powered by Nano</p>
-            <div
-              className="rounded-[--radius-2xl] px-4 py-4 flex flex-col gap-3"
-              style={{ background: 'rgba(63,231,255,0.04)', border: '1px solid rgba(63,231,255,0.2)' }}
-            >
-              {/* Nano address */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-body text-xs text-text-muted mb-1">Your Nano Address</p>
-                  <p className="font-mono text-xs text-text">nano_1ysn6p7...dw</p>
-                </div>
-                <button
-                  onClick={() => navigator.clipboard.writeText('nano_1ysn6p7s7gbrxkr67c5emzhq1xpbzcfsgchjcsbcmfxfh8qnqz8guwdx5dwn')}
-                  className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-hi transition-colors shrink-0"
-                  aria-label="Copy address"
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <rect x="2.5" y="4.5" width="5" height="5" rx="0.8" stroke="rgba(175,197,255,0.6)" strokeWidth="0.9" />
-                    <path d="M4.5 4.5V3.5a0.8 0.8 0 0 1 0.8-0.8h4.7a0.8 0.8 0 0 1 0.8 0.8v4.7a0.8 0.8 0 0 1-0.8 0.8H9.5" stroke="rgba(175,197,255,0.6)" strokeWidth="0.9" />
-                  </svg>
-                </button>
-              </div>
-
-              {/* Confirmed balance */}
-              <div className="flex items-center justify-between border-t border-[color:var(--color-border)] pt-3">
-                <div>
-                  <p className="font-body text-xs text-text-muted mb-1">Confirmed Balance</p>
-                  <p className="font-mono text-sm font-semibold text-text">$2,847.50</p>
-                </div>
-                <div className="w-2 h-2 rounded-full bg-success animate-pulse" />
-              </div>
-
-              {/* Feeless settlement badge */}
-              <div
-                className="flex items-center gap-2 px-2.5 py-2 rounded-[--radius-lg] w-fit"
-                style={{ background: 'rgba(63,231,255,0.12)' }}
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <circle cx="6" cy="6" r="5" stroke="#3FE7FF" strokeWidth="1" />
-                  <path d="M3 6l2 2 4-4" stroke="#3FE7FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <p className="font-body text-xs font-semibold text-[#3FE7FF]">Feeless • Instant Settlement</p>
-              </div>
-
-              {/* Nano network actions */}
-              <div className="flex gap-2 pt-1">
-                <button
-                  onClick={onNanoReceive}
-                  className="flex-1 h-9 rounded-[--radius-xl] flex items-center justify-center gap-1.5 font-body text-xs font-semibold transition-all active:scale-[0.97]"
-                  style={{ background: 'rgba(63,231,255,0.1)', border: '1px solid rgba(63,231,255,0.25)', color: '#3FE7FF' }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M6 2v7M2 7l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  Receive NANO
-                </button>
-                <button
-                  onClick={onNanoSend}
-                  className="flex-1 h-9 rounded-[--radius-xl] flex items-center justify-center gap-1.5 font-body text-xs font-semibold transition-all active:scale-[0.97]"
-                  style={{ background: 'rgba(63,231,255,0.06)', border: '1px solid rgba(63,231,255,0.18)', color: 'rgba(63,231,255,0.8)' }}
-                >
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                    <path d="M6 10V3M2 5l4-4 4 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  Send NANO
-                </button>
-              </div>
-            </div>
-          </div>
+          {/* Powered by Nano */}
+          <NanoBadge onReceive={onReceiveNano} onSend={onSendNano} />
 
           {/* Transaction filter chips */}
           <div>

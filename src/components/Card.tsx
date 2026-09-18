@@ -70,8 +70,8 @@ export function WalletCard({
             </p>
             <p className="font-body text-sm font-medium text-white/90">{name}</p>
           </div>
-          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center shrink-0" style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)', borderRadius: '50%' }}>
-            <img src={logoSrc} alt="ChangeAIPay" className="w-full h-full object-cover rounded-full" style={{ display: 'block' }} />
+          <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.12)', backdropFilter: 'blur(8px)' }}>
+            <img src={logoSrc} alt="ChangeAIPay" className="w-full h-full object-cover" />
           </div>
         </div>
         <div>

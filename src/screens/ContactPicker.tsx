@@ -17,16 +17,7 @@ interface ContactPickerProps {
   onBack?: () => void
 }
 
-const CONTACTS: Contact[] = [
-  { id: 'c1', name: 'Alex Johnson',   handle: '@alexj',      initials: 'AJ', color: '#0066FF', verified: true,  recent: true },
-  { id: 'c2', name: 'Sarah Kim',      handle: '@sarahk',     initials: 'SK', color: '#3FE7FF', verified: true,  recent: true },
-  { id: 'c3', name: 'Marcus Webb',    handle: '@marcuswebb', initials: 'MW', color: '#AFC5FF', verified: false, recent: true },
-  { id: 'c4', name: 'Jamie Lee',      handle: '@jamielee',   initials: 'JL', color: '#7B4FFF', verified: true },
-  { id: 'c5', name: 'Raj Patel',      handle: '@rajp',       initials: 'RP', color: '#FF6B6B', verified: false },
-  { id: 'c6', name: 'Nina Chen',      handle: '@ninac',      initials: 'NC', color: '#FF9F43', verified: true },
-  { id: 'c7', name: 'Oliver Grant',   handle: '@oliverg',    initials: 'OG', color: '#26de81', verified: true },
-  { id: 'c8', name: 'Priya Sharma',   handle: '@priyas',     initials: 'PS', color: '#45aaf2', verified: false },
-]
+const CONTACTS: Contact[] = []
 
 export default function ContactPicker({ onSelect, onAddNew, onBack }: ContactPickerProps) {
   const [query, setQuery] = useState('')

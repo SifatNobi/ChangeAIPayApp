@@ -41,17 +41,9 @@ const MONTH_LABELS: Record<Range, string[]> = {
   '1Y': MONTH_LABELS_1Y,
 }
 
-const CATEGORIES = [
-  { label: 'Housing',       amount: 1020, budget: 1200, color: '#3FE7FF',  pct: 29 },
-  { label: 'Food & Dining', amount: 412,  budget:  400, color: '#F5B700',  pct: 12 },
-  { label: 'Transport',     amount: 148,  budget:  200, color: '#22C55E',  pct:  4 },
-  { label: 'Shopping',      amount: 284,  budget:  300, color: '#9945FF',  pct:  8 },
-  { label: 'Health',        amount: 120,  budget:  150, color: '#E6007A',  pct:  3 },
-  { label: 'Entertainment', amount: 95,   budget:  100, color: '#FC7E2F',  pct:  3 },
-  { label: 'Other',         amount: 421,  budget:  450, color: '#627EEA',  pct: 12 },
-]
+const CATEGORIES: { label: string; amount: number; budget: number; color: string; pct: number }[] = []
 
-const MONTHLY_INCOME = 3400
+const MONTHLY_INCOME = 0
 const MONTHLY_SPEND  = CATEGORIES.reduce((s, c) => s + c.amount, 0)
 const MONTHLY_SAVED  = MONTHLY_INCOME - MONTHLY_SPEND
 

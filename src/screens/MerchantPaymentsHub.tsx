@@ -1,14 +1,18 @@
 import { useState } from 'react'
 import { MerchantBottomNav, type MerchantNavItem } from '@/components/Nav'
 
-type PaymentMethod = 'invoice' | 'qr' | 'request'
+type PaymentMethod = 'invoice' | 'qr' | 'request' | 'paymentLinks' | 'recurringBilling' | 'disputes'
 
 interface MerchantPaymentsHubProps {
   onNavigate?: (item: MerchantNavItem) => void
   onCreateInvoice?: () => void
   onGenerateQR?: () => void
   onRequestPayment?: () => void
+  onPaymentLinks?: () => void
+  onRecurringBilling?: () => void
+  onDisputes?: () => void
   onBack?: () => void
+  onDemoPayment?: () => void
 }
 
 const METHODS: { id: PaymentMethod; label: string; sub: string; color: string; bg: string; icon: React.ReactNode }[] = [
@@ -53,21 +57,59 @@ const METHODS: { id: PaymentMethod; label: string; sub: string; color: string; b
       </svg>
     ),
   },
+  {
+    id: 'paymentLinks',
+    label: 'Payment Links',
+    sub: 'Shareable links — fixed or open amount, one-time or reusable',
+    color: '#22C55E',
+    bg: 'linear-gradient(135deg, rgba(0,60,30,0.92), rgba(0,40,20,0.98))',
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M10.5 15.5l5-5M8 14l-1.5 1.5a3.5 3.5 0 0 0 4.95 4.95L13 19M13 7l1.5-1.5a3.5 3.5 0 0 1 4.95 4.95L18 12" stroke="#22C55E" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    ),
+  },
+  {
+    id: 'recurringBilling',
+    label: 'Recurring Billing',
+    sub: 'Subscription plans — weekly, monthly, or yearly billing',
+    color: '#F5B700',
+    bg: 'linear-gradient(135deg, rgba(60,40,0,0.92), rgba(40,28,0,0.98))',
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M13 4v4M13 18v4M4 13h4M18 13h4" stroke="#F5B700" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="13" cy="13" r="6" stroke="#F5B700" strokeWidth="1.5" />
+        <path d="M11 11h2.5v2.5" stroke="#F5B700" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    ),
+  },
+  {
+    id: 'disputes',
+    label: 'Disputes',
+    sub: 'Respond to customer disputes and chargebacks',
+    color: '#FF4D5A',
+    bg: 'linear-gradient(135deg, rgba(70,10,15,0.92), rgba(50,5,10,0.98))',
+    icon: (
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M13 8v6M13 17v1" stroke="#FF4D5A" strokeWidth="2" strokeLinecap="round" />
+        <path d="M12.134 4.5l-9 15.588A1 1 0 0 0 4 21.5h18a1 1 0 0 0 .866-1.5l-9-15.588a1 1 0 0 0-1.732 0Z" stroke="#FF4D5A" strokeWidth="1.5" />
+      </svg>
+    ),
+  },
 ]
 
-const RECENT_PAYMENTS = [
-  { id: '1', label: 'Invoice #INV-084', customer: 'Office Supplies Co', amount: '$320.00', status: 'paid', statusColor: '#22C55E', time: '1h ago' },
-  { id: '2', label: 'QR Payment', customer: 'J. Kim', amount: '$75.00', status: 'paid', statusColor: '#22C55E', time: '3h ago' },
-  { id: '3', label: 'Invoice #INV-083', customer: 'Sunrise Café', amount: '$148.50', status: 'paid', statusColor: '#22C55E', time: 'Yesterday' },
-  { id: '4', label: 'Invoice #INV-082', customer: 'Peak Media Ltd', amount: '$860.00', status: 'pending', statusColor: '#F5B700', time: '2 days ago' },
-]
+const RECENT_PAYMENTS: { id: string; label: string; customer: string; amount: string; status: string; statusColor: string; time: string }[] = []
 
 export default function MerchantPaymentsHub({
   onNavigate,
   onCreateInvoice,
   onGenerateQR,
   onRequestPayment,
+  onPaymentLinks,
+  onRecurringBilling,
+  onDisputes,
   onBack,
+  onDemoPayment,
 }: MerchantPaymentsHubProps) {
   const [activeNav, setActiveNav] = useState<MerchantNavItem>('payments')
 
@@ -80,6 +122,9 @@ export default function MerchantPaymentsHub({
     if (id === 'invoice') onCreateInvoice?.()
     else if (id === 'qr') onGenerateQR?.()
     else if (id === 'request') onRequestPayment?.()
+    else if (id === 'paymentLinks') onPaymentLinks?.()
+    else if (id === 'recurringBilling') onRecurringBilling?.()
+    else if (id === 'disputes') onDisputes?.()
   }
 
   return (
@@ -101,8 +146,8 @@ export default function MerchantPaymentsHub({
         {/* Summary strip */}
         <div className="flex gap-3">
           {[
-            { label: "Today's In", value: '$543', color: '#22C55E' },
-            { label: 'Pending', value: '$860', color: '#F5B700' },
+            { label: "Today's In", value: '$0', color: '#22C55E' },
+            { label: 'Pending', value: '$0', color: '#F5B700' },
             { label: 'Overdue', value: '$0', color: 'rgba(175,197,255,0.5)' },
           ].map(stat => (
             <div
@@ -183,6 +228,45 @@ export default function MerchantPaymentsHub({
           </div>
         </div>
       </div>
+
+      {/* DEMO entry point — isolated, removable */}
+      {onDemoPayment && (
+        <div className="px-5 pb-3 shrink-0">
+          <button
+            onClick={onDemoPayment}
+            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[--radius-2xl] transition-all active:scale-[0.98] text-left"
+            style={{
+              background: 'linear-gradient(135deg, rgba(245,183,0,0.08) 0%, rgba(245,183,0,0.04) 100%)',
+              border: '1px solid rgba(245,183,0,0.3)',
+            }}
+          >
+            <div
+              className="w-10 h-10 rounded-[12px] flex items-center justify-center shrink-0"
+              style={{ background: 'rgba(245,183,0,0.12)', border: '1px solid rgba(245,183,0,0.25)' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                <circle cx="9" cy="9" r="7.5" stroke="#F5B700" strokeWidth="1.2" />
+                <path d="M9 12.5V5.5M6 9l3 3 3-3" stroke="#F5B700" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <p className="font-body text-sm font-bold text-text">Demo Payment</p>
+                <span
+                  className="px-1.5 py-0.5 rounded-full font-body text-[9px] font-bold uppercase tracking-wider shrink-0"
+                  style={{ background: 'rgba(245,183,0,0.15)', color: '#F5B700', border: '1px solid rgba(245,183,0,0.3)' }}
+                >
+                  TEST
+                </span>
+              </div>
+              <p className="font-body text-[10px] text-text-muted">Receive a $0.00-fee test payment · No real money</p>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 3l4 4-4 4" stroke="rgba(245,183,0,0.5)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
+      )}
 
       <MerchantBottomNav active={activeNav} onChange={handleNav} />
     </div>

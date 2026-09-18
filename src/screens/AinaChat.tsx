@@ -14,31 +14,7 @@ interface Message {
   dataRows?: DataRow[]
 }
 
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: '1',
-    role: 'aina',
-    text: "Good morning. I've reviewed your overnight activity — two payments received totalling $393. Your week is tracking 12% ahead of last week's pace. What would you like to focus on today?",
-    time: '9:02 AM',
-  },
-  {
-    id: '2',
-    role: 'user',
-    text: "How's my revenue this month?",
-    time: '9:03 AM',
-  },
-  {
-    id: '3',
-    role: 'aina',
-    text: "August revenue is $39,400 — up 24.1% from July. You've beaten last month on 22 of 28 business days. At this trajectory, August will be your highest-revenue month on record.",
-    time: '9:03 AM',
-    dataRows: [
-      { label: 'Aug revenue', value: '$39,400' },
-      { label: 'vs July', value: '+24.1%' },
-      { label: 'Best week', value: 'W4 · $14,650' },
-    ],
-  },
-]
+const INITIAL_MESSAGES: Message[] = []
 
 const QUICK_PROMPTS = [
   "How's my revenue this month?",
@@ -131,7 +107,7 @@ interface AinaChatProps {
 }
 
 export default function AinaChat({ onBack, onHistory, onVoice }: AinaChatProps) {
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [thinking, setThinking] = useState(false)
   const [showQuickPrompts, setShowQuickPrompts] = useState(false)
@@ -230,6 +206,15 @@ export default function AinaChat({ onBack, onHistory, onVoice }: AinaChatProps) 
         </div>
 
         <button
+          onClick={onVoice}
+          className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface transition-colors"
+        >
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <rect x="6.5" y="1.5" width="5" height="8" rx="2.5" stroke="rgba(175,197,255,0.55)" strokeWidth="1.3" />
+            <path d="M3.5 8.5a5.5 5.5 0 0 0 11 0M9 15v2" stroke="rgba(175,197,255,0.55)" strokeWidth="1.3" strokeLinecap="round" />
+          </svg>
+        </button>
+        <button
           onClick={onHistory}
           className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface transition-colors"
         >
@@ -246,6 +231,13 @@ export default function AinaChat({ onBack, onHistory, onVoice }: AinaChatProps) 
         className="flex-1 overflow-y-auto px-4 pt-4"
         style={{ scrollbarWidth: 'none', paddingBottom: showQuickPrompts ? 188 : 76 }}
       >
+        {/* AI disclosure — shown at top of every session */}
+        <div className="flex items-center justify-center py-1 mb-2">
+          <p className="font-body text-[9px] text-center px-3 py-1.5 rounded-full"
+            style={{ background: 'rgba(0,102,255,0.06)', border: '1px solid rgba(0,102,255,0.15)', color: 'rgba(175,197,255,0.4)' }}>
+            You are chatting with Aina, an AI assistant — not a human advisor
+          </p>
+        </div>
         {messages.map(msg =>
           msg.role === 'aina'
             ? <AinaBubble key={msg.id} msg={msg} />
@@ -367,6 +359,10 @@ export default function AinaChat({ onBack, onHistory, onVoice }: AinaChatProps) 
             </svg>
           </button>
         </div>
+        <p className="font-body text-[10px] text-center mt-2 leading-relaxed px-2"
+          style={{ color: 'rgba(175,197,255,0.35)' }}>
+          Aina provides general business guidance only. Always confirm important financial decisions with a qualified professional or contact support.
+        </p>
       </div>
     </div>
   )

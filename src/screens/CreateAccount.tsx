@@ -8,6 +8,7 @@ import { EncryptionBanner } from '@/components/States'
 interface CreateAccountProps {
   accountType: 'personal' | 'business'
   onSubmit: (data: { name: string; email: string; phone: string }) => void
+  onUnderage?: () => void
   onBack: () => void
   onLogin: () => void
 }
@@ -25,16 +26,33 @@ function validate(field: string, value: string, compare?: string): string {
   return ''
 }
 
-export default function CreateAccount({ accountType, onSubmit, onBack, onLogin }: CreateAccountProps) {
+function getAge(dob: string): number | null {
+  if (!dob) return null
+  const birth = new Date(dob)
+  if (isNaN(birth.getTime())) return null
+  const today = new Date()
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
+}
+
+export default function CreateAccount({ accountType, onSubmit, onUnderage, onBack, onLogin }: CreateAccountProps) {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [dob, setDob] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
   const [terms, setTerms] = useState(false)
   const [privacy, setPrivacy] = useState(false)
   const [loading, setLoading] = useState(false)
   const [touched, setTouched] = useState<Record<string, boolean>>({})
+
+  const age = getAge(dob)
+  const dobError = touched.dob
+    ? (!dob ? 'Date of birth is required' : age === null ? 'Enter a valid date' : '')
+    : ''
 
   const errors = {
     name: touched.name ? validate('Full Name', name) : '',
@@ -46,12 +64,14 @@ export default function CreateAccount({ accountType, onSubmit, onBack, onLogin }
 
   const allValid =
     !errors.name && !errors.email && !errors.phone &&
-    !errors.password && !errors.confirm &&
-    name && email && phone && password && confirm &&
-    terms && privacy
+    !errors.password && !errors.confirm && !dobError &&
+    name && email && phone && dob && password && confirm &&
+    terms && privacy && age !== null
 
   const handleSubmit = async () => {
-    setTouched({ name: true, email: true, phone: true, password: true, confirm: true })
+    setTouched({ name: true, email: true, phone: true, dob: true, password: true, confirm: true })
+    if (!dob || age === null) return
+    if (age < 18) { onUnderage?.(); return }
     if (!allValid) return
     setLoading(true)
     await new Promise(r => setTimeout(r, 1200))
@@ -105,6 +125,16 @@ export default function CreateAccount({ accountType, onSubmit, onBack, onLogin }
             onBlur={() => blur('phone')}
             error={errors.phone}
             autoComplete="tel"
+          />
+          <TextInput
+            label="Date of Birth"
+            placeholder="YYYY-MM-DD"
+            type="date"
+            value={dob}
+            onChange={e => setDob(e.target.value)}
+            onBlur={() => blur('dob')}
+            error={dobError}
+            autoComplete="bday"
           />
           <div>
             <PasswordInput

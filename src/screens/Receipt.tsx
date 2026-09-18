@@ -7,13 +7,18 @@ interface ReceiptProps {
   onBack?: () => void
 }
 
+const DEFAULT_TX: Transaction = {
+  id: '', type: 'sent', merchant: '', counterpartyHandle: '',
+  category: 'Transfer', amount: '$0.00', amountNum: 0, positive: false,
+  status: 'completed', date: '', time: '', dateGroup: 'Today',
+  transactionId: '', fee: 'Free', note: '',
+}
+
 export default function Receipt({
-  transaction,
+  transaction = DEFAULT_TX,
   onShare,
   onBack,
 }: ReceiptProps) {
-  if (!transaction) return null
-
   const typeLabel = { sent: 'Payment Sent', received: 'Payment Received', refund: 'Refund', topup: 'Funds Added', withdrawal: 'Withdrawal' }[transaction.type] ?? 'Transaction'
 
   return (

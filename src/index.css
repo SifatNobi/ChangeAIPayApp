@@ -196,3 +196,38 @@ body {
   outline: 2px solid #3FE7FF;
   outline-offset: 2px;
 }
+
+/* ── Global accessible focus — all interactive elements ─────────── */
+/* Remove default outline only when a visible replacement exists */
+:focus-visible {
+  outline: 2px solid rgba(63, 231, 255, 0.75);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Suppress focus ring for mouse/touch users (pointer-events path) */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Minimum text contrast helpers ──────────────────────────────── */
+/* text-text-muted (#6B84C4 on #050B2D) is ~4.6:1 — passes AA */
+/* Caution: do not use opacity below 0.45 on rgba(175,197,255) text */
+
+/* ── Skip-to-content link (screen reader / keyboard nav) ─────────── */
+.skip-link {
+  position: absolute;
+  top: -9999px;
+  left: 8px;
+  z-index: 9999;
+  padding: 8px 16px;
+  background: #0066FF;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+}
+.skip-link:focus {
+  top: 8px;
+}

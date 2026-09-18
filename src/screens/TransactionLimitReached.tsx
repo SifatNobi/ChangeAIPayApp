@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 interface TransactionLimitReachedProps {
   usedAmount?: number
   limitAmount?: number
@@ -15,6 +17,7 @@ export default function TransactionLimitReached({
   onUpgrade,
   onDismiss,
 }: TransactionLimitReachedProps) {
+  const [confirmed, setConfirmed] = useState(false)
   const pct = Math.min(100, Math.round((usedAmount / limitAmount) * 100))
   const isCrossBorder = transferType === 'cross-border'
   const feeRate = isCrossBorder ? '1.75%' : '1.5%'
@@ -114,13 +117,25 @@ export default function TransactionLimitReached({
 
         {/* CTAs */}
         <div className="flex flex-col gap-3">
-          <button
-            onClick={onContinueWithFee}
-            className="w-full h-14 rounded-[--radius-2xl] font-body text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-[0.98]"
-            style={{ background: 'var(--gradient-primary)' }}
-          >
-            Continue with {feeRate} fee
-          </button>
+          {confirmed ? (
+            <div
+              className="w-full h-14 rounded-[--radius-2xl] flex items-center justify-center gap-2"
+              style={{ background: 'rgba(34,197,94,0.12)', border: '1px solid rgba(34,197,94,0.3)' }}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l4 4 6-6" stroke="#22C55E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <span className="font-body text-sm font-semibold" style={{ color: '#22C55E' }}>Standard fee applied — continuing</span>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setConfirmed(true); setTimeout(() => onContinueWithFee?.(), 900) }}
+              className="w-full h-14 rounded-[--radius-2xl] font-body text-sm font-semibold text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90 active:scale-[0.98]"
+              style={{ background: 'var(--gradient-primary)' }}
+            >
+              Continue with {feeRate} fee
+            </button>
+          )}
           <button
             onClick={onUpgrade}
             className="w-full h-12 rounded-[--radius-2xl] font-body text-sm font-semibold flex items-center justify-center gap-2 transition-colors hover:bg-surface-hi active:scale-[0.98]"

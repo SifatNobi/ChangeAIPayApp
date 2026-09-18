@@ -2,12 +2,106 @@ import { useState } from 'react'
 import { type Transaction } from '@/data/transactions'
 import logoSrc from '@/imports/logo.png.jpeg'
 
+// Deterministic block hash derived from transactionId (for demo provability)
+function deriveBlockHash(txId: string): string {
+  let h = 0
+  for (let i = 0; i < txId.length; i++) { h = (Math.imul(31, h) + txId.charCodeAt(i)) | 0 }
+  const seed = Math.abs(h)
+  const chars = '0123456789ABCDEF'
+  let hash = ''
+  let s = seed
+  for (let i = 0; i < 64; i++) { s = (s * 1664525 + 1013904223) >>> 0; hash += chars[s % 16] }
+  return hash
+}
+
+function NanoVerifyRow({ transactionId }: { transactionId: string }) {
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const blockHash = deriveBlockHash(transactionId)
+  const shortHash = `${blockHash.slice(0, 8)}…${blockHash.slice(-8)}`
+  const explorerUrl = `https://nanolooker.com/block/${blockHash}`
+
+  const copy = () => {
+    navigator.clipboard.writeText(blockHash).catch(() => {})
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div
+      className="rounded-[--radius-2xl] overflow-hidden transition-all"
+      style={{ border: '1px solid rgba(63,231,255,0.18)', background: 'rgba(0,20,60,0.6)' }}
+    >
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between px-4 py-3.5"
+      >
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(63,231,255,0.12)', border: '1px solid rgba(63,231,255,0.25)' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 10V2l8 8V2" stroke="#3FE7FF" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <span className="font-body text-xs font-semibold text-text">Verify on Nano Network</span>
+        </div>
+        <svg
+          width="14" height="14" viewBox="0 0 14 14" fill="none"
+          style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 200ms ease' }}
+        >
+          <path d="M3 5l4 4 4-4" stroke="rgba(175,197,255,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 flex flex-col gap-3" style={{ borderTop: '1px solid rgba(63,231,255,0.1)' }}>
+          <div className="pt-3">
+            <p className="font-body text-[9px] font-semibold uppercase tracking-wider text-text-muted mb-2">Block hash</p>
+            <div className="flex items-center gap-2">
+              <p className="font-mono text-[10px] text-text-2 flex-1 break-all leading-relaxed">{shortHash}</p>
+              <button
+                onClick={copy}
+                className="h-6 px-2.5 rounded-full font-body text-[9px] font-semibold shrink-0 transition-all"
+                style={{
+                  background: copied ? 'rgba(34,197,94,0.12)' : 'rgba(63,231,255,0.1)',
+                  color: copied ? '#22C55E' : '#3FE7FF',
+                  border: `1px solid ${copied ? 'rgba(34,197,94,0.3)' : 'rgba(63,231,255,0.2)'}`,
+                }}
+              >
+                {copied ? 'Copied' : 'Copy'}
+              </button>
+            </div>
+          </div>
+          <a
+            href={explorerUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 font-body text-xs font-semibold transition-opacity hover:opacity-80"
+            style={{ color: '#3FE7FF' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M5 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h7a1 1 0 0 0 1-1V7" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              <path d="M8 1h3v3M11 1L6 6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            View on NanoLooker block explorer
+          </a>
+          <p className="font-body text-[9px] text-text-muted leading-relaxed">
+            This block hash is the immutable proof of settlement on the Nano blockchain. Anyone can verify this transaction independently.
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface TransactionDetailProps {
   transaction?: Transaction
   onViewReceipt?: () => void
   onShare?: () => void
   onRefund?: () => void
   onReport?: () => void
+  onFileDispute?: () => void
+  onMistakenPayment?: () => void
   onBack?: () => void
 }
 
@@ -21,28 +115,24 @@ const TYPE_LABELS: Record<string, string> = {
   sent: 'Sent', received: 'Received', refund: 'Refund', topup: 'Added', withdrawal: 'Withdrawn',
 }
 
+const DEFAULT_TX: Transaction = {
+  id: '', type: 'sent', merchant: '', counterpartyHandle: '',
+  category: 'Transfer', amount: '$0.00', amountNum: 0, positive: false,
+  status: 'completed', date: '', time: '', dateGroup: 'Today',
+  transactionId: '', fee: 'Free', note: '',
+}
+
 export default function TransactionDetail({
-  transaction,
+  transaction = DEFAULT_TX,
   onViewReceipt,
   onShare,
   onRefund,
   onReport,
+  onFileDispute,
+  onMistakenPayment,
   onBack,
 }: TransactionDetailProps) {
-  if (!transaction) return null
-
   const s = STATUS_CONFIG[transaction.status]
-  const [nanoExpanded, setNanoExpanded] = useState(false)
-
-  // Deterministic block hash derived from transaction ID (real format: 64 hex chars)
-  const blockHash = transaction.transactionId
-    ? Array.from(transaction.transactionId)
-        .map((c, i) => ((c.charCodeAt(0) * 31 + i * 17) & 0xff).toString(16).padStart(2, '0'))
-        .join('')
-        .toUpperCase()
-        .slice(0, 64)
-        .padEnd(64, 'A')
-    : 'A170D9EF3A9B4C2F8E1D7B6A3C5F2E9D4B8A1C7E3F6D2B9A4C8E1F5D3B7A2C6'
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
@@ -154,64 +244,8 @@ export default function TransactionDetail({
           </div>
         )}
 
-        {/* Verify on Nano Network — collapsed by default */}
-        <div
-          className="rounded-[--radius-xl] overflow-hidden"
-          style={{ border: '1px solid rgba(63,231,255,0.15)' }}
-        >
-          <button
-            onClick={() => setNanoExpanded(o => !o)}
-            className="w-full flex items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-hi"
-            style={{ background: 'rgba(63,231,255,0.04)' }}
-          >
-            <div
-              className="w-6 h-6 rounded-full flex items-center justify-center font-display text-[10px] font-extrabold shrink-0"
-              style={{ background: 'rgba(63,231,255,0.15)', color: '#3FE7FF', border: '1px solid rgba(63,231,255,0.3)' }}
-            >
-              N
-            </div>
-            <p className="font-body text-xs font-semibold flex-1 text-left" style={{ color: '#3FE7FF' }}>
-              Verify on Nano Network
-            </p>
-            <svg
-              width="14" height="14" viewBox="0 0 14 14" fill="none"
-              style={{
-                transform: nanoExpanded ? 'rotate(180deg)' : 'rotate(0deg)',
-                transition: 'transform 220ms ease',
-                color: 'rgba(63,231,255,0.5)',
-              }}
-            >
-              <path d="M3 5l4 4 4-4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </button>
-
-          {nanoExpanded && (
-            <div
-              className="px-4 py-3 flex flex-col gap-2.5 animate-fade-in"
-              style={{ borderTop: '1px solid rgba(63,231,255,0.1)', background: 'rgba(63,231,255,0.02)' }}
-            >
-              <div>
-                <p className="font-body text-[9px] font-semibold uppercase tracking-wider text-text-muted mb-1">Block Hash</p>
-                <p className="font-mono text-[9px] text-text-2 break-all leading-relaxed">{blockHash}</p>
-              </div>
-              <a
-                href={`https://nanolooker.com/block/${blockHash}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 font-body text-xs font-semibold"
-                style={{ color: '#3FE7FF' }}
-              >
-                View on NanoLooker
-                <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-                  <path d="M4.5 2H2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.5M6.5 1H10v3.5M5.5 5.5l4-4" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </a>
-              <p className="font-body text-[9px] text-text-muted leading-relaxed">
-                ChangeAIPay settles on the Nano network — feeless, instant, and publicly verifiable.
-              </p>
-            </div>
-          )}
-        </div>
+        {/* Nano verification row */}
+        <NanoVerifyRow transactionId={transaction.transactionId} />
 
         {/* ChangeAIPay logo watermark */}
         <div className="flex items-center gap-1.5 justify-center opacity-30">
@@ -259,6 +293,30 @@ export default function TransactionDetail({
               Request Refund
             </button>
           )}
+          {transaction.type === 'sent' && transaction.status === 'completed' && (
+            <button
+              onClick={onMistakenPayment}
+              className="w-full h-10 font-body text-sm flex items-center justify-center gap-1.5 transition-colors"
+              style={{ color: 'rgba(245,183,0,0.8)' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                <path d="M6 1L1 11h10L6 1Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+                <path d="M6 4.5v2.5M6 8.5v.3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+              </svg>
+              Sent to the wrong person?
+            </button>
+          )}
+          <button
+            onClick={onFileDispute}
+            className="w-full h-10 font-body text-sm flex items-center justify-center gap-1.5 transition-colors"
+            style={{ color: 'rgba(255,77,90,0.7)' }}
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M6 2.5l-4.5 7.5h9L6 2.5Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" />
+              <path d="M6 5.5v2M6 8.5v.3" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+            </svg>
+            File a Dispute
+          </button>
           <button
             onClick={onReport}
             className="w-full h-10 font-body text-sm text-text-muted flex items-center justify-center transition-colors hover:text-text"

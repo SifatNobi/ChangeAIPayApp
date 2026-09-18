@@ -18,43 +18,7 @@ interface Challenge {
   daysLeft?: number
 }
 
-const INITIAL: Challenge[] = [
-  {
-    id: 'ch1', emoji: '🛑', title: 'No-Spend Weekend',
-    description: 'Skip all non-essential spending for one full weekend. Groceries and bills are fine.',
-    color: '#FC7E2F', status: 'active', startDate: 'Sep 6', endDate: 'Sep 7',
-    participantsK: 14.2, progressPct: 58, joined: true,
-    reward: '200 Change + Consistency badge', daysLeft: 1,
-  },
-  {
-    id: 'ch2', emoji: '💰', title: 'Save $50 This Month',
-    description: "Transfer at least $50 to any active savings goal before September 30.",
-    color: '#22C55E', status: 'active', startDate: 'Sep 1', endDate: 'Sep 30',
-    participantsK: 28.5, progressPct: 40, joined: false,
-    reward: '500 Change + Saver badge', daysLeft: 29,
-  },
-  {
-    id: 'ch3', emoji: '☕', title: 'Brew at Home Week',
-    description: 'Skip café purchases for 7 days. Track it in your budget categories.',
-    color: '#F5B700', status: 'upcoming', startDate: 'Sep 15', endDate: 'Sep 21',
-    participantsK: 4.1, progressPct: undefined, joined: false,
-    reward: '300 Change',
-  },
-  {
-    id: 'ch4', emoji: '📊', title: 'Review Your Budget',
-    description: 'Open the Spending Insights screen and review your monthly breakdown.',
-    color: '#9945FF', status: 'upcoming', startDate: 'Sep 22', endDate: 'Sep 28',
-    participantsK: 1.8, progressPct: undefined, joined: false,
-    reward: '100 Change + Insight Reader badge',
-  },
-  {
-    id: 'ch5', emoji: '🎯', title: 'Goal Week (Aug)',
-    description: 'Complete any savings goal in the first week of August.',
-    color: '#3FE7FF', status: 'completed', startDate: 'Aug 1', endDate: 'Aug 7',
-    participantsK: 19.3, progressPct: 100, joined: true,
-    reward: '400 Change',
-  },
-]
+const INITIAL: Challenge[] = []
 
 interface CommunityChallengesProps {
   onBack?: () => void
@@ -62,7 +26,7 @@ interface CommunityChallengesProps {
 }
 
 export default function CommunityChallenges({ onBack, onViewLeaderboard }: CommunityChallengesProps) {
-  const [challenges, setChallenges] = useState(INITIAL)
+  const [challenges, setChallenges] = useState<Challenge[]>(INITIAL)
   const [celebrating, setCelebrating] = useState<string | null>(null)
 
   const toggle = (id: string) => {
@@ -176,21 +140,7 @@ export default function CommunityChallenges({ onBack, onViewLeaderboard }: Commu
         <div>
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Active Challenges</p>
           <div className="flex flex-col gap-3">
-            {active.length > 0 ? (
-              active.map(c => <ChallengeCard key={c.id} c={c} />)
-            ) : (
-              <div className="flex flex-col items-center gap-3 pt-8">
-                <div className="w-14 h-14 rounded-[20px] flex items-center justify-center"
-                  style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="9" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeDasharray="4 3" />
-                    <path d="M12 6v6M12 15h.01" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
-                  </svg>
-                </div>
-                <p className="font-body text-sm font-semibold text-text-muted">No active challenges</p>
-                <p className="font-body text-xs text-text-muted text-center">Check back soon for new challenges.</p>
-              </div>
-            )}
+            {active.map(c => <ChallengeCard key={c.id} c={c} />)}
           </div>
         </div>
 
@@ -198,21 +148,7 @@ export default function CommunityChallenges({ onBack, onViewLeaderboard }: Commu
         <div>
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Coming Soon</p>
           <div className="flex flex-col gap-3">
-            {upcoming.length > 0 ? (
-              upcoming.map(c => <ChallengeCard key={c.id} c={c} />)
-            ) : (
-              <div className="flex flex-col items-center gap-3 pt-8">
-                <div className="w-14 h-14 rounded-[20px] flex items-center justify-center"
-                  style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 4v7M12 15v.5" stroke="rgba(175,197,255,0.3)" strokeWidth="1.3" strokeLinecap="round" />
-                    <circle cx="12" cy="12" r="9" stroke="rgba(175,197,255,0.2)" strokeWidth="1.2" />
-                  </svg>
-                </div>
-                <p className="font-body text-sm font-semibold text-text-muted">No upcoming challenges</p>
-                <p className="font-body text-xs text-text-muted text-center">New challenges will appear here.</p>
-              </div>
-            )}
+            {upcoming.map(c => <ChallengeCard key={c.id} c={c} />)}
           </div>
         </div>
 
@@ -220,20 +156,7 @@ export default function CommunityChallenges({ onBack, onViewLeaderboard }: Commu
         <div>
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Past Challenges</p>
           <div className="flex flex-col gap-3">
-            {completed.length > 0 ? (
-              completed.map(c => <ChallengeCard key={c.id} c={c} />)
-            ) : (
-              <div className="flex flex-col items-center gap-3 pt-8">
-                <div className="w-14 h-14 rounded-[20px] flex items-center justify-center"
-                  style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M6 12l5 5 8-8" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </div>
-                <p className="font-body text-sm font-semibold text-text-muted">No completed challenges</p>
-                <p className="font-body text-xs text-text-muted text-center">Completed challenges will appear here.</p>
-              </div>
-            )}
+            {completed.map(c => <ChallengeCard key={c.id} c={c} />)}
           </div>
         </div>
       </div>

@@ -310,30 +310,25 @@ export default function MerchantCheckout({
           </p>
         </div>
 
-{/* Terms note */}
+        {/* Terms note */}
         <p className="font-body text-[10px] text-text-muted text-center leading-relaxed px-2">
           By subscribing you agree to the ChangeAIPay Merchant Terms. Cancel anytime before your renewal date for a full refund.
         </p>
-
-        {/* Restore Purchases */}
-        <button
-          onClick={() => { /* restore purchases logic */ }}
-          className="w-full h-11 mt-3 rounded-[--radius-xl] font-body text-xs font-semibold text-text-2 flex items-center justify-center gap-2 transition-colors hover:bg-surface-hi active:scale-[0.98]"
-          style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.1)' }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M11.5 2A5.5 5.5 0 0 1 1.5 6v5l2 2h14l-1.5-2.5V6A5.5 5.5 0 0 1 11.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M9.5 6v.5a2 2 0 0 0 4 0V6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-          </svg>
-          Restore Purchases
-        </button>
 
         {/* CTA */}
         <button
           onClick={() => setStep('auth')}
           className="w-full h-[52px] rounded-[--radius-2xl] font-body text-sm font-semibold text-white transition-all active:scale-[0.98]"
           style={{ background: `linear-gradient(135deg, ${tier.color}, ${tier.glowColor.replace('0.3', '0.8')})` }}>
-          Confirm & Subscribe
+          Confirm &amp; Subscribe
+        </button>
+        <button
+          className="w-full h-10 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
+          onClick={() => {
+            /* Integration point: trigger RevenueCat/App Store restore entitlements */
+          }}
+        >
+          Restore Purchases
         </button>
       </div>
     </div>

@@ -135,6 +135,16 @@ export default function Enable2FA({ onEnable, onSkip, onBack }: Enable2FAProps) 
               value={phone}
               onChange={e => setPhone(e.target.value)}
             />
+            {phone.length >= 6 && (
+              <div className="rounded-[--radius-xl] bg-primary/6 border border-primary/15 px-4 py-3">
+                <p className="font-body text-xs text-text-2 leading-relaxed">
+                  Verification codes will be sent to{' '}
+                  <span className="font-mono font-semibold text-accent">
+                    {phone.replace(/(\+?\d{1,3}[\s-]?)(\d{3}[\s-]?)(\d+)(\d{4})/, (_, cc, area) => `${cc}${area}•••• ${phone.slice(-4)}`)}
+                  </span>
+                </p>
+              </div>
+            )}
             <div className="rounded-[--radius-xl] bg-warning/8 border border-warning/20 px-4 py-3">
               <p className="font-body text-xs text-warning leading-relaxed">
                 SMS codes are less secure than authenticator apps. SIM-swap attacks can compromise SMS-based 2FA.

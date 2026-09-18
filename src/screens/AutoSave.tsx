@@ -17,7 +17,7 @@ const DEFAULT_BUCKETS: Bucket[] = [
   { id: 'spending',  label: 'Spending',       color: '#FC7E2F', pct: 25, emoji: '💳' },
 ]
 
-const PAYCHECK_AMOUNT = 3400
+const PAYCHECK_AMOUNT = 0
 
 function clamp(n: number, min: number, max: number) { return Math.max(min, Math.min(max, n)) }
 
@@ -72,7 +72,7 @@ export default function AutoSave({ onBack, onHistory }: AutoSaveProps) {
   }
 
   const roundupGoal = GOALS.find(g => g.id === roundupGoalId)
-  const monthlyRoundup = 23.47
+  const monthlyRoundup = 0
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>

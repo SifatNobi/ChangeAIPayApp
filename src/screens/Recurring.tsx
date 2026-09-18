@@ -19,32 +19,7 @@ interface RecurringItem {
   iconBg: string
 }
 
-const RECURRING_ITEMS: RecurringItem[] = [
-  {
-    id: 'r1', merchant: 'Netflix', category: 'Subscriptions', frequency: 'Monthly',
-    nextDate: 'Sep 28, 2026', nextDateMs: new Date('2026-09-28').getTime(),
-    amount: '$15.99', amountNum: 15.99, status: 'active', iconBg: 'rgba(229,9,20,0.18)',
-    icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="2.5" fill="rgba(229,9,20,0.7)" /><path d="M6 5l6 4-6 4V5Z" fill="white" /></svg>,
-  },
-  {
-    id: 'r2', merchant: 'Spotify', category: 'Subscriptions', frequency: 'Monthly',
-    nextDate: 'Sep 28, 2026', nextDateMs: new Date('2026-09-28').getTime(),
-    amount: '$9.99', amountNum: 9.99, status: 'active', iconBg: 'rgba(30,215,96,0.12)',
-    icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" fill="rgba(30,215,96,0.5)" /><path d="M5.5 7c2-.7 5.5 0 6.5 1.3M6 9.5c1.6-.5 4 0 5 1M6.5 12c1.3-.4 3.2 0 4 .7" stroke="white" strokeWidth="1.1" strokeLinecap="round" /></svg>,
-  },
-  {
-    id: 'r3', merchant: 'iCloud Storage', category: 'Subscriptions', frequency: 'Monthly',
-    nextDate: 'Sep 14, 2026', nextDateMs: new Date('2026-09-14').getTime(),
-    amount: '$2.99', amountNum: 2.99, status: 'active', iconBg: 'rgba(63,231,255,0.10)',
-    icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M4 12a3.5 3.5 0 0 1 .5-7A5.5 5.5 0 0 1 15 10a3 3 0 0 1 0 6H4" stroke="rgba(63,231,255,0.8)" strokeWidth="1.3" strokeLinecap="round" /></svg>,
-  },
-  {
-    id: 'r4', merchant: 'Gym Membership', category: 'Health', frequency: 'Monthly',
-    nextDate: 'Oct 1, 2026', nextDateMs: new Date('2026-10-01').getTime(),
-    amount: '$49.00', amountNum: 49, status: 'paused', iconBg: 'rgba(245,183,0,0.08)',
-    icon: <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 9h2M14 9h2M4 6.5v5M14 6.5v5M6 8v2M12 8v2M6 9h6" stroke="rgba(245,183,0,0.7)" strokeWidth="1.4" strokeLinecap="round" /></svg>,
-  },
-]
+const RECURRING_ITEMS: RecurringItem[] = []
 
 function HeroNextPayment({ item }: { item: RecurringItem }) {
   return (
@@ -143,7 +118,7 @@ function HeroNextPayment({ item }: { item: RecurringItem }) {
 }
 
 export default function Recurring({ onManage, onBack }: RecurringProps) {
-  const [items, setItems] = useState(RECURRING_ITEMS)
+  const [items, setItems] = useState<RecurringItem[]>([])
 
   const activeItems = items.filter(i => i.status === 'active')
   const pausedItems = items.filter(i => i.status === 'paused')
@@ -250,23 +225,6 @@ export default function Recurring({ onManage, onBack }: RecurringProps) {
           </div>
         )}
 
-        {/* Empty state - no active recurring payments */}
-        {activeItems.length === 0 && (
-          <div className="flex flex-col items-center gap-3 pt-16">
-            <div
-              className="w-16 h-16 rounded-[--radius-2xl] flex items-center justify-center"
-              style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}
-            >
-              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                <rect x="3" y="4" width="20" height="18" rx="2.5" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" />
-                <path d="M8 2v4M18 2v4M3 10h20" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </div>
-            <p className="font-body text-sm font-semibold text-text-muted">No active recurring payments</p>
-            <p className="font-body text-xs text-text-muted text-center">Recurring payments you set up will appear here.</p>
-          </div>
-        )}
-
         {/* Paused list */}
         {pausedItems.length > 0 && (
           <div>
@@ -304,23 +262,6 @@ export default function Recurring({ onManage, onBack }: RecurringProps) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Empty state - no recurring payments at all */}
-        {activeItems.length === 0 && pausedItems.length === 0 && (
-          <div className="flex flex-col items-center gap-3 pt-16">
-            <div
-              className="w-16 h-16 rounded-[--radius-2xl] flex items-center justify-center"
-              style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}
-            >
-              <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-                <rect x="3" y="4" width="20" height="18" rx="2.5" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" />
-                <path d="M8 2v4M18 2v4M3 10h20" stroke="rgba(175,197,255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
-              </svg>
-            </div>
-            <p className="font-body text-sm font-semibold text-text-muted">No recurring payments</p>
-            <p className="font-body text-xs text-text-muted text-center">Add your first recurring payment to get started.</p>
           </div>
         )}
       </div>

@@ -10,11 +10,7 @@ interface Message {
   saved?: boolean
 }
 
-const INITIAL_MESSAGES: Message[] = [
-  { id: 'm1', role: 'fina', text: "Hey Maya! I'm Fina, your financial AI. How can I help you today?", time: '2:14 PM' },
-  { id: 'm2', role: 'user', text: 'How much did I spend on food last month?', time: '2:15 PM' },
-  { id: 'm3', role: 'fina', text: "Last month you spent $412 on food — $198 dining out and $214 on groceries. That's 18% of your total spending, slightly above your usual 14%. Want me to suggest ways to bring it down?", time: '2:15 PM' },
-]
+const INITIAL_MESSAGES: Message[] = []
 
 const SUGGESTIONS = [
   "Am I on track for goals?",
@@ -23,14 +19,50 @@ const SUGGESTIONS = [
   "What's coming up?",
 ]
 
+interface LoggedAsset {
+  name: string
+  value: number
+  category: 'cash' | 'investment' | 'physical' | 'debt'
+}
+
+function detectAssets(text: string): LoggedAsset[] {
+  const results: LoggedAsset[] = []
+  const pattern = /(?:have|got|hold|own)\s+\$?([\d,]+(?:\.\d{1,2})?)\s*(?:k|K)?\s+(?:in\s+(?:my\s+)?)?([^,.]+)/gi
+  let m: RegExpExecArray | null
+  while ((m = pattern.exec(text)) !== null) {
+    const raw = m[1].replace(/,/g, '')
+    const multiplier = /k/i.test(m[0]) ? 1000 : 1
+    const value = parseFloat(raw) * multiplier
+    const desc = m[2].trim().toLowerCase()
+    const category: LoggedAsset['category'] =
+      /cash|check|saving|bank|wallet/.test(desc) ? 'cash' :
+      /stock|etf|fund|invest|bond|share/.test(desc) ? 'investment' :
+      /debt|loan|mortgage|credit/.test(desc) ? 'debt' : 'cash'
+    if (value > 0) results.push({ name: m[2].trim(), value, category })
+  }
+  return results
+}
+
 interface FinaChatProps {
   onBack?: () => void
   onHistory?: () => void
   onVoice?: () => void
+  onLogAsset?: (asset: LoggedAsset) => void
+  onInitiateSend?: (details: { recipientName: string; amount: string }) => void
 }
 
-export default function FinaChat({ onBack, onHistory, onVoice }: FinaChatProps) {
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
+function detectSendIntent(text: string): { recipientName: string; amount: string } | null {
+  const match = text.match(/send\s+\$?([\d,]+(?:\.\d{1,2})?)\s*(?:to\s+)?([A-Za-z][A-Za-z\s]{1,30}?)(?:\s|$|[.,!?])/i)
+    || text.match(/(?:pay|transfer)\s+([A-Za-z][A-Za-z\s]{1,30}?)\s+\$?([\d,]+(?:\.\d{1,2})?)/i)
+  if (!match) return null
+  const amount = match[1].replace(',', '')
+  const recipientName = match[2]?.trim() || match[1]?.trim()
+  if (!amount || !recipientName || isNaN(parseFloat(amount))) return null
+  return { recipientName, amount }
+}
+
+export default function FinaChat({ onBack, onHistory, onVoice, onLogAsset, onInitiateSend }: FinaChatProps) {
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isThinking, setIsThinking] = useState(false)
   const [pulseTrigger, setPulseTrigger] = useState(false)
@@ -53,10 +85,29 @@ export default function FinaChat({ onBack, onHistory, onVoice }: FinaChatProps) 
 
     setTimeout(() => {
       setIsThinking(false)
+      const sendIntent = detectSendIntent(trimmed)
+      const detected = detectAssets(trimmed)
+      let replyText = "Great question! Let me pull that up for you right now."
+      if (sendIntent && onInitiateSend) {
+        replyText = `I'll take you to the Send screen pre-filled with $${sendIntent.amount} to ${sendIntent.recipientName}. You'll need to confirm before anything is sent.`
+        const reply: Message = {
+          id: `f${Date.now()}`,
+          role: 'fina',
+          text: replyText,
+          time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+        }
+        setMessages(prev => [...prev, reply])
+        setTimeout(() => onInitiateSend(sendIntent), 1200)
+        return
+      } else if (detected.length > 0) {
+        detected.forEach(a => onLogAsset?.(a))
+        const summary = detected.map(a => `${a.name} ($${a.value.toLocaleString()})`).join(', ')
+        replyText = `Got it — I've recorded ${summary} in your Net Worth overview. You can review and edit it there anytime. Anything else you'd like to log?`
+      }
       const reply: Message = {
         id: `f${Date.now()}`,
         role: 'fina',
-        text: "Great question! Let me pull that up for you right now.",
+        text: replyText,
         time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
       }
       setMessages(prev => [...prev, reply])
@@ -114,6 +165,13 @@ export default function FinaChat({ onBack, onHistory, onVoice }: FinaChatProps) 
 
       {/* Message list */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 flex flex-col gap-3" style={{ scrollbarWidth: 'none' }}>
+        {/* AI disclosure — shown at top of every session */}
+        <div className="flex items-center justify-center py-1">
+          <p className="font-body text-[9px] text-center px-3 py-1.5 rounded-full"
+            style={{ background: 'rgba(63,231,255,0.06)', border: '1px solid rgba(63,231,255,0.12)', color: 'rgba(175,197,255,0.4)' }}>
+            You are chatting with Fina, an AI assistant — not a human advisor
+          </p>
+        </div>
         {messages.map((msg, i) => (
           <div key={msg.id} className={`flex flex-col gap-1 ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
             {/* Show Fina avatar for first of a run */}
@@ -234,6 +292,10 @@ export default function FinaChat({ onBack, onHistory, onVoice }: FinaChatProps) 
             </svg>
           </button>
         </div>
+        <p className="font-body text-[10px] text-center mt-2 leading-relaxed px-2"
+          style={{ color: 'rgba(175,197,255,0.35)' }}>
+          Fina provides general guidance only. Always confirm important financial decisions with a qualified professional or contact support.
+        </p>
       </div>
     </div>
   )

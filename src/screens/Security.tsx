@@ -5,8 +5,9 @@ interface SecurityProps {
   onChangePin?: () => void
   onBiometric?: () => void
   onTwoFactor?: () => void
-  onExportNanoKey?: () => void
-  onNanoTransparency?: () => void
+  onExportWallet?: () => void
+  onNetworkTransparency?: () => void
+  onFreezeAccount?: () => void
 }
 
 type LoginEntry = { id: string; device: string; location: string; ts: string; current?: boolean }
@@ -45,7 +46,7 @@ function RowLink({ icon, label, sub, onPress, danger }: { icon: React.ReactNode;
   )
 }
 
-export default function Security({ onBack, onChangePin, onBiometric, onTwoFactor, onExportNanoKey, onNanoTransparency }: SecurityProps) {
+export default function Security({ onBack, onChangePin, onBiometric, onTwoFactor, onExportWallet, onNetworkTransparency, onFreezeAccount }: SecurityProps) {
   const [biometricOn, setBiometricOn] = useState(true)
   const [sessions, setSessions] = useState(SESSIONS)
   const [removingId, setRemovingId] = useState<string | null>(null)
@@ -216,35 +217,56 @@ export default function Security({ onBack, onChangePin, onBiometric, onTwoFactor
           </div>
         </div>
 
-        {/* Nano / Blockchain — advanced section */}
+        {/* Advanced / Nano */}
         <div>
-          <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Blockchain &amp; Ownership</p>
+          <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Advanced &amp; Transparency</p>
           <div className="rounded-[--radius-2xl] overflow-hidden" style={{ border: '1px solid rgba(175,197,255,0.09)' }}>
             <RowLink
+              onPress={onNetworkTransparency}
               icon={
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <circle cx="7" cy="7" r="5.5" stroke="#3FE7FF" strokeWidth="1.1" />
-                  <path d="M4.5 7l2 2 3-3" stroke="#3FE7FF" strokeWidth="1.1" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M2 12V2l10 10V2" stroke="#3FE7FF" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               }
               label="Network Transparency"
-              sub="Representatives &amp; voting weight"
-              onPress={onNanoTransparency}
+              sub="Nano representatives &amp; voting weight"
             />
             <RowLink
+              onPress={onExportWallet}
+              danger
               icon={
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <rect x="3" y="6.5" width="8" height="6.5" rx="1.2" stroke="#F5B700" strokeWidth="1.1" />
-                  <path d="M5 6.5V4.5a2 2 0 0 1 4 0V6.5" stroke="#F5B700" strokeWidth="1.1" strokeLinecap="round" />
-                  <circle cx="7" cy="9.5" r="0.8" fill="#F5B700" />
+                  <rect x="2" y="6" width="10" height="7" rx="1.5" stroke="#FF4D5A" strokeWidth="1.1" />
+                  <path d="M4.5 6V4a2.5 2.5 0 0 1 5 0v2" stroke="#FF4D5A" strokeWidth="1.1" strokeLinecap="round" />
+                  <circle cx="7" cy="9.5" r="1" fill="#FF4D5A" />
                 </svg>
               }
-              label="Export Nano Wallet Key"
-              sub="Advanced · requires re-authentication"
-              onPress={onExportNanoKey}
+              label="Export Nano Wallet"
+              sub="Advanced — reveals private key. Requires PIN + biometric."
             />
           </div>
         </div>
+
+        {/* Emergency freeze */}
+        <button
+          onClick={onFreezeAccount}
+          className="w-full flex items-center gap-3 px-4 py-3.5 rounded-[--radius-xl] transition-all active:scale-[0.98]"
+          style={{ background: 'rgba(255,77,90,0.04)', border: '1px solid rgba(255,77,90,0.2)' }}
+        >
+          <div className="w-9 h-9 rounded-[10px] flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(255,77,90,0.1)', border: '1px solid rgba(255,77,90,0.25)' }}>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2v12M2 8h12M4 4l8 8M12 4l-8 8" stroke="#FF4D5A" strokeWidth="1.2" strokeLinecap="round" />
+            </svg>
+          </div>
+          <div className="flex-1 text-left">
+            <p className="font-body text-sm font-semibold" style={{ color: '#FF4D5A' }}>Freeze My Account</p>
+            <p className="font-body text-[10px] text-text-muted">Block all outgoing transfers immediately</p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="rgba(255,77,90,0.5)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
 
         {/* Login history */}
         <div>

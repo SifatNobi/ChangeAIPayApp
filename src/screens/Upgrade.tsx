@@ -11,8 +11,8 @@ interface PlanInfo {
 
 const PLANS: Record<PlanId, PlanInfo> = {
   edge:  { name: 'Edge',  price: 9.99,  color: '#3FE7FF', features: [{ label: '$1,500/mo limit', sub: 'vs $400 on Free' }, { label: 'Zero domestic fees', sub: 'Save ~$6/mo avg' }, { label: '10 savings goals', sub: 'vs 3 on Free' }] },
-  prime: { name: 'Prime', price: 39.99, color: '#0066FF', features: [{ label: '$10,000/mo limit', sub: 'vs $1,500 on Edge' }, { label: 'Zero FX fees', sub: 'Save avg $18/mo on FX' }, { label: 'Voice Mode + reports', sub: 'Weekly AI reports' }] },
-  apex:  { name: 'Apex',  price: 64.99, color: '#9945FF', features: [{ label: 'Unlimited transfers', sub: 'No caps, ever' }, { label: 'Dedicated support manager', sub: 'Direct line, priority queue' }, { label: 'Real-time AI reports', sub: 'Continuous monitoring' }] },
+  prime: { name: 'Prime', price: 39.99, color: '#0066FF', features: [{ label: '$10,000/mo limit', sub: 'vs $1,500 on Edge' }, { label: '0% FX up to $3,000/mo', sub: '0.72% rate thereafter' }, { label: 'Voice Mode + reports', sub: 'Weekly AI reports' }] },
+  apex:  { name: 'Apex',  price: 64.99, color: '#F5B700', features: [{ label: '$50,000/mo limit', sub: '$10,000 daily limit' }, { label: '0% FX up to $6,000/mo', sub: '0.58% rate thereafter' }, { label: 'Real-time AI reports', sub: 'Continuous monitoring' }] },
 }
 
 interface UpgradeProps {
@@ -31,9 +31,9 @@ export default function Upgrade({ fromPlan = 'prime', toPlan = 'apex', currentCy
   const to = PLANS[toPlan]
   const fromInfo = fromPlan !== 'free' ? PLANS[fromPlan as PlanId] : null
   const fromPrice = fromInfo?.price ?? 0
-  const daysInCycle = 30
-  const daysRemaining = 15 // mock
-  const prorated = ((to.price - fromPrice) / daysInCycle * daysRemaining).toFixed(2)
+  const today = new Date()
+  const renewsDate = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate())
+  const renewsStr = renewsDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
   const handleConfirm = () => {
     setConfirming(true)
@@ -102,8 +102,8 @@ export default function Upgrade({ fromPlan = 'prime', toPlan = 'apex', currentCy
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Billing</p>
           <div className="rounded-[--radius-2xl] overflow-hidden" style={{ background: 'rgba(175,197,255,0.03)', border: '1px solid rgba(175,197,255,0.09)' }}>
             {[
-              { label: 'Prorated charge today', val: `$${prorated}`, sub: `${daysRemaining} days remaining in cycle` },
-              { label: `${to.name} from ${currentCycleEnds}`, val: `$${to.price.toFixed(2)}/mo`, sub: 'Billed on the ' + billingDate + 'th each month' },
+              { label: 'Charged today', val: `$${to.price.toFixed(2)}`, sub: `Renews ${renewsStr}` },
+              { label: `${to.name} plan`, val: `$${to.price.toFixed(2)}/mo`, sub: `Billed on the ${billingDate}th each month` },
               { label: 'Annual option', val: `Save $${((to.price * 12) - (to.price * 10)).toFixed(0)}/yr`, sub: 'Switch to annual anytime' },
             ].map((row, i) => (
               <div key={row.label} className="flex items-start gap-3 px-4 py-3.5"
@@ -125,7 +125,7 @@ export default function Upgrade({ fromPlan = 'prime', toPlan = 'apex', currentCy
             <circle cx="6.5" cy="6.5" r="5" stroke="#3FE7FF" strokeWidth="1" />
             <path d="M6.5 4v2.5l1.5 1.5" stroke="#3FE7FF" strokeWidth="1" strokeLinecap="round" />
           </svg>
-          <p className="font-body text-[11px] text-text-muted">Upgrade takes effect immediately. You will be charged a prorated amount today.</p>
+          <p className="font-body text-[11px] text-text-muted">Upgrade takes effect immediately. Full monthly price charged today. Renews {renewsStr}.</p>
         </div>
 
         {/* CTA */}
@@ -141,7 +141,7 @@ export default function Upgrade({ fromPlan = 'prime', toPlan = 'apex', currentCy
             style={{ background: 'var(--gradient-primary)' }}>
             {confirming ? (
               <svg className="animate-spin" width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="7" stroke="rgba(255,255,255,0.2)" strokeWidth="2" /><path d="M9 2a7 7 0 0 1 7 7" stroke="white" strokeWidth="2" strokeLinecap="round" /></svg>
-            ) : `Confirm Upgrade · $${prorated} today`}
+            ) : `Confirm Upgrade · $${to.price.toFixed(2)} today`}
           </button>
         )}
         <button onClick={onBack} className="font-body text-xs text-text-muted text-center active:opacity-70">Cancel</button>

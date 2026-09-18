@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { GOAL_EMOJIS, type FundingMethod, FUNDING_LABELS } from '@/data/goals'
-import { recordGoalContribution } from '@/services/reEngagementNotifications'
 
 interface CreateGoalProps {
   onSave?: (data: NewGoalData) => void
@@ -56,7 +55,6 @@ export default function CreateGoal({ onSave, onBack }: CreateGoalProps) {
 
   const handleSave = () => {
     if (!isValid) return
-    recordGoalContribution()
     onSave?.({
       name: name.trim(),
       emoji,

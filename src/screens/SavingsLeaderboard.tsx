@@ -12,14 +12,7 @@ interface RankEntry {
   isYou: boolean
 }
 
-const ENTRIES: RankEntry[] = [
-  { rank: 1,  initials: 'P.T.', streakDays: 94, goalsCompleted: 12, statusEmoji: '🏆', color: '#FFD700', isYou: false },
-  { rank: 2,  initials: 'S.K.', streakDays: 71, goalsCompleted: 9,  statusEmoji: '🥈', color: '#AFC5FF', isYou: false },
-  { rank: 3,  initials: 'R.M.', streakDays: 63, goalsCompleted: 8,  statusEmoji: '🥉', color: '#FC7E2F', isYou: false },
-  { rank: 4,  initials: 'J.A.', streakDays: 58, goalsCompleted: 7,  statusEmoji: '🔥', color: '#3FE7FF', isYou: false },
-  { rank: 5,  initials: 'L.O.', streakDays: 47, goalsCompleted: 6,  statusEmoji: '⚡', color: '#9945FF', isYou: false },
-  { rank: 18, initials: 'M.P.', streakDays: 22, goalsCompleted: 3,  statusEmoji: '✨', color: '#22C55E', isYou: true  },
-]
+const ENTRIES: RankEntry[] = []
 
 const METRIC_LABELS: Record<RankMetric, { singular: string; plural: string }> = {
   streak: { singular: 'day streak', plural: 'day streak' },

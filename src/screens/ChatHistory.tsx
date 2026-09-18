@@ -10,18 +10,7 @@ interface Convo {
   tagColor?: string
 }
 
-const CONVOS: Convo[] = [
-  { id: 'c1',  preview: 'How much did I spend on food last month?',        date: 'Today, 2:14 PM',     group: 'Today',       msgCount: 4,  tag: 'Spending',  tagColor: '#F5B700' },
-  { id: 'c2',  preview: 'Show me my savings progress',                     date: 'Today, 9:41 AM',     group: 'Today',       msgCount: 6 },
-  { id: 'c3',  preview: 'Can I afford a $1,200 vacation in June?',         date: 'Yesterday, 7:55 PM', group: 'Yesterday',   msgCount: 9,  tag: 'Goals',     tagColor: '#22C55E' },
-  { id: 'c4',  preview: "What's the best way to split rent with roommates?",date:'Yesterday, 3:22 PM', group: 'Yesterday',   msgCount: 5 },
-  { id: 'c5',  preview: 'Explain the transaction fees on my account',       date: 'Mon, Aug 25',        group: 'This week',   msgCount: 3 },
-  { id: 'c6',  preview: 'Help me set up auto-save for my MacBook goal',    date: 'Mon, Aug 25',        group: 'This week',   msgCount: 7,  tag: 'Auto Save', tagColor: '#9945FF' },
-  { id: 'c7',  preview: 'Why did my balance drop this week?',              date: 'Sun, Aug 24',        group: 'This week',   msgCount: 4,  tag: 'Spending',  tagColor: '#F5B700' },
-  { id: 'c8',  preview: "I'd like to understand my crypto portfolio",       date: 'Sat, Aug 23',        group: 'This week',   msgCount: 11, tag: 'Crypto',    tagColor: '#F7931A' },
-  { id: 'c9',  preview: 'What is the best savings rate I can get?',        date: 'Aug 20',             group: 'Earlier',     msgCount: 6 },
-  { id: 'c10', preview: 'Forecast my spending for September',              date: 'Aug 18',             group: 'Earlier',     msgCount: 8 },
-]
+const CONVOS: Convo[] = []
 
 interface ChatHistoryProps {
   onResume?: (id: string) => void

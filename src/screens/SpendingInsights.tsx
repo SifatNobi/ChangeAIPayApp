@@ -6,6 +6,7 @@ type View  = 'category' | 'merchant'
 interface SpendingInsightsProps {
   onBack?: () => void
   onOpenBudget?: () => void
+  onViewRecap?: () => void
 }
 
 // Chart helpers
@@ -26,9 +27,9 @@ function buildPath(pts: number[]) {
 }
 
 const SPENDING_PTS: Record<Range, number[]> = {
-  '1W': [0.55, 0.60, 0.48, 0.70, 0.65, 0.80, 0.72],
-  '1M': [0.40, 0.55, 0.50, 0.65, 0.60, 0.70, 0.68, 0.75, 0.72, 0.80, 0.74, 0.78, 0.82, 0.76, 0.85, 0.80, 0.88, 0.82, 0.78, 0.85, 0.80, 0.90, 0.84, 0.88, 0.78, 0.85, 0.92, 0.86, 0.80, 0.88],
-  '3M': [0.30, 0.40, 0.55, 0.48, 0.62, 0.68, 0.72, 0.65, 0.78, 0.74, 0.82, 0.88],
+  '1W': [0, 0, 0, 0, 0, 0, 0],
+  '1M': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  '3M': [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 }
 
 const DAY_LABELS:   string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
@@ -41,33 +42,18 @@ const RANGE_LABELS: Record<Range, string[]> = {
   '3M': Q_LABELS,
 }
 
-const RANGE_SPEND: Record<Range, number> = { '1W': 184, '1M': 2500, '3M': 7420 }
+const RANGE_SPEND: Record<Range, number> = { '1W': 0, '1M': 0, '3M': 0 }
 const RANGE_VS: Record<Range, { label: string; pct: number; up: boolean }> = {
-  '1W': { label: 'vs prev week',    pct: 8.2,  up: true  },
-  '1M': { label: 'vs Jul 2026',     pct: 3.1,  up: false },
-  '3M': { label: 'vs Q2 2026',      pct: 12.4, up: true  },
+  '1W': { label: 'vs prev week',    pct: 0, up: true  },
+  '1M': { label: 'vs last month',   pct: 0, up: false },
+  '3M': { label: 'vs last quarter', pct: 0, up: true  },
 }
 
-const CATEGORIES = [
-  { label: 'Housing',       amount: 1020, pct: 40.8, color: '#3FE7FF', prev: 1020, flag: false },
-  { label: 'Food & Dining', amount: 412,  pct: 16.5, color: '#F5B700', prev: 331,  flag: true  },
-  { label: 'Shopping',      amount: 284,  pct: 11.4, color: '#9945FF', prev: 255,  flag: false },
-  { label: 'Transport',     amount: 148,  pct:  5.9, color: '#22C55E', prev: 162,  flag: false },
-  { label: 'Health',        amount: 120,  pct:  4.8, color: '#E6007A', prev: 120,  flag: false },
-  { label: 'Entertainment', amount: 95,   pct:  3.8, color: '#FC7E2F', prev: 110,  flag: false },
-  { label: 'Other',         amount: 421,  pct: 16.8, color: '#627EEA', prev: 390,  flag: false },
-]
+const CATEGORIES: { label: string; amount: number; pct: number; color: string; prev: number; flag: boolean }[] = []
 
-const MERCHANTS = [
-  { name: 'Whole Foods',       amount: 148, visits: 6,  category: 'Groceries', color: '#22C55E', flag: false },
-  { name: 'Uber Eats',         amount: 127, visits: 9,  category: 'Dining out', color: '#F5B700', flag: true  },
-  { name: 'Amazon',            amount: 94,  visits: 4,  category: 'Shopping',  color: '#FC7E2F', flag: false },
-  { name: "McDonald's",        amount: 67,  visits: 8,  category: 'Dining out', color: '#F5B700', flag: false },
-  { name: 'Target',            amount: 58,  visits: 2,  category: 'Shopping',  color: '#9945FF', flag: false },
-  { name: 'Citibike',          amount: 34,  visits: 14, category: 'Transport', color: '#3FE7FF', flag: false },
-]
+const MERCHANTS: { name: string; amount: number; visits: number; category: string; color: string; flag: boolean }[] = []
 
-export default function SpendingInsights({ onBack, onOpenBudget }: SpendingInsightsProps) {
+export default function SpendingInsights({ onBack, onOpenBudget, onViewRecap }: SpendingInsightsProps) {
   const [range, setRange] = useState<Range>('1M')
   const [view,  setView]  = useState<View>('category')
 
@@ -93,6 +79,11 @@ export default function SpendingInsights({ onBack, onOpenBudget }: SpendingInsig
           className="flex items-center gap-1.5 h-9 px-3 rounded-full font-body text-xs font-semibold hover:bg-surface-hi transition-all"
           style={{ border: '1px solid rgba(175,197,255,0.15)', color: '#AFC5FF' }}>
           Budget
+        </button>
+        <button onClick={onViewRecap}
+          className="flex items-center gap-1.5 h-9 px-3 rounded-full font-body text-xs font-semibold hover:bg-surface-hi transition-all"
+          style={{ border: '1px solid rgba(63,231,255,0.2)', color: '#3FE7FF' }}>
+          Recap
         </button>
       </div>
 
@@ -147,8 +138,8 @@ export default function SpendingInsights({ onBack, onOpenBudget }: SpendingInsig
                 <circle cx={hlX} cy={hlY} r="1.5" fill="#F5B700" />
                 <g transform={`translate(${Math.min(hlX - 44, W - 88)}, ${Math.max(hlY - 32, PAD.t)})`}>
                   <rect rx="5" ry="5" width="88" height="24" fill="rgba(13,26,74,0.95)" stroke="rgba(245,183,0,0.4)" strokeWidth="0.75" />
-                  <text x="7" y="10" fontFamily="monospace" fontSize="8" fill="#F5B700" fontWeight="600">$412</text>
-                  <text x="7" y="19" fontFamily="sans-serif" fontSize="7" fill="rgba(175,197,255,0.5)">Food · +24%</text>
+                  <text x="7" y="10" fontFamily="monospace" fontSize="8" fill="#F5B700" fontWeight="600">$0</text>
+                  <text x="7" y="19" fontFamily="sans-serif" fontSize="7" fill="rgba(175,197,255,0.5)">Food · 0%</text>
                 </g>
                 {labels.map((l, i) => (
                   <text key={l} x={xs[Math.round(i * (pts.length - 1) / (labels.length - 1))]} y={H - 4} textAnchor="middle" fontFamily="sans-serif" fontSize="7" fill="rgba(175,197,255,0.25)">{l}</text>
@@ -169,7 +160,7 @@ export default function SpendingInsights({ onBack, onOpenBudget }: SpendingInsig
           <div>
             <p className="font-body text-xs font-semibold text-text mb-0.5">Unusual increase: Food &amp; Dining</p>
             <p className="font-body text-[11px] text-text-muted leading-relaxed">
-              Up +24% ($412 vs $331 in Jul). Uber Eats accounts for $127 — 9 orders this month, vs 5 last month.
+              {""}
             </p>
           </div>
         </div>

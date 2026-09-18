@@ -8,15 +8,11 @@ interface SearchProps {
   onBack?: () => void
 }
 
-const RECENT_SEARCHES = ['Netflix', 'Alex Johnson', 'Coffee', 'Stripe payout', 'Whole Foods']
+const RECENT_SEARCHES: string[] = []
 const CATEGORIES = ['Payments', 'Transactions', 'Contacts', 'Cards', 'Subscriptions', 'Transfers']
 const FILTERS = ['All', 'Sent', 'Received', 'Pending', 'Failed']
 
-const MOCK_RESULTS = [
-  { icon: '🎬', title: 'Netflix', subtitle: 'Entertainment • Monthly', amount: '$15.99', date: 'Yesterday', type: 'transaction' },
-  { icon: '🎬', title: 'Netflix', subtitle: 'Entertainment • Monthly', amount: '$15.99', date: 'Jul 7', type: 'transaction' },
-  { icon: '📋', title: 'Netflix Subscription', subtitle: 'Active plan', amount: '$15.99/mo', date: '', type: 'subscription' },
-]
+const MOCK_RESULTS: { icon: string; title: string; subtitle: string; amount: string; date: string; type: string }[] = []
 
 function SearchResultRow({
   icon, title, subtitle, amount, date, masked,
@@ -45,7 +41,7 @@ function SearchResultRow({
 export default function Search({ accountType = 'personal', onNavigate, onBack }: SearchProps) {
   const [query, setQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('All')
-  const [recentList, setRecentList] = useState(RECENT_SEARCHES)
+  const [recentList, setRecentList] = useState<string[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
 
   const hasQuery = query.trim().length > 0

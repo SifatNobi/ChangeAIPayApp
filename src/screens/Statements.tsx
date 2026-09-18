@@ -11,20 +11,7 @@ interface Statement {
   closingBalance: number
 }
 
-const STATEMENTS: Statement[] = [
-  { id: 'st-2026-08', month: 'August',    year: 2026, dateRange: 'Aug 1 – Aug 31, 2026',  sizeKB: 148, transactions: 34, openingBalance: 1082.10, closingBalance: 1248.50 },
-  { id: 'st-2026-07', month: 'July',      year: 2026, dateRange: 'Jul 1 – Jul 31, 2026',  sizeKB: 162, transactions: 41, openingBalance:  940.00, closingBalance: 1082.10 },
-  { id: 'st-2026-06', month: 'June',      year: 2026, dateRange: 'Jun 1 – Jun 30, 2026',  sizeKB: 135, transactions: 28, openingBalance: 1100.00, closingBalance:  940.00 },
-  { id: 'st-2026-05', month: 'May',       year: 2026, dateRange: 'May 1 – May 31, 2026',  sizeKB: 141, transactions: 36, openingBalance:  870.00, closingBalance: 1100.00 },
-  { id: 'st-2026-04', month: 'April',     year: 2026, dateRange: 'Apr 1 – Apr 30, 2026',  sizeKB: 119, transactions: 22, openingBalance:  950.00, closingBalance:  870.00 },
-  { id: 'st-2026-03', month: 'March',     year: 2026, dateRange: 'Mar 1 – Mar 31, 2026',  sizeKB: 153, transactions: 39, openingBalance:  820.00, closingBalance:  950.00 },
-  { id: 'st-2026-02', month: 'February',  year: 2026, dateRange: 'Feb 1 – Feb 28, 2026',  sizeKB: 127, transactions: 29, openingBalance:  780.00, closingBalance:  820.00 },
-  { id: 'st-2026-01', month: 'January',   year: 2026, dateRange: 'Jan 1 – Jan 31, 2026',  sizeKB: 138, transactions: 33, openingBalance:  640.00, closingBalance:  780.00 },
-  { id: 'st-2025-12', month: 'December',  year: 2025, dateRange: 'Dec 1 – Dec 31, 2025',  sizeKB: 174, transactions: 47, openingBalance:  510.00, closingBalance:  640.00 },
-  { id: 'st-2025-11', month: 'November',  year: 2025, dateRange: 'Nov 1 – Nov 30, 2025',  sizeKB: 143, transactions: 35, openingBalance:  590.00, closingBalance:  510.00 },
-  { id: 'st-2025-10', month: 'October',   year: 2025, dateRange: 'Oct 1 – Oct 31, 2025',  sizeKB: 129, transactions: 31, openingBalance:  450.00, closingBalance:  590.00 },
-  { id: 'st-2025-09', month: 'September', year: 2025, dateRange: 'Sep 1 – Sep 30, 2025',  sizeKB: 108, transactions: 24, openingBalance:  380.00, closingBalance:  450.00 },
-]
+const STATEMENTS: Statement[] = []
 
 const YEARS = [2026, 2025]
 

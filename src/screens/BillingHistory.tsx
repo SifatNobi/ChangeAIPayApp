@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { isRevenueCatNative, restorePurchases, hasProAccess } from '@/lib/purchases'
 
 type BillingStatus = 'paid' | 'failed' | 'refunded' | 'pending'
 
@@ -20,27 +21,17 @@ const STATUS_CFG: Record<BillingStatus, { label: string; color: string; bg: stri
   pending:  { label: 'Pending',  color: '#AFC5FF', bg: 'rgba(175,197,255,0.1)' },
 }
 
-const PLAN_COLORS: Record<string, string> = { Free: 'rgba(175,197,255,0.4)', Edge: '#3FE7FF', Prime: '#0066FF', Apex: '#9945FF' }
+const PLAN_COLORS: Record<string, string> = { Free: 'rgba(175,197,255,0.4)', Edge: '#3FE7FF', Prime: '#0066FF', Apex: '#F5B700' }
 
-const HISTORY: BillingEntry[] = [
-  { id: 'b1',  date: 'Sep 1, 2026',  plan: 'Prime', planColor: '#0066FF', amount: 39.99, status: 'paid',     invoiceId: 'INV-2026-09', cycle: 'monthly' },
-  { id: 'b2',  date: 'Aug 1, 2026',  plan: 'Prime', planColor: '#0066FF', amount: 39.99, status: 'paid',     invoiceId: 'INV-2026-08', cycle: 'monthly' },
-  { id: 'b3',  date: 'Jul 1, 2026',  plan: 'Prime', planColor: '#0066FF', amount: 39.99, status: 'paid',     invoiceId: 'INV-2026-07', cycle: 'monthly' },
-  { id: 'b4',  date: 'Jun 5, 2026',  plan: 'Prime', planColor: '#0066FF', amount: 15.62, status: 'paid',     invoiceId: 'INV-2026-06-PRORATE', cycle: 'monthly' },
-  { id: 'b5',  date: 'Jun 1, 2026',  plan: 'Edge',  planColor: '#3FE7FF', amount: 9.99,  status: 'refunded', invoiceId: 'INV-2026-06', cycle: 'monthly' },
-  { id: 'b6',  date: 'May 1, 2026',  plan: 'Edge',  planColor: '#3FE7FF', amount: 9.99,  status: 'paid',     invoiceId: 'INV-2026-05', cycle: 'monthly' },
-  { id: 'b7',  date: 'Apr 1, 2026',  plan: 'Edge',  planColor: '#3FE7FF', amount: 9.99,  status: 'paid',     invoiceId: 'INV-2026-04', cycle: 'monthly' },
-  { id: 'b8',  date: 'Mar 1, 2026',  plan: 'Edge',  planColor: '#3FE7FF', amount: 9.99,  status: 'failed',   invoiceId: 'INV-2026-03', cycle: 'monthly' },
-  { id: 'b9',  date: 'Mar 3, 2026',  plan: 'Edge',  planColor: '#3FE7FF', amount: 9.99,  status: 'paid',     invoiceId: 'INV-2026-03R', cycle: 'monthly' },
-  { id: 'b10', date: 'Jan 1, 2026',  plan: 'Edge',  planColor: '#3FE7FF', amount: 9.99,  status: 'paid',     invoiceId: 'INV-2026-01', cycle: 'monthly' },
-]
+const HISTORY: BillingEntry[] = []
 
 interface BillingHistoryProps {
   onBack?: () => void
   onViewInvoice?: (invoiceId: string, entry: BillingEntry) => void
+  onRestored?: (hasAccess: boolean) => void
 }
 
-export default function BillingHistory({ onBack, onViewInvoice }: BillingHistoryProps) {
+export default function BillingHistory({ onBack, onViewInvoice, onRestored }: BillingHistoryProps) {
   const [filter, setFilter] = useState<BillingStatus | 'all'>('all')
 
   const filtered = filter === 'all' ? HISTORY : HISTORY.filter(e => e.status === filter)
@@ -78,21 +69,6 @@ export default function BillingHistory({ onBack, onViewInvoice }: BillingHistory
         </div>
       </div>
 
-      {/* Restore Purchases */}
-      <div className="px-5 pb-3">
-        <button
-          onClick={() => { /* restore purchases logic */ }}
-          className="w-full h-10 rounded-[--radius-xl] font-body text-xs font-semibold text-text-2 flex items-center justify-center gap-2 transition-colors hover:bg-surface-hi active:scale-[0.98]"
-          style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.1)' }}
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M11.5 2A5.5 5.5 0 0 1 1.5 6v5l2 2h14l-1.5-2.5V6A5.5 5.5 0 0 1 11.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M9.5 6v.5a2 2 0 0 0 4 0V6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-          </svg>
-          Restore Purchases
-        </button>
-      </div>
-
       <div className="flex-1 overflow-y-auto px-5 pb-8 flex flex-col gap-2" style={{ scrollbarWidth: 'none' }}>
         {filtered.map(entry => {
           const st = STATUS_CFG[entry.status]
@@ -123,6 +99,22 @@ export default function BillingHistory({ onBack, onViewInvoice }: BillingHistory
             </button>
           )
         })}
+      </div>
+      <div className="px-5 pb-6 pt-2" style={{ borderTop: '1px solid rgba(175,197,255,0.08)' }}>
+        <button
+          className="w-full h-11 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
+          onClick={async () => {
+            if (!isRevenueCatNative()) return
+            try {
+              const customerInfo = await restorePurchases()
+              onRestored?.(hasProAccess(customerInfo))
+            } catch (error) {
+              console.error('[RevenueCat] Restore Purchases failed:', error)
+            }
+          }}
+        >
+          Restore Purchases
+        </button>
       </div>
     </div>
   )

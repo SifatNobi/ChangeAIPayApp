@@ -11,15 +11,7 @@ interface BudgetCategory {
   adjusted: number
 }
 
-const INITIAL_CATS: BudgetCategory[] = [
-  { id: 'housing',      label: 'Housing',        emoji: '🏠', color: '#3FE7FF', suggested: 1200, current: 1020, reason: 'Based on your lease + utilities average over 6 months.', adjusted: 1200 },
-  { id: 'food',         label: 'Food & Dining',  emoji: '🍜', color: '#F5B700', suggested: 380,  current: 412,  reason: 'Your 3-month average is $412 — I trimmed to $380 to nudge spending down 8%.', adjusted: 380 },
-  { id: 'transport',    label: 'Transport',      emoji: '🚗', color: '#22C55E', suggested: 180,  current: 148,  reason: 'Slightly above your recent spend to account for occasional rideshare.', adjusted: 180 },
-  { id: 'shopping',     label: 'Shopping',       emoji: '🛍️', color: '#9945FF', suggested: 250,  current: 284,  reason: 'Reducing from $284 to cut back on impulse purchases Fina flagged.', adjusted: 250 },
-  { id: 'health',       label: 'Health',         emoji: '💊', color: '#E6007A', suggested: 120,  current: 120,  reason: 'Matches your consistent monthly healthcare spend exactly.', adjusted: 120 },
-  { id: 'entertainment',label: 'Entertainment',  emoji: '🎬', color: '#FC7E2F', suggested: 90,   current: 95,   reason: 'Tight but achievable — subscriptions plus one outing per month.', adjusted: 90 },
-  { id: 'savings',      label: 'Savings Goals',  emoji: '🎯', color: '#AFC5FF', suggested: 680,  current: 350,  reason: 'Allocating 20% of income toward goals — this would reach Emergency Fund by Oct.', adjusted: 680 },
-]
+const INITIAL_CATS: BudgetCategory[] = []
 
 interface SuggestedBudgetProps {
   onAccept?: (cats: BudgetCategory[]) => void
@@ -27,13 +19,13 @@ interface SuggestedBudgetProps {
 }
 
 export default function SuggestedBudget({ onAccept, onBack }: SuggestedBudgetProps) {
-  const [cats, setCats] = useState<BudgetCategory[]>(INITIAL_CATS)
+  const [cats, setCats] = useState<BudgetCategory[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [accepted, setAccepted] = useState(false)
   const [applying, setApplying] = useState(false)
 
   const totalBudget = cats.reduce((s, c) => s + c.adjusted, 0)
-  const income = 3400
+  const income = 0
   const headroom = income - totalBudget
 
   const updateAdjusted = (id: string, val: number) => {

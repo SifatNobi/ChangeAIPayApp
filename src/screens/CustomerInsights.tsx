@@ -10,20 +10,9 @@ interface TopCustomer {
   color: string
 }
 
-const TOP_CUSTOMERS: TopCustomer[] = [
-  { id: '1', initials: 'OS', name: 'Office Supplies Co', visits: 8,  totalSpent: '$2,480', lastVisit: 'Today',     color: '#0066FF' },
-  { id: '2', initials: 'SC', name: 'Sunrise Café',        visits: 6,  totalSpent: '$1,860', lastVisit: 'Yesterday', color: '#F5B700' },
-  { id: '3', initials: 'PM', name: 'Peak Media Ltd',       visits: 5,  totalSpent: '$1,560', lastVisit: 'Sep 1',    color: '#9945FF' },
-  { id: '4', initials: 'NL', name: 'Nexus Lab',            visits: 4,  totalSpent: '$1,200', lastVisit: 'Aug 30',   color: '#3FE7FF' },
-  { id: '5', initials: 'BC', name: 'Bright & Co',          visits: 3,  totalSpent: '$880',   lastVisit: 'Aug 29',   color: '#22C55E' },
-]
+const TOP_CUSTOMERS: TopCustomer[] = []
 
-const FREQUENCY_BANDS = [
-  { label: '5+ visits',   count: 12, pct: 13, color: '#0066FF' },
-  { label: '3–4 visits',  count: 28, pct: 30, color: '#9945FF' },
-  { label: '2 visits',    count: 32, pct: 34, color: '#3FE7FF' },
-  { label: '1 visit',     count: 22, pct: 23, color: 'rgba(175,197,255,0.3)' },
-]
+const FREQUENCY_BANDS: { label: string; count: number; pct: number; color: string }[] = []
 
 interface CustomerInsightsProps {
   onBack?: () => void
@@ -32,9 +21,9 @@ interface CustomerInsightsProps {
 export default function CustomerInsights({ onBack }: CustomerInsightsProps) {
   const [expanded, setExpanded] = useState<string | null>(null)
 
-  const repeatPct = 68
-  const newPct = 32
-  const totalCustomers = 94
+  const repeatPct = 0
+  const newPct = 0
+  const totalCustomers = 0
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
@@ -104,7 +93,7 @@ export default function CustomerInsights({ onBack }: CustomerInsightsProps) {
                   </p>
                 </div>
                 <p className="font-body text-xs text-text-muted">Repeat customers</p>
-                <p className="font-body text-[10px] font-semibold" style={{ color: '#22C55E' }}>↑ 12% vs last month</p>
+                <p className="font-body text-[10px] font-semibold" style={{ color: '#22C55E' }}>↑ 0% vs last month</p>
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-0.5">
@@ -115,7 +104,7 @@ export default function CustomerInsights({ onBack }: CustomerInsightsProps) {
                   </p>
                 </div>
                 <p className="font-body text-xs text-text-muted">New customers</p>
-                <p className="font-body text-[10px] text-text-muted">18 first-time buyers</p>
+                <p className="font-body text-[10px] text-text-muted">0 first-time buyers</p>
               </div>
             </div>
           </div>
@@ -127,11 +116,11 @@ export default function CustomerInsights({ onBack }: CustomerInsightsProps) {
           >
             <div>
               <p className="font-body text-[10px] text-text-muted">Avg visits per customer</p>
-              <p className="font-mono text-base font-bold text-white">2.4 visits/mo</p>
+              <p className="font-mono text-base font-bold text-white">0 visits/mo</p>
             </div>
             <div className="text-right">
               <p className="font-body text-[10px] text-text-muted">Retention rate</p>
-              <p className="font-mono text-base font-bold" style={{ color: '#22C55E' }}>68%</p>
+              <p className="font-mono text-base font-bold" style={{ color: '#22C55E' }}>0%</p>
             </div>
           </div>
         </div>

@@ -8,6 +8,7 @@ export interface SellOrder {
   amountUSD: number
   price: number
   availableCrypto: number
+  zeroFee?: boolean
 }
 
 interface CryptoSellProps {
@@ -16,9 +17,10 @@ interface CryptoSellProps {
 }
 
 const HOLDINGS = [
-  { symbol: 'BTC', name: 'Bitcoin',  price: 62410.00, change: +2.34, color: '#F7931A', colorDim: 'rgba(247,147,26,0.12)', holding: 0.012,  holdingValue: 748.92  },
-  { symbol: 'ETH', name: 'Ethereum', price:  3282.00, change: -1.12, color: '#627EEA', colorDim: 'rgba(98,126,234,0.12)', holding: 0.45,   holdingValue: 1476.90 },
-  { symbol: 'SOL', name: 'Solana',   price:   147.80, change: +5.61, color: '#9945FF', colorDim: 'rgba(153,69,255,0.12)', holding: 4.2,    holdingValue: 620.76  },
+  { symbol: 'XNO', name: 'Nano',     price:     0.17, change: +1.05, color: '#3FE7FF', colorDim: 'rgba(63,231,255,0.12)',  holding: 50,     holdingValue: 8.50,   zeroFee: true  },
+  { symbol: 'BTC', name: 'Bitcoin',  price: 62410.00, change: +2.34, color: '#F7931A', colorDim: 'rgba(247,147,26,0.12)',  holding: 0.012,  holdingValue: 748.92, zeroFee: false },
+  { symbol: 'ETH', name: 'Ethereum', price:  3282.00, change: -1.12, color: '#627EEA', colorDim: 'rgba(98,126,234,0.12)',  holding: 0.45,   holdingValue: 1476.90,zeroFee: false },
+  { symbol: 'SOL', name: 'Solana',   price:   147.80, change: +5.61, color: '#9945FF', colorDim: 'rgba(153,69,255,0.12)',  holding: 4.2,    holdingValue: 620.76, zeroFee: false },
 ]
 
 export default function CryptoSell({ onContinue, onBack }: CryptoSellProps) {
@@ -205,7 +207,7 @@ export default function CryptoSell({ onContinue, onBack }: CryptoSellProps) {
 
         {/* CTA */}
         <button
-          onClick={() => isValid && onContinue?.({ symbol: asset.symbol, name: asset.name, color: asset.color, amountCrypto, amountUSD, price: asset.price, availableCrypto: asset.holding })}
+          onClick={() => isValid && onContinue?.({ symbol: asset.symbol, name: asset.name, color: asset.color, amountCrypto, amountUSD, price: asset.price, availableCrypto: asset.holding, zeroFee: asset.zeroFee })}
           disabled={!isValid}
           className="w-full h-14 rounded-[--radius-2xl] font-body text-sm font-semibold text-white flex items-center justify-center gap-2 transition-all duration-[200ms] active:scale-[0.98] disabled:opacity-35"
           style={{ background: 'linear-gradient(135deg,#0066FF,#3FE7FF)' }}

@@ -17,17 +17,14 @@ interface InvoiceProps {
 
 const genId = () => Math.random().toString(36).slice(2, 8)
 
-const INITIAL_ITEMS: LineItem[] = [
-  { id: genId(), description: 'Design consultation', qty: 2, rate: 150 },
-  { id: genId(), description: 'UI component set', qty: 1, rate: 480 },
-]
+const INITIAL_ITEMS: LineItem[] = []
 
 export default function Invoice({ onSend, onSaveDraft, onBack }: InvoiceProps) {
   const [state, setState] = useState<InvoiceState>('draft')
   const [items, setItems] = useState<LineItem[]>(INITIAL_ITEMS)
-  const [customer, setCustomer] = useState('Office Supplies Co')
-  const [email, setEmail] = useState('billing@officesupplies.co')
-  const [dueDate, setDueDate] = useState('2026-09-15')
+  const [customer, setCustomer] = useState('')
+  const [email, setEmail] = useState('')
+  const [dueDate, setDueDate] = useState('')
   const [note, setNote] = useState('')
   const [sendMethod, setSendMethod] = useState<'email' | 'link'>('email')
   const [copied, setCopied] = useState(false)
@@ -85,7 +82,7 @@ export default function Invoice({ onSend, onSaveDraft, onBack }: InvoiceProps) {
           style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.1)' }}
         >
           <p className="font-mono text-base font-bold text-text">${total.toFixed(2)}</p>
-          <p className="font-body text-xs text-text-muted">Invoice #INV-2026-085</p>
+          <p className="font-body text-xs text-text-muted">Invoice #INV-0001</p>
         </div>
         <button
           onClick={onBack}
@@ -112,7 +109,7 @@ export default function Invoice({ onSend, onSaveDraft, onBack }: InvoiceProps) {
         </button>
         <div className="flex-1">
           <p className="font-display text-base font-extrabold text-gradient-primary tracking-tight">New Invoice</p>
-          <p className="font-body text-[10px] text-text-muted">#INV-2026-085</p>
+          <p className="font-body text-[10px] text-text-muted">#INV-0001</p>
         </div>
         <button
           onClick={onSaveDraft}

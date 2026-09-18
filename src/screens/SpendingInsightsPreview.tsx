@@ -14,28 +14,23 @@ interface SpendingInsightsPreviewProps {
 type Period = 'week' | 'month'
 
 const WEEKLY_BARS = [
-  { day: 'Mon', amount: 12,  max: 80 },
-  { day: 'Tue', amount: 45,  max: 80 },
-  { day: 'Wed', amount: 28,  max: 80 },
-  { day: 'Thu', amount: 80,  max: 80 },
-  { day: 'Fri', amount: 62,  max: 80 },
-  { day: 'Sat', amount: 38,  max: 80 },
-  { day: 'Sun', amount: 15,  max: 80 },
+  { day: 'Mon', amount: 0,  max: 80 },
+  { day: 'Tue', amount: 0,  max: 80 },
+  { day: 'Wed', amount: 0,  max: 80 },
+  { day: 'Thu', amount: 0,  max: 80 },
+  { day: 'Fri', amount: 0,  max: 80 },
+  { day: 'Sat', amount: 0,  max: 80 },
+  { day: 'Sun', amount: 0,  max: 80 },
 ]
 
 const MONTHLY_BARS = [
-  { day: 'Wk1', amount: 120, max: 280 },
-  { day: 'Wk2', amount: 205, max: 280 },
-  { day: 'Wk3', amount: 280, max: 280 },
-  { day: 'Wk4', amount: 175, max: 280 },
+  { day: 'Wk1', amount: 0, max: 280 },
+  { day: 'Wk2', amount: 0, max: 280 },
+  { day: 'Wk3', amount: 0, max: 280 },
+  { day: 'Wk4', amount: 0, max: 280 },
 ]
 
-const TOP_CATS = [
-  { name: 'Food & Drink', pct: 38, color: '#0066FF', delta: -8 },
-  { name: 'Transport',    pct: 22, color: '#3FE7FF', delta: +3 },
-  { name: 'Shopping',     pct: 19, color: '#AFC5FF', delta: -14 },
-  { name: 'Bills',        pct: 21, color: 'rgba(175,197,255,0.3)', delta: 0 },
-]
+const TOP_CATS: { name: string; pct: number; color: string; delta: number }[] = []
 
 export default function SpendingInsightsPreview({
   accountType = 'personal',
@@ -51,7 +46,7 @@ export default function SpendingInsightsPreview({
   const peakIndex = bars.reduce((maxI, b, i, arr) => b.amount > arr[maxI].amount ? i : maxI, 0)
 
   const weeklyTotal = WEEKLY_BARS.reduce((s, b) => s + b.amount, 0)
-  const prevWeekTotal = 312
+  const prevWeekTotal = 0
   const weekDelta = Math.round(((weeklyTotal - prevWeekTotal) / prevWeekTotal) * 100)
 
   return (
@@ -96,7 +91,7 @@ export default function SpendingInsightsPreview({
             <div>
               <p className="font-body text-xs text-text-muted mb-0.5">Total Spent</p>
               <p className="font-display text-3xl font-extrabold text-text tracking-tight">
-                ${period === 'week' ? weeklyTotal.toFixed(0) : '780'}
+                ${period === 'week' ? weeklyTotal.toFixed(0) : '0'}
               </p>
               <p className="font-body text-xs text-text-muted mt-0.5">
                 vs {period === 'week' ? 'last week' : 'last month'}
@@ -104,7 +99,7 @@ export default function SpendingInsightsPreview({
             </div>
             <div className="flex flex-col items-end gap-2">
               <Chip
-                label={`${weekDelta > 0 ? '+' : ''}${period === 'week' ? weekDelta : -6}%`}
+                label={`${weekDelta > 0 ? '+' : ''}${period === 'week' ? weekDelta : 0}%`}
                 variant={weekDelta <= 0 ? 'success' : 'error'}
                 dot
               />

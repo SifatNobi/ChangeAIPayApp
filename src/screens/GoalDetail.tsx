@@ -11,24 +11,15 @@ interface GoalDetailProps {
 
 const DEFAULT_GOAL: Goal = {
   id: 'g1', name: 'Emergency Fund', emoji: '🛡️',
-  targetAmount: 5000, currentAmount: 2450,
+  targetAmount: 0, currentAmount: 0,
   fundingMethod: 'paycheck', color: '#3FE7FF',
-  targetDate: '2026-12-31', createdAt: 'Feb 2026',
+  targetDate: '2026-12-31', createdAt: '',
 }
 
-// Contribution history entries
-const CONTRIBUTIONS = [
-  { id: 'c1', date: 'Aug 31', amount: 150,  label: 'Paycheck split',     type: 'paycheck'  },
-  { id: 'c2', date: 'Aug 28', amount: 200,  label: 'Manual deposit',     type: 'manual'    },
-  { id: 'c3', date: 'Aug 15', amount: 150,  label: 'Paycheck split',     type: 'paycheck'  },
-  { id: 'c4', date: 'Aug 1',  amount: 200,  label: 'Paycheck split',     type: 'paycheck'  },
-  { id: 'c5', date: 'Jul 31', amount: 100,  label: 'Manual deposit',     type: 'manual'    },
-  { id: 'c6', date: 'Jul 15', amount: 150,  label: 'Paycheck split',     type: 'paycheck'  },
-]
+const CONTRIBUTIONS: { id: string; date: string; amount: number; label: string; type: string }[] = []
 
-// Chart data — contribution cumulative balance over time
-const CHART_MONTHS = ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug']
-const CHART_VALUES = [0, 300, 600, 1000, 1400, 1900, 2450]
+const CHART_MONTHS: string[] = []
+const CHART_VALUES: number[] = []
 const W = 330, H = 100
 const PAD = { t: 12, r: 10, b: 18, l: 10 }
 

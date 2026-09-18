@@ -9,13 +9,14 @@ interface OTPVerificationProps {
   onBack: () => void
 }
 
-type OTPState = 'idle' | 'loading' | 'success' | 'wrongCode' | 'expired'
+type OTPState = 'idle' | 'loading' | 'wrongCode' | 'expired'
 
 const RESEND_COOLDOWN = 60
 
 export default function OTPVerification({ contact, onVerified, onBack }: OTPVerificationProps) {
   const [code, setCode] = useState('')
   const [state, setState] = useState<OTPState>('idle')
+  const [verified, setVerified] = useState(false)
   const [countdown, setCountdown] = useState(RESEND_COOLDOWN)
   const [resendCount, setResendCount] = useState(0)
 
@@ -36,8 +37,8 @@ export default function OTPVerification({ contact, onVerified, onBack }: OTPVeri
     } else if (val === '111111') {
       setState('wrongCode')
     } else {
-      setState('success')
-      await new Promise(r => setTimeout(r, 700))
+      setVerified(true)
+      await new Promise(r => setTimeout(r, 2200))
       onVerified()
     }
   }, [onVerified])
@@ -57,6 +58,33 @@ export default function OTPVerification({ contact, onVerified, onBack }: OTPVeri
   }
 
   const isError = state === 'wrongCode' || state === 'expired'
+
+  if (verified) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-bg px-5 animate-fade-in">
+        <div className="relative flex items-center justify-center mb-8">
+          {/* Radiating rings */}
+          <div className="absolute w-32 h-32 rounded-full" style={{ background: 'rgba(34,197,94,0.04)', animation: 'ping 1.2s ease-out 0.1s infinite' }} />
+          <div className="absolute w-24 h-24 rounded-full" style={{ background: 'rgba(34,197,94,0.07)', animation: 'ping 1.2s ease-out 0.4s infinite' }} />
+          <div className="w-20 h-20 rounded-full flex items-center justify-center"
+            style={{ background: 'rgba(34,197,94,0.12)', border: '2px solid rgba(34,197,94,0.4)', boxShadow: '0 0 32px rgba(34,197,94,0.25)' }}>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+              <path d="M10 20l7 7 13-14" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
+        <h2 className="font-display text-2xl font-extrabold text-text text-center mb-2">Verified Successfully</h2>
+        <p className="font-body text-sm text-text-2 text-center mb-3">Your number has been verified.</p>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full"
+          style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)' }}>
+          <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+            <path d="M5 1L1.5 2.5v3.2C1.5 7.7 2.9 9 5 9.5c2.1-.5 3.5-1.8 3.5-3.8V2.5L5 1Z" fill="rgba(34,197,94,0.3)" stroke="#22C55E" strokeWidth="0.8" />
+          </svg>
+          <p className="font-body text-[10px] font-semibold" style={{ color: '#22C55E' }}>Verified and secure</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-bg px-5 pt-4 pb-10">
@@ -115,14 +143,13 @@ export default function OTPVerification({ contact, onVerified, onBack }: OTPVeri
               This code has expired. Please request a new one.
             </p>
           )}
-          {state === 'success' && (
+          {verified && (
             <div className="flex items-center gap-2 animate-fade-in">
-              <div className="w-5 h-5 rounded-full bg-success/15 flex items-center justify-center">
-                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                  <path d="M2 5l2 2 4-4" stroke="#00D26A" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <p className="font-body text-sm text-success">Verified!</p>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="7" fill="rgba(34,197,94,0.15)" stroke="#22C55E" strokeWidth="1.2" />
+                <path d="M5 8l2 2 4-4" stroke="#22C55E" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <p className="font-body text-sm font-semibold" style={{ color: '#22C55E' }}>Verified!</p>
             </div>
           )}
         </div>
@@ -164,7 +191,7 @@ export default function OTPVerification({ contact, onVerified, onBack }: OTPVeri
         variant="primary"
         fullWidth
         loading={state === 'loading'}
-        disabled={code.length < 6 || state === 'loading' || state === 'success'}
+        disabled={code.length < 6 || state === 'loading' || verified}
         onClick={() => handleVerify(code)}
       >
         Verify

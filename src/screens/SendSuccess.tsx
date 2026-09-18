@@ -23,11 +23,11 @@ export default function SendSuccess({
   recipientHandle = '@alexj',
   recipientInitials = 'AJ',
   recipientColor = '#0066FF',
-  amount = '',
+  amount = '50.00',
   currency = 'USD',
-  fee = '',
+  fee = 'Free',
   eta = 'Instant',
-  transactionId = '',
+  transactionId = 'TXN-2026-0088AF',
   onShareReceipt,
   onAddFavorite,
   onDone,
@@ -79,7 +79,7 @@ export default function SendSuccess({
 
         <h1 className="font-display text-2xl font-extrabold text-text tracking-tight mb-1">Payment Sent!</h1>
         <p className="font-body text-sm text-text-muted mb-6 text-center">
-          {currSym}{amount || '—'} delivered to {recipientName}
+          {currSym}{amount} delivered to {recipientName}
         </p>
 
         {/* Receipt card */}
@@ -101,10 +101,10 @@ export default function SendSuccess({
               </div>
             </div>
             {[
-              { label: 'Amount', value: amount ? `${currSym}${amount}` : '—' },
-              { label: 'Fee',    value: fee || '—' },
+              { label: 'Amount', value: `${currSym}${amount}` },
+              { label: 'Fee',    value: fee },
               { label: 'Arrived', value: eta },
-              { label: 'Ref',    value: transactionId || '—' },
+              { label: 'Ref',    value: transactionId },
             ].map(r => (
               <div key={r.label} className="flex items-center justify-between">
                 <p className="font-body text-xs text-text-muted">{r.label}</p>

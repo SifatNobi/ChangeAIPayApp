@@ -77,6 +77,9 @@ export default function DashboardCustomization({
   }
 
   const handleSave = () => {
+    // Persist hidden widget IDs to localStorage so Home can read them
+    const hidden = cards.filter(c => !c.visible && !c.fixed).map(c => c.id)
+    try { localStorage.setItem('cap_hidden_widgets', JSON.stringify(hidden)) } catch { /* quota */ }
     onSave?.(cards)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)

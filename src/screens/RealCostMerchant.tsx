@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 interface RealCostMerchantProps {
   onContinue?: () => void
+  onSkip?: () => void
   onBack?: () => void
 }
 
@@ -57,7 +58,7 @@ function fmtVolLabel(v: number) {
   return v >= 1000 ? `$${v / 1000}K` : `$${v}`
 }
 
-export default function RealCostMerchant({ onContinue, onBack }: RealCostMerchantProps) {
+export default function RealCostMerchant({ onContinue, onSkip, onBack }: RealCostMerchantProps) {
   const [selectedVolume, setSelectedVolume] = useState(5000)
   const [selectedId, setSelectedId] = useState('stripe')
 
@@ -309,6 +310,9 @@ export default function RealCostMerchant({ onContinue, onBack }: RealCostMerchan
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 3l5 5-5 5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
+        </button>
+        <button onClick={onSkip ?? onContinue} className="w-full mt-3 font-body text-xs text-text-muted text-center active:opacity-70 py-2">
+          Skip for now →
         </button>
       </div>
     </div>

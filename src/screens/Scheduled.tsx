@@ -17,26 +17,7 @@ interface ScheduledPayment {
   status: 'upcoming' | 'processing'
 }
 
-const SCHEDULED_PAYMENTS: ScheduledPayment[] = [
-  {
-    id: 'sp1', recipient: 'Sarah Kim', handle: '@sarahk', amount: '$200.00', amountNum: 200,
-    scheduledDate: 'Sep 5, 2026', scheduledDateMs: new Date('2026-09-05').getTime(),
-    scheduledTime: '09:00 AM', note: "September rent share",
-    status: 'upcoming',
-  },
-  {
-    id: 'sp2', recipient: 'Alex Johnson', handle: '@alexj', amount: '$50.00', amountNum: 50,
-    scheduledDate: 'Sep 12, 2026', scheduledDateMs: new Date('2026-09-12').getTime(),
-    scheduledTime: '12:00 PM',
-    status: 'upcoming',
-  },
-  {
-    id: 'sp3', recipient: 'Marcus Webb', handle: '@marcuswebb', amount: '$35.00', amountNum: 35,
-    scheduledDate: 'Sep 1, 2026', scheduledDateMs: new Date('2026-09-01').getTime(),
-    scheduledTime: '10:00 AM', note: 'Coffee split',
-    status: 'processing',
-  },
-]
+const SCHEDULED_PAYMENTS: ScheduledPayment[] = []
 
 function StatusChip({ status }: { status: ScheduledPayment['status'] }) {
   const cfg = status === 'processing'

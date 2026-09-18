@@ -11,13 +11,7 @@ interface Connection {
   color: string
 }
 
-const CONNECTIONS: Connection[] = [
-  { id: 'c1', initials: 'JL', firstName: 'Jordan', joinedDate: 'Aug 12',  status: 'active',  color: '#3FE7FF' },
-  { id: 'c2', initials: 'SR', firstName: 'Sam',    joinedDate: 'Aug 20',  status: 'active',  color: '#9945FF' },
-  { id: 'c3', initials: 'TK', firstName: 'Taylor', joinedDate: 'Aug 28',  status: 'active',  color: '#0066FF' },
-  { id: 'c4', initials: 'MO', firstName: 'Morgan', joinedDate: 'Sep 1',   status: 'pending', color: '#F5B700' },
-  { id: 'c5', initials: 'AL', firstName: 'Alex',   joinedDate: 'Sep 3',   status: 'pending', color: '#FC7E2F' },
-]
+const CONNECTIONS: Connection[] = []
 
 const MILESTONES = [1, 3, 5, 10, 25, 50, 100]
 

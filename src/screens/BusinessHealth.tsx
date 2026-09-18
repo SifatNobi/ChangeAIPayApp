@@ -33,24 +33,24 @@ interface PeriodData {
 
 const DATA: Record<Period, PeriodData> = {
   'Week': {
-    revenue: '$11,270', change: '+18.3%', positive: true,
+    revenue: '$0.00', change: '+0.0%', positive: true,
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    values: [1180, 1620, 890, 2050, 1340, 1780, 2410],
-    peakLabel: 'Sunday', peakValue: '$2,410',
+    values: [0, 0, 0, 0, 0, 0, 0],
+    peakLabel: 'Sunday', peakValue: '$0.00',
     secondary: 'Revenue trend · This week',
   },
   'Month': {
-    revenue: '$39,400', change: '+24.1%', positive: true,
+    revenue: '$0.00', change: '+0.0%', positive: true,
     labels: ['W1', 'W2', 'W3', 'W4'],
-    values: [7200, 8450, 9100, 14650],
-    peakLabel: 'Week 4', peakValue: '$14,650',
+    values: [0, 0, 0, 0],
+    peakLabel: 'Week 4', peakValue: '$0.00',
     secondary: 'Revenue trend · August 2026',
   },
   '3M': {
-    revenue: '$98,200', change: '+31.0%', positive: true,
+    revenue: '$0.00', change: '+0.0%', positive: true,
     labels: ['Jul', 'Aug', 'Sep'],
-    values: [28400, 30600, 39200],
-    peakLabel: 'September', peakValue: '$39,200',
+    values: [0, 0, 0],
+    peakLabel: 'September', peakValue: '$0.00',
     secondary: 'Revenue trend · Jul – Sep',
   },
 }
@@ -138,18 +138,21 @@ function HealthChart({ d, peakIdx }: { d: PeriodData; peakIdx: number }) {
 interface BusinessHealthProps {
   onBack?: () => void
   onViewRevenue?: () => void
+  onViewRecap?: () => void
+  onViewHealthMeter?: () => void
+  businessHealthScore?: number | null
 }
 
-export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealthProps) {
+export default function BusinessHealth({ onBack, onViewRevenue, onViewRecap, onViewHealthMeter, businessHealthScore = null }: BusinessHealthProps) {
   const [period, setPeriod] = useState<Period>('Month')
   const d = DATA[period]
   const peakIdx = d.values.indexOf(Math.max(...d.values))
 
   const METRICS = [
-    { label: 'Avg transaction', value: '$126', sub: '+$8 vs last month', up: true },
-    { label: 'Repeat customers', value: '68%', sub: '+12% vs last month', up: true },
-    { label: 'Active customers', value: '94', sub: '18 new this month', up: true },
-    { label: 'Days with revenue', value: '28/30', sub: 'All business days', up: true },
+    { label: 'Avg transaction', value: '$0.00', sub: '+$0 vs last month', up: true },
+    { label: 'Repeat customers', value: '0%', sub: '+0% vs last month', up: true },
+    { label: 'Active customers', value: '0', sub: '0 new this month', up: true },
+    { label: 'Days with revenue', value: '0/30', sub: 'All business days', up: true },
   ]
 
   return (
@@ -204,7 +207,7 @@ export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealth
           <div className="flex items-center gap-2 mb-4 relative">
             <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: '#22C55E', boxShadow: '0 0 6px rgba(34,197,94,0.8)' }} />
             <p className="font-body text-xs font-semibold" style={{ color: '#22C55E' }}>
-              Repeat customers up 12% — your strongest growth signal
+              {""}
             </p>
           </div>
 
@@ -225,6 +228,46 @@ export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealth
 
           <HealthChart d={d} peakIdx={peakIdx} />
         </div>
+
+        {/* ── Business Health Score compact widget ── */}
+        <button
+          onClick={onViewHealthMeter}
+          className="w-full text-left rounded-[--radius-2xl] px-4 py-3.5 flex items-center gap-3 active:scale-[0.99] transition-transform"
+          style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.1)' }}
+        >
+          <div
+            className="w-9 h-9 rounded-full flex items-center justify-center shrink-0"
+            style={{ background: 'rgba(0,102,255,0.08)', border: '1px solid rgba(0,102,255,0.2)' }}
+          >
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+              <circle cx="9" cy="9" r="7" stroke="rgba(0,102,255,0.5)" strokeWidth="1.3" strokeDasharray="3 2" />
+              <path d="M5.5 9l2.5 2.5 4.5-5" stroke="#3FE7FF" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-body text-xs font-semibold text-white">Business Health Score</p>
+            {businessHealthScore === null || businessHealthScore === undefined ? (
+              <p className="font-body text-[11px] mt-0.5" style={{ color: 'rgba(175,197,255,0.4)' }}>
+                Not enough data yet · <span style={{ color: 'rgba(63,231,255,0.7)' }}>Tap to set up</span>
+              </p>
+            ) : (
+              <p className="font-body text-[11px] mt-0.5" style={{ color: 'rgba(175,197,255,0.5)' }}>
+                <span
+                  className="font-mono font-bold"
+                  style={{
+                    color: businessHealthScore >= 80 ? '#22C55E' : businessHealthScore >= 50 ? '#F5B700' : '#FF4D6A',
+                  }}
+                >
+                  {businessHealthScore}
+                </span>
+                {' '}· <span style={{ color: 'rgba(63,231,255,0.7)' }}>View breakdown</span>
+              </p>
+            )}
+          </div>
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="rgba(175,197,255,0.35)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
 
         {/* Key metrics — 4 items, 2×2 grid */}
         <div>
@@ -268,6 +311,20 @@ export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealth
           </svg>
         </button>
 
+        {/* Monthly recap shortcut */}
+        <button
+          onClick={onViewRecap}
+          className="flex items-center justify-between w-full px-4 py-4 rounded-[--radius-xl] transition-all active:scale-[0.99]"
+          style={{ background: 'rgba(63,231,255,0.04)', border: '1px solid rgba(63,231,255,0.15)' }}>
+          <div>
+            <p className="font-body text-sm font-semibold text-text text-left">Monthly Recap</p>
+            <p className="font-body text-xs text-text-muted">Real revenue summary — shareable card</p>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4l4 4-4 4" stroke="rgba(63,231,255,0.5)" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
         {/* Aina insight */}
         <div className="rounded-[--radius-2xl] px-4 py-4 flex items-start gap-3"
           style={{
@@ -281,7 +338,7 @@ export default function BusinessHealth({ onBack, onViewRevenue }: BusinessHealth
               Aina Insight
             </p>
             <p className="font-body text-xs text-text-muted leading-relaxed">
-              Your highest-revenue customers are repeat buyers averaging 3.2 visits per month. Reaching out to customers who have not purchased in 30+ days could recover an estimated $2,800 in monthly revenue.
+              {""}
             </p>
           </div>
         </div>

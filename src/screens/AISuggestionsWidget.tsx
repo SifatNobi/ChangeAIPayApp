@@ -5,7 +5,6 @@ import { AIAvatar } from '@/components/AI'
 
 interface AISuggestionsWidgetProps {
   accountType?: 'personal' | 'business'
-  currentNav?: string
   onNavigate: (tab: string) => void
   onBack?: () => void
   onNotifications?: () => void
@@ -23,64 +22,7 @@ type Suggestion = {
   urgency: 'low' | 'medium' | 'high'
 }
 
-const SUGGESTIONS: Suggestion[] = [
-  {
-    id: 's1',
-    title: "You're on track to overspend dining",
-    body: "You've spent $84 on food this week — 68% of your weekly budget. Thursday is your highest risk day.",
-    tag: 'Budget Alert',
-    tagColor: 'rgba(245,158,11,0.15)',
-    primaryAction: {
-      label: 'Set Thursday reminder',
-      confirmLabel: 'Reminder set!',
-      successMsg: "I'll remind you at 12 PM on Thursday before dining spend peaks.",
-    },
-    secondaryLabel: 'Dismiss',
-    urgency: 'medium',
-  },
-  {
-    id: 's2',
-    title: 'Netflix unused for 18 days',
-    body: "Your $15.99 subscription renewed today but hasn't been used in 18 days. Flag it now or I can monitor it going forward.",
-    tag: 'Subscription',
-    tagColor: 'rgba(0,102,255,0.12)',
-    primaryAction: {
-      label: 'Flag this charge',
-      confirmLabel: 'Flagged!',
-      successMsg: "Netflix is flagged. I'll alert you again next renewal if it stays unused.",
-    },
-    secondaryLabel: 'Keep active',
-    urgency: 'low',
-  },
-  {
-    id: 's3',
-    title: 'Best time to transfer to GBP',
-    body: 'GBP/USD is 0.6% better than your 30-day average right now. Move $200 to lock in the rate.',
-    tag: 'FX Opportunity',
-    tagColor: 'rgba(63,231,255,0.1)',
-    primaryAction: {
-      label: 'Move $200 → GBP now',
-      confirmLabel: 'Transfer queued!',
-      successMsg: "$200 queued for GBP at today's rate. You'll receive a receipt shortly.",
-    },
-    secondaryLabel: 'Remind me later',
-    urgency: 'high',
-  },
-  {
-    id: 's4',
-    title: 'You saved $24 vs last month',
-    body: "Your grocery spending dropped 14%. Move those savings to your goals before they get spent.",
-    tag: 'Savings Win',
-    tagColor: 'rgba(34,197,94,0.1)',
-    primaryAction: {
-      label: 'Move $24 to savings',
-      confirmLabel: 'Moved!',
-      successMsg: '$24 moved to your Savings goal. Running total: $148 saved this quarter.',
-    },
-    secondaryLabel: 'Skip',
-    urgency: 'low',
-  },
-]
+const SUGGESTIONS: Suggestion[] = []
 
 const URGENCY_DOT: Record<Suggestion['urgency'], string> = {
   high: '#FF4D4D',
@@ -302,7 +244,6 @@ function SuggestionDeck({
 
 export default function AISuggestionsWidget({
   accountType = 'personal',
-  currentNav = 'ai',
   onNavigate,
   onBack,
   onNotifications,
@@ -310,7 +251,7 @@ export default function AISuggestionsWidget({
 }: AISuggestionsWidgetProps) {
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
-      <Header notificationCount={2} onNotification={onNotifications} />
+      <Header notificationCount={0} onNotification={onNotifications} />
 
       <div className="overflow-y-auto pb-24 flex-1" style={{ scrollbarWidth: 'none' }}>
         {/* Header */}
@@ -347,7 +288,7 @@ export default function AISuggestionsWidget({
         </div>
       </div>
 
-      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
+      <BottomNav active="ai" accountType={accountType} onChange={tab => onNavigate(tab)} />
     </div>
   )
 }

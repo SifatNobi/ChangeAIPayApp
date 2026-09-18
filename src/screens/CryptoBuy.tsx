@@ -7,24 +7,27 @@ export interface BuyOrder {
   amountUSD: number
   amountCrypto: number
   price: number
+  zeroFee?: boolean
 }
 
 interface CryptoBuyProps {
   onContinue?: (order: BuyOrder) => void
   onBack?: () => void
+  onNetworkTransparency?: () => void
 }
 
 const ASSETS = [
-  { symbol: 'BTC', name: 'Bitcoin',  price: 62410.00, change: +2.34, color: '#F7931A', colorDim: 'rgba(247,147,26,0.12)' },
-  { symbol: 'ETH', name: 'Ethereum', price:  3282.00, change: -1.12, color: '#627EEA', colorDim: 'rgba(98,126,234,0.12)' },
-  { symbol: 'SOL', name: 'Solana',   price:   147.80, change: +5.61, color: '#9945FF', colorDim: 'rgba(153,69,255,0.12)' },
-  { symbol: 'ADA', name: 'Cardano',  price:     0.42, change: +0.88, color: '#3CC8C8', colorDim: 'rgba(60,200,200,0.12)' },
-  { symbol: 'DOT', name: 'Polkadot', price:     5.82, change: -2.30, color: '#E6007A', colorDim: 'rgba(230,0,122,0.12)' },
+  { symbol: 'XNO', name: 'Nano',     price:     0.17, change: +1.05, color: '#3FE7FF', colorDim: 'rgba(63,231,255,0.12)', zeroFee: true,  recommended: true  },
+  { symbol: 'BTC', name: 'Bitcoin',  price: 62410.00, change: +2.34, color: '#F7931A', colorDim: 'rgba(247,147,26,0.12)', zeroFee: false, recommended: false },
+  { symbol: 'ETH', name: 'Ethereum', price:  3282.00, change: -1.12, color: '#627EEA', colorDim: 'rgba(98,126,234,0.12)', zeroFee: false, recommended: false },
+  { symbol: 'SOL', name: 'Solana',   price:   147.80, change: +5.61, color: '#9945FF', colorDim: 'rgba(153,69,255,0.12)', zeroFee: false, recommended: false },
+  { symbol: 'ADA', name: 'Cardano',  price:     0.42, change: +0.88, color: '#3CC8C8', colorDim: 'rgba(60,200,200,0.12)', zeroFee: false, recommended: false },
+  { symbol: 'DOT', name: 'Polkadot', price:     5.82, change: -2.30, color: '#E6007A', colorDim: 'rgba(230,0,122,0.12)', zeroFee: false, recommended: false },
 ]
 
 const QUICK_AMOUNTS = ['25', '50', '100', '250']
 
-export default function CryptoBuy({ onContinue, onBack }: CryptoBuyProps) {
+export default function CryptoBuy({ onContinue, onBack, onNetworkTransparency }: CryptoBuyProps) {
   const [selectedIdx, setSelectedIdx] = useState(0)
   const [inputMode, setInputMode] = useState<'usd' | 'crypto'>('usd')
   const [rawInput, setRawInput] = useState('')
@@ -87,16 +90,29 @@ export default function CryptoBuy({ onContinue, onBack }: CryptoBuyProps) {
                   minWidth: 64,
                 }}
               >
-                <div
-                  className="w-8 h-8 rounded-full flex items-center justify-center font-body text-xs font-bold"
-                  style={{ background: a.colorDim, border: `1px solid ${a.color}40` }}
-                >
-                  <span style={{ color: a.color }}>{a.symbol.slice(0, 1)}</span>
+                <div className="relative">
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center font-body text-xs font-bold"
+                    style={{ background: a.colorDim, border: `1px solid ${a.color}40` }}
+                  >
+                    <span style={{ color: a.color }}>{a.symbol.slice(0, 1)}</span>
+                  </div>
+                  {a.zeroFee && (
+                    <div className="absolute -top-1.5 -right-1.5 px-1 rounded-full font-body text-[7px] font-bold leading-4"
+                      style={{ background: 'rgba(63,231,255,0.9)', color: '#050B2D' }}>$0</div>
+                  )}
                 </div>
                 <p className="font-body text-xs font-semibold text-text">{a.symbol}</p>
-                <p className="font-body text-[9px]" style={{ color: a.change >= 0 ? '#22C55E' : '#FF4D5A' }}>
-                  {a.change >= 0 ? '+' : ''}{a.change.toFixed(2)}%
-                </p>
+                {a.zeroFee ? (
+                  <p className="font-body text-[8px] font-bold" style={{ color: '#3FE7FF' }}>$0 Fee</p>
+                ) : (
+                  <p className="font-body text-[9px]" style={{ color: a.change >= 0 ? '#22C55E' : '#FF4D5A' }}>
+                    {a.change >= 0 ? '+' : ''}{a.change.toFixed(2)}%
+                  </p>
+                )}
+                {a.recommended && (
+                  <p className="font-body text-[7px] font-bold px-1.5 py-0.5 rounded-full" style={{ background: 'rgba(63,231,255,0.12)', color: '#3FE7FF' }}>Recommended</p>
+                )}
               </button>
             ))}
           </div>
@@ -180,9 +196,27 @@ export default function CryptoBuy({ onContinue, onBack }: CryptoBuyProps) {
           <p className="font-body text-xs font-semibold text-text-2">$1,248.50</p>
         </div>
 
+        {/* Nano zero-fee callout */}
+        {asset.zeroFee && (
+          <div className="flex items-center justify-between px-4 py-3 rounded-[--radius-xl]"
+            style={{ background: 'rgba(63,231,255,0.05)', border: '1px solid rgba(63,231,255,0.2)' }}>
+            <div className="flex items-center gap-2">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 7l3 3 5-5" stroke="#3FE7FF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <p className="font-body text-xs font-semibold" style={{ color: '#3FE7FF' }}>$0 trading fee — Nano is always free</p>
+            </div>
+            <button onClick={onNetworkTransparency}
+              className="font-body text-[10px] font-semibold underline shrink-0"
+              style={{ color: 'rgba(63,231,255,0.6)' }}>
+              Why?
+            </button>
+          </div>
+        )}
+
         {/* CTA */}
         <button
-          onClick={() => isValid && onContinue?.({ symbol: asset.symbol, name: asset.name, color: asset.color, amountUSD, amountCrypto, price: asset.price })}
+          onClick={() => isValid && onContinue?.({ symbol: asset.symbol, name: asset.name, color: asset.color, amountUSD, amountCrypto, price: asset.price, zeroFee: asset.zeroFee })}
           disabled={!isValid}
           className="w-full h-14 rounded-[--radius-2xl] font-body text-sm font-semibold text-white flex items-center justify-center gap-2 transition-all duration-[200ms] active:scale-[0.98] disabled:opacity-35"
           style={{ background: 'var(--gradient-primary)' }}

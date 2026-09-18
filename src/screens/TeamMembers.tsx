@@ -21,12 +21,7 @@ const ROLE_CFG: Record<MemberRole, { color: string; bg: string }> = {
   Staff: { color: 'rgba(175,197,255,0.6)', bg: 'rgba(175,197,255,0.08)' },
 }
 
-const INITIAL_MEMBERS: TeamMember[] = [
-  { id: '1', name: 'Maya Patel', email: 'maya@apexstudio.co', role: 'Owner', status: 'active', isYou: true, initials: 'MP', color: '#9945FF', lastActive: 'Now' },
-  { id: '2', name: 'James Kim', email: 'james@apexstudio.co', role: 'Admin', status: 'active', initials: 'JK', color: '#0066FF', lastActive: '2h ago' },
-  { id: '3', name: 'Sofia Cruz', email: 'sofia@apexstudio.co', role: 'Staff', status: 'active', initials: 'SC', color: '#22C55E', lastActive: 'Yesterday' },
-  { id: '4', name: 'Alex Chen', email: 'alex@example.com', role: 'Staff', status: 'pending', initials: 'AC', color: '#F5B700' },
-]
+const INITIAL_MEMBERS: TeamMember[] = []
 
 interface TeamMembersProps {
   onBack?: () => void

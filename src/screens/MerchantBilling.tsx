@@ -10,16 +10,7 @@ interface BillingRecord {
   invoiceNo: string
 }
 
-const BILLING_HISTORY: BillingRecord[] = [
-  { id: '1', date: 'Sep 1, 2026', tier: 'Scale', amount: 799, status: 'upcoming', invoiceNo: 'INV-2026-09' },
-  { id: '2', date: 'Aug 1, 2026', tier: 'Scale', amount: 799, status: 'paid', invoiceNo: 'INV-2026-08' },
-  { id: '3', date: 'Jul 1, 2026', tier: 'Scale', amount: 799, status: 'paid', invoiceNo: 'INV-2026-07' },
-  { id: '4', date: 'Jun 1, 2026', tier: 'Scale', amount: 799, status: 'paid', invoiceNo: 'INV-2026-06' },
-  { id: '5', date: 'May 1, 2026', tier: 'Growth', amount: 399, status: 'paid', invoiceNo: 'INV-2026-05' },
-  { id: '6', date: 'May 1, 2026', tier: 'Scale', amount: 267, status: 'paid', invoiceNo: 'INV-2026-05B' },
-  { id: '7', date: 'Apr 1, 2026', tier: 'Growth', amount: 399, status: 'paid', invoiceNo: 'INV-2026-04' },
-  { id: '8', date: 'Mar 1, 2026', tier: 'Growth', amount: 399, status: 'paid', invoiceNo: 'INV-2026-03' },
-]
+const BILLING_HISTORY: BillingRecord[] = []
 
 interface MerchantBillingProps {
   onBack?: () => void
@@ -30,9 +21,9 @@ export default function MerchantBilling({ onBack, onChangePlan }: MerchantBillin
   const [downloading, setDownloading] = useState<string | null>(null)
   const [downloaded, setDownloaded] = useState<string[]>([])
 
-  const currentTierName: TierName = 'Scale'
+  const currentTierName: TierName = 'Startup'
   const currentTier = MERCHANT_TIERS.find(t => t.name === currentTierName)!
-  const nextBilling = 'Sep 1, 2026'
+  const nextBilling = ''
   const totalPaid = BILLING_HISTORY.filter(r => r.status === 'paid').reduce((s, r) => s + r.amount, 0)
 
   const handleDownload = (id: string) => {
@@ -112,7 +103,7 @@ export default function MerchantBilling({ onBack, onChangePlan }: MerchantBillin
           {[
             { label: 'Paid this year', value: `$${totalPaid.toLocaleString()}` },
             { label: 'Invoices', value: String(BILLING_HISTORY.filter(r => r.status === 'paid').length) },
-            { label: 'Since', value: 'Mar 2026' },
+            { label: 'Since', value: '' },
           ].map((s, i) => (
             <div key={i} className="flex-1 px-3 py-2.5 rounded-[--radius-xl] text-center"
               style={{ background: 'rgba(175,197,255,0.03)', border: '1px solid rgba(175,197,255,0.09)' }}>
@@ -197,26 +188,22 @@ export default function MerchantBilling({ onBack, onChangePlan }: MerchantBillin
           </p>
         </div>
 
-{/* Cancellation info */}
+        {/* Cancellation info */}
         <div className="px-3 py-3 rounded-[--radius-xl]"
           style={{ background: 'rgba(175,197,255,0.03)', border: '1px solid rgba(175,197,255,0.08)' }}>
-        <p className="font-body text-[10px] text-text-muted leading-relaxed">
-          Cancel before <span className="text-text font-semibold">{nextBilling}</span> to avoid the next charge. Without a subscription, the {currentTier.standardFee}% standard platform fee applies per transaction.
-        </p>
-      </div>
+          <p className="font-body text-[10px] text-text-muted leading-relaxed">
+            Cancel before <span className="text-text font-semibold">{nextBilling}</span> to avoid the next charge. Without a subscription, the {currentTier.standardFee}% standard platform fee applies per transaction.
+          </p>
+        </div>
 
-      {/* Restore Purchases */}
-      <button
-        onClick={() => { /* restore purchases logic */ }}
-        className="w-full h-10 mt-3 rounded-[--radius-xl] font-body text-xs font-semibold text-text-2 flex items-center justify-center gap-2 transition-colors hover:bg-surface-hi active:scale-[0.98]"
-        style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.1)' }}
-      >
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M11.5 2A5.5 5.5 0 0 1 1.5 6v5l2 2h14l-1.5-2.5V6A5.5 5.5 0 0 1 11.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-          <path d="M9.5 6v.5a2 2 0 0 0 4 0V6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-        </svg>
-        Restore Purchases
-      </button>
+        <button
+          className="w-full h-11 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent mt-2"
+          onClick={() => {
+            /* Integration point: trigger RevenueCat/App Store restore entitlements */
+          }}
+        >
+          Restore Purchases
+        </button>
       </div>
     </div>
   )

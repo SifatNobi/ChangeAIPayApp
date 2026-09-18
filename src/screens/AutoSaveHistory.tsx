@@ -17,20 +17,7 @@ interface AutoEvent {
   bucketLabel?: string
 }
 
-const EVENTS: AutoEvent[] = [
-  { id: 'ae1',  kind: 'roundup',  date: 'Aug 31', amount: 0.67,  description: 'Round-up sweep',         goalId: 'g1' },
-  { id: 'ae2',  kind: 'paycheck', date: 'Aug 30', amount: 680,   description: 'Paycheck split',          bucketLabel: 'Rent / Housing' },
-  { id: 'ae3',  kind: 'paycheck', date: 'Aug 30', amount: 510,   description: 'Paycheck split',          bucketLabel: 'Spending' },
-  { id: 'ae4',  kind: 'paycheck', date: 'Aug 30', amount: 340,   description: 'Paycheck split',          bucketLabel: 'Savings Goals' },
-  { id: 'ae5',  kind: 'roundup',  date: 'Aug 29', amount: 1.22,  description: 'Round-up sweep',         goalId: 'g1' },
-  { id: 'ae6',  kind: 'roundup',  date: 'Aug 28', amount: 0.54,  description: 'Round-up sweep',         goalId: 'g2' },
-  { id: 'ae7',  kind: 'roundup',  date: 'Aug 27', amount: 2.85,  description: 'Round-up sweep',         goalId: 'g1' },
-  { id: 'ae8',  kind: 'paycheck', date: 'Aug 15', amount: 680,   description: 'Paycheck split',          bucketLabel: 'Rent / Housing' },
-  { id: 'ae9',  kind: 'paycheck', date: 'Aug 15', amount: 340,   description: 'Paycheck split',          bucketLabel: 'Savings Goals' },
-  { id: 'ae10', kind: 'roundup',  date: 'Aug 14', amount: 0.19,  description: 'Round-up sweep',         goalId: 'g3' },
-  { id: 'ae11', kind: 'roundup',  date: 'Aug 13', amount: 3.71,  description: 'Round-up sweep',         goalId: 'g1' },
-  { id: 'ae12', kind: 'roundup',  date: 'Aug 12', amount: 0.88,  description: 'Round-up sweep',         goalId: 'g2' },
-]
+const EVENTS: AutoEvent[] = []
 
 const KIND_CONFIG: Record<EventKind, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
   roundup: {

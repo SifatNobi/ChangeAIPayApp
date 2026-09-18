@@ -32,10 +32,10 @@ interface SavingsMilestone {
 }
 
 const MILESTONES: SavingsMilestone[] = [
-  { id: 'm1', label: 'First Save',        description: 'Added money to a savings goal for the first time',     emoji: '🌱', color: '#22C55E', reached: true,  reachedDate: 'Jul 3',  change: 100  },
-  { id: 'm2', label: 'First Goal',        description: 'Completed your first savings goal',                    emoji: '🎯', color: '#3FE7FF', reached: true,  reachedDate: 'Jul 12', change: 300  },
-  { id: 'm3', label: '7-Day Streak',      description: 'Saved consistently for 7 days in a row',              emoji: '🔥', color: '#FC7E2F', reached: true,  reachedDate: 'Jul 19', change: 200  },
-  { id: 'm4', label: '30-Day Streak',     description: '30 consecutive days of saving activity',              emoji: '⚡', color: '#F5B700', reached: true,  reachedDate: 'Aug 3',  change: 500  },
+  { id: 'm1', label: 'First Save',        description: 'Added money to a savings goal for the first time',     emoji: '🌱', color: '#22C55E', reached: false, change: 100  },
+  { id: 'm2', label: 'First Goal',        description: 'Completed your first savings goal',                    emoji: '🎯', color: '#3FE7FF', reached: false, change: 300  },
+  { id: 'm3', label: '7-Day Streak',      description: 'Saved consistently for 7 days in a row',              emoji: '🔥', color: '#FC7E2F', reached: false, change: 200  },
+  { id: 'm4', label: '30-Day Streak',     description: '30 consecutive days of saving activity',              emoji: '⚡', color: '#F5B700', reached: false, change: 500  },
   { id: 'm5', label: '3 Goals',           description: 'Completed three savings goals total',                 emoji: '🏅', color: '#9945FF', reached: false, change: 800  },
   { id: 'm6', label: 'Auto-Save 90 Days', description: 'Auto-save running continuously for 3 months',        emoji: '🤖', color: '#0066FF', reached: false, change: 600  },
   { id: 'm7', label: '90-Day Streak',     description: '90 consecutive days of consistent saving',            emoji: '🌟', color: '#FFD700', reached: false, change: 1500 },

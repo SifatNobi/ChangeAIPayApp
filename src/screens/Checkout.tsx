@@ -1,4 +1,10 @@
 import { useState } from 'react'
+import {
+  isRevenueCatNative,
+  purchaseMonthlyPackage,
+  restorePurchases,
+  hasProAccess,
+} from '@/lib/purchases'
 
 type PlanId = 'edge' | 'prime' | 'apex'
 type Cycle = 'monthly' | 'annual'
@@ -14,7 +20,7 @@ interface PlanInfo {
 const PLANS: Record<PlanId, PlanInfo> = {
   edge:  { name: 'Edge',  monthlyPrice: 9.99,  annualPrice: 99.99,  color: '#3FE7FF', perks: ['$1,500/mo limit', 'Zero domestic fees', '10 savings goals'] },
   prime: { name: 'Prime', monthlyPrice: 39.99, annualPrice: 399.99, color: '#0066FF', perks: ['$10,000/mo limit', 'Zero FX fees', 'Unlimited goals', 'Voice Mode'] },
-  apex:  { name: 'Apex',  monthlyPrice: 64.99, annualPrice: 649.99, color: '#9945FF', perks: ['Unlimited transfers', 'Zero FX fees', 'Dedicated support', 'Real-time reports'] },
+  apex:  { name: 'Apex',  monthlyPrice: 64.99, annualPrice: 649.99, color: '#F5B700', perks: ['Unlimited transfers', 'Zero FX fees', 'Dedicated support', 'Real-time reports'] },
 }
 
 const PAYMENT_METHODS = [
@@ -27,9 +33,11 @@ interface CheckoutProps {
   onConfirm?: (plan: PlanId, cycle: Cycle) => void
   onBack?: () => void
   onComparePlans?: () => void
+  onPurchased?: (hasAccess: boolean) => void
+  onRestored?: (hasAccess: boolean) => void
 }
 
-export default function Checkout({ plan = 'prime', onConfirm, onBack, onComparePlans }: CheckoutProps) {
+export default function Checkout({ plan = 'prime', onConfirm, onBack, onComparePlans, onPurchased, onRestored }: CheckoutProps) {
   const [cycle, setCycle] = useState<Cycle>('monthly')
   const [paymentId, setPaymentId] = useState(PAYMENT_METHODS[0].id)
   const [authing, setAuthing] = useState(false)
@@ -38,17 +46,40 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
   const info = PLANS[plan]
   const price = cycle === 'monthly' ? info.monthlyPrice : info.annualPrice
   const annualSaving = (info.monthlyPrice * 12 - info.annualPrice).toFixed(2)
+  const today = new Date()
+  const renewsDate = new Date(today.getFullYear(), today.getMonth() + (cycle === 'monthly' ? 1 : 12), today.getDate())
+  const renewsStr = renewsDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
-  const handleSubscribe = () => {
+  const handleSubscribe = async () => {
     setAuthing(true)
-    setTimeout(() => {
+
+    // Web preview (Figma Make) has no native store — keep the simulated flow so the
+    // design remains previewable. On Android this runs the real RevenueCat purchase.
+    if (!isRevenueCatNative()) {
+      setTimeout(() => {
+        setAuthing(false)
+        setConfirming(true)
+        setTimeout(() => {
+          setConfirming(false)
+          onConfirm?.(plan, cycle)
+        }, 1400)
+      }, 1100)
+      return
+    }
+
+    try {
+      const result = await purchaseMonthlyPackage()
       setAuthing(false)
       setConfirming(true)
       setTimeout(() => {
         setConfirming(false)
+        onPurchased?.(hasProAccess(result.customerInfo))
         onConfirm?.(plan, cycle)
       }, 1400)
-    }, 1100)
+    } catch (error) {
+      console.error('[RevenueCat] ChangeAIPay Pro purchase failed:', error)
+      setAuthing(false)
+    }
   }
 
   return (
@@ -161,8 +192,12 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
             <p className="font-mono text-xs text-text">$0.00</p>
           </div>
           <div className="border-t border-[rgba(175,197,255,0.09)] pt-2 flex justify-between">
-            <p className="font-body text-sm font-semibold text-text">Total today</p>
+            <p className="font-body text-sm font-semibold text-text">Charged today</p>
             <p className="font-mono text-sm font-bold text-text">${price.toFixed(2)}</p>
+          </div>
+          <div className="flex justify-between">
+            <p className="font-body text-xs text-text-muted">Renews</p>
+            <p className="font-mono text-xs text-text-muted">{renewsStr}</p>
           </div>
         </div>
 
@@ -187,17 +222,18 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
         <p className="font-body text-[10px] text-text-muted text-center leading-relaxed">
           Cancel anytime. No refunds for partial months unless required by law.
         </p>
-
-        {/* Restore Purchases */}
         <button
-          onClick={() => { /* restore purchases logic */ }}
-          className="w-full h-11 mt-3 rounded-[--radius-xl] font-body text-xs font-semibold text-text-2 flex items-center justify-center gap-2 transition-colors hover:bg-surface-hi active:scale-[0.98]"
-          style={{ background: 'rgba(175,197,255,0.04)', border: '1px solid rgba(175,197,255,0.1)' }}
+          className="w-full h-10 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
+          onClick={async () => {
+            if (!isRevenueCatNative()) return
+            try {
+              const customerInfo = await restorePurchases()
+              onRestored?.(hasProAccess(customerInfo))
+            } catch (error) {
+              console.error('[RevenueCat] Restore Purchases failed:', error)
+            }
+          }}
         >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path d="M11.5 2A5.5 5.5 0 0 1 1.5 6v5l2 2h14l-1.5-2.5V6A5.5 5.5 0 0 1 11.5 2Z" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M9.5 6v.5a2 2 0 0 0 4 0V6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
-          </svg>
           Restore Purchases
         </button>
       </div>

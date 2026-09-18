@@ -7,7 +7,6 @@ interface SubscriptionPlansProps {
   accountType?: 'personal' | 'business'
   currentPlan?: PlanTier
   kycComplete?: boolean
-  currentNav?: string
   onNavigate: (tab: string) => void
   onBack?: () => void
   onNotifications?: () => void
@@ -69,16 +68,16 @@ const PLANS = [
     name: 'Prime',
     price: '$39.99',
     period: '/month',
-    tagline: 'Everything in Edge, plus AI Autopilot.',
+    tagline: 'Everything in Edge, plus smarter AI tools.',
     note: 'FX-free first $3,000/month, then 0.72%',
     fxFee: '0.72% (after $3,000)',
     monthlyVolume: 'FX-free up to $3,000/month',
     features: [
-      'AI Financial Autopilot',
+      'AI-assisted financial insights',
       'Smart Undo Payments',
-      'Social Payments Brain',
+      'Smart contact suggestions',
       'Advanced Fraud Detection',
-      'Dynamic Budget Optimization',
+      'AI-powered budget suggestions',
     ],
     treatment: 'popular',
     ctaLabel: () => 'Get Prime',
@@ -92,13 +91,13 @@ const PLANS = [
     name: 'Apex',
     price: '$64.99',
     period: '/month',
-    tagline: 'Everything in Prime, plus Autonomous AI.',
+    tagline: 'Everything in Prime, plus expanded AI capabilities.',
     note: 'FX-free first $6,000/month, then 0.58%',
     fxFee: '0.58% (after $6,000)',
     monthlyVolume: 'FX-free up to $6,000/month',
     features: [
-      'Autonomous AI Payments',
-      'AI Negotiator',
+      'AI-assisted payment automation',
+      'AI-assisted expense optimisation',
       'Life Event Mode',
       'Priority Smart Routing',
       'Booking + Pay Workflows',
@@ -367,7 +366,6 @@ export default function SubscriptionPlans({
   accountType = 'personal',
   currentPlan = 'free',
   kycComplete = false,
-  currentNav = 'subscription',
   onNavigate,
   onBack,
   onNotifications,
@@ -510,7 +508,7 @@ export default function SubscriptionPlans({
         </div>
       </div>
 
-      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
+      <BottomNav active="subscription" accountType={accountType} onChange={tab => onNavigate(tab)} />
     </div>
   )
 }

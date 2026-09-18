@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import React, { useState } from 'react'
 import { Header, BottomNav } from '@/components/Nav'
 import { WalletCard, TransactionRow, Chip } from '@/components/Card'
 import { SkeletonWalletCard, SkeletonTransactionList } from '@/components/States'
@@ -14,7 +14,6 @@ interface HomeProps {
   accountType?: 'personal' | 'business'
   kycStatus?: KYCStatus
   plan?: Plan
-  currentNav?: string
   onNavigate: (tab: string) => void
   onSend?: () => void
   onRequest?: () => void
@@ -26,230 +25,20 @@ interface HomeProps {
   onUpgrade?: (recommendedPlan?: 'prime' | 'apex') => void
   onWalletDetail?: () => void
   highVolume?: boolean
+  hiddenWidgets?: Set<string>
 }
 
 /* ── Mock data ───────────────────────────────────────────────── */
-const MOCK_TX = [
-  {
-    icon: <span className="text-lg">🥗</span>,
-    merchant: 'Pret A Manger',
-    category: 'Food & Drink',
-    amount: '$8.50',
-    date: 'Today',
-    status: 'completed' as const,
-    positive: false,
-  },
-  {
-    icon: <span className="text-lg">🎬</span>,
-    merchant: 'Netflix',
-    category: 'Entertainment',
-    amount: '$15.99',
-    date: 'Yesterday',
-    status: 'completed' as const,
-    positive: false,
-  },
-  {
-    icon: <span className="text-lg">💰</span>,
-    merchant: 'Incoming Transfer',
-    category: 'Income',
-    amount: '$500.00',
-    date: '2 days ago',
-    status: 'completed' as const,
-    positive: true,
-  },
-  {
-    icon: <span className="text-lg">🛒</span>,
-    merchant: 'Whole Foods',
-    category: 'Groceries',
-    amount: '$62.14',
-    date: '3 days ago',
-    status: 'completed' as const,
-    positive: false,
-  },
-]
+const MOCK_TX: { icon: React.ReactNode; merchant: string; category: string; amount: string; date: string; status: 'completed' | 'pending' | 'failed'; positive: boolean }[] = []
 
-const SPENDING_CATS = [
-  { name: 'Food & Drink', amount: 84,  pct: 42, color: '#0066FF' },
-  { name: 'Transport',    amount: 52,  pct: 26, color: '#3FE7FF' },
-  { name: 'Shopping',     amount: 38,  pct: 19, color: '#AFC5FF' },
-  { name: 'Other',        amount: 26,  pct: 13, color: 'rgba(175,197,255,0.3)' },
-]
+const SPENDING_CATS: { name: string; amount: number; pct: number; color: string }[] = []
 
-/* ── Floating speed-dial quick actions ───────────────────────── */
-interface SpeedDialProps {
-  onSend?: () => void
-  onRequest?: () => void
-  onAddMoney?: () => void
-  onScan?: () => void
-}
-
-function SpeedDial({ onSend, onRequest, onAddMoney, onScan }: SpeedDialProps) {
-  const [open, setOpen] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  // Auto-collapse after 4s of inactivity
-  useEffect(() => {
-    if (open) {
-      timerRef.current = setTimeout(() => setOpen(false), 4000)
-    }
-    return () => { if (timerRef.current) clearTimeout(timerRef.current) }
-  }, [open])
-
-  const handle = (fn?: () => void) => {
-    setOpen(false)
-    fn?.()
-  }
-
-  const ACTIONS = [
-    {
-      label: 'Send',
-      onClick: () => handle(onSend),
-      color: '#0066FF',
-      glow: 'rgba(0,102,255,0.45)',
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M9 14V4M4 9l5-5 5 5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      ),
-    },
-    {
-      label: 'Request',
-      onClick: () => handle(onRequest),
-      color: '#9945FF',
-      glow: 'rgba(153,69,255,0.4)',
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M9 4v10M4 9l5 5 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      ),
-    },
-    {
-      label: 'Add',
-      onClick: () => handle(onAddMoney),
-      color: '#00D26A',
-      glow: 'rgba(0,210,106,0.4)',
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M9 4v10M4 9h10" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-        </svg>
-      ),
-    },
-    {
-      label: 'Scan',
-      onClick: () => handle(onScan),
-      color: '#3FE7FF',
-      glow: 'rgba(63,231,255,0.4)',
-      icon: (
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M2 6V3h3M12 3h3v3M2 12v3h3M12 15h3v-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          <rect x="5" y="5" width="8" height="8" rx="1" stroke="white" strokeWidth="1.2" strokeDasharray="2 1.5" />
-        </svg>
-      ),
-    },
-  ]
-
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        right: 16,
-        bottom: 100,
-        zIndex: 48,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 10,
-        pointerEvents: 'none',
-      }}
-    >
-      {/* Action items — expand upward */}
-      {ACTIONS.map((action, i) => (
-        <div
-          key={action.label}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 8,
-            opacity: open ? 1 : 0,
-            transform: open ? 'translateY(0) scale(1)' : `translateY(${(ACTIONS.length - i) * 12}px) scale(0.7)`,
-            transition: `opacity 220ms ease ${open ? i * 45 : (ACTIONS.length - 1 - i) * 30}ms, transform 280ms cubic-bezier(0.34,1.56,0.64,1) ${open ? i * 45 : (ACTIONS.length - 1 - i) * 30}ms`,
-            pointerEvents: open ? 'auto' : 'none',
-          }}
-        >
-          {/* Label pill */}
-          <div
-            style={{
-              background: 'rgba(10,16,52,0.92)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(175,197,255,0.15)',
-              borderRadius: 20,
-              padding: '4px 10px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            <span className="font-body text-xs font-semibold" style={{ color: action.color }}>{action.label}</span>
-          </div>
-          {/* Action button */}
-          <button
-            onClick={action.onClick}
-            className="flex items-center justify-center transition-all active:scale-90"
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              background: action.color,
-              boxShadow: `0 4px 16px ${action.glow}, 0 2px 6px rgba(0,0,0,0.3)`,
-              border: '1.5px solid rgba(255,255,255,0.15)',
-              pointerEvents: 'auto',
-            }}
-            aria-label={action.label}
-          >
-            {action.icon}
-          </button>
-        </div>
-      ))}
-
-      {/* Toggle button */}
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="flex items-center justify-center transition-all active:scale-90"
-        style={{
-          width: 52,
-          height: 52,
-          borderRadius: '50%',
-          background: open
-            ? 'rgba(175,197,255,0.12)'
-            : 'linear-gradient(135deg, #0066FF 0%, #3FE7FF 100%)',
-          boxShadow: open
-            ? '0 4px 16px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(175,197,255,0.2)'
-            : '0 0 0 6px rgba(0,102,255,0.12), 0 0 0 12px rgba(0,102,255,0.06), 0 8px 24px rgba(0,102,255,0.45)',
-          border: open ? '1.5px solid rgba(175,197,255,0.25)' : 'none',
-          transition: 'background 280ms ease, box-shadow 280ms ease',
-          pointerEvents: 'auto',
-        }}
-        aria-label={open ? 'Close quick actions' : 'Open quick actions'}
-        aria-expanded={open}
-      >
-        <svg
-          width="20" height="20" viewBox="0 0 20 20" fill="none"
-          style={{
-            transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
-            transition: 'transform 280ms cubic-bezier(0.34,1.56,0.64,1)',
-          }}
-        >
-          <path d="M10 4v12M4 10h12" stroke="white" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      </button>
-    </div>
-  )
-}
 
 export default function Home({
   userName = 'Maya Patel',
   accountType = 'personal',
   kycStatus = 'complete',
   plan = 'free',
-  currentNav = 'home',
   onNavigate,
   onSend,
   onRequest,
@@ -261,19 +50,23 @@ export default function Home({
   onUpgrade,
   onWalletDetail,
   highVolume = false,
+  hiddenWidgets = new Set<string>(),
 }: HomeProps) {
+  const [loading, setLoading] = useState(false)
   const [balanceVisible, setBalanceVisible] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [upgradeDismissed, setUpgradeDismissed] = useState(false)
   const [finaCardDismissed, setFinaCardDismissed] = useState(false)
-  const [demoMode, setDemoMode] = useState<'loaded' | 'loading' | 'empty'>('loaded')
+  const [demoMode, setDemoMode] = useState<'loaded' | 'loading' | 'empty'>('empty')
 
-  const displayBalance = balanceVisible ? '$2,847.50' : '••••••'
+  const displayBalance = balanceVisible ? '$0.00' : '••••••'
   const aiSrc = accountType === 'business' ? ainaSrc : finaSrc
   const aiName = accountType === 'business' ? 'Aina' : 'Fina'
 
   const handleRefresh = async () => {
     setRefreshing(true)
+    setRefreshTrigger(t => t + 1)
     await new Promise(r => setTimeout(r, 1600))
     setRefreshing(false)
   }
@@ -297,7 +90,7 @@ export default function Home({
         <div className="fixed bottom-3 right-3 z-[60]">
           <button onClick={() => setDemoMode('loaded')} className="bg-accent text-[#050B2D] text-[10px] font-bold px-2 py-1 rounded-full">Loaded</button>
         </div>
-        <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
+        <BottomNav active="home" accountType={accountType} onChange={tab => onNavigate(tab)} />
       </div>
     )
   }
@@ -324,21 +117,21 @@ export default function Home({
         <div className="fixed bottom-3 right-3 z-[60]">
           <button onClick={() => setDemoMode('loaded')} className="bg-accent text-[#050B2D] text-[10px] font-bold px-2 py-1 rounded-full">Loaded</button>
         </div>
-        <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
+        <BottomNav active="home" accountType={accountType} onChange={tab => onNavigate(tab)} />
       </div>
     )
   }
 
   return (
     <div className="flex flex-col bg-bg" style={{ minHeight: 785 }}>
-      <Header notificationCount={3} onNotification={onNotifications} />
+      <Header notificationCount={0} onNotification={onNotifications} />
 
       {/* Scrollable content */}
       <div className="overflow-y-auto pb-24 flex-1" style={{ scrollbarWidth: 'none' }}>
         <div className="px-5 pt-3 flex flex-col gap-4">
 
           {/* KYC nudge */}
-          {kycStatus !== 'complete' && (
+          {kycStatus !== 'complete' && !hiddenWidgets.has('kycNudge') && (
             <button
               onClick={onVerify}
               className="w-full flex items-center justify-between px-4 py-3 rounded-[--radius-xl] transition-colors focus-ring"
@@ -420,7 +213,7 @@ export default function Home({
           </div>
 
           {/* Upgrade nudge — Free plan only, dismissible */}
-          {plan === 'free' && !upgradeDismissed && (() => {
+          {plan === 'free' && !upgradeDismissed && !hiddenWidgets.has('upgradeCard') && (() => {
             const rec = highVolume ? 'apex' : 'prime'
             const recLabel = highVolume ? 'Apex' : 'Prime'
             const recPrice = highVolume ? '$64.99/mo' : '$39.99/mo'
@@ -461,11 +254,67 @@ export default function Home({
             )
           })()}
 
-          {/* Quick actions — floating speed-dial (see SpeedDial component above) */}
-          {/* SpeedDial is rendered outside the scroll container, fixed to viewport */}
+          {/* Quick-action row */}
+          <div className="flex items-start justify-between px-1 py-1">
+            {[
+              {
+                id: 'send', label: 'Send', onTap: onSend,
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M11 17V5M5 11l6-6 6 6" stroke="rgba(175,197,255,0.9)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ),
+              },
+              {
+                id: 'request', label: 'Request', onTap: onRequest,
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M11 5v12M5 11l6 6 6-6" stroke="rgba(175,197,255,0.9)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                ),
+              },
+              {
+                id: 'add', label: 'Add Money', onTap: onAddMoney,
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M11 5v12M5 11h12" stroke="rgba(175,197,255,0.9)" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                ),
+              },
+              {
+                id: 'scan', label: 'Scan', onTap: onScan,
+                icon: (
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <path d="M3 7V4h3M16 4h3v3M3 15v3h3M16 18h3v-3" stroke="rgba(175,197,255,0.9)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                    <rect x="6.5" y="6.5" width="9" height="9" rx="1.5" stroke="rgba(175,197,255,0.9)" strokeWidth="1.4" strokeDasharray="2.5 2" />
+                  </svg>
+                ),
+              },
+            ].map(action => (
+              <button
+                key={action.id}
+                onClick={action.onTap}
+                className="flex flex-col items-center gap-2 flex-1 active:scale-95 transition-transform"
+              >
+                <div
+                  className="w-14 h-14 rounded-full flex items-center justify-center"
+                  style={{
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(175,197,255,0.18)',
+                    boxShadow: '0 2px 12px rgba(0,102,255,0.15), inset 0 1px 0 rgba(175,197,255,0.08)',
+                  }}
+                >
+                  {action.icon}
+                </div>
+                <span className="font-body text-[11px] font-medium" style={{ color: 'rgba(175,197,255,0.65)' }}>
+                  {action.label}
+                </span>
+              </button>
+            ))}
+          </div>
 
           {/* Fina / Aina AI insight card — dismissible */}
-          {!finaCardDismissed && (
+          {!finaCardDismissed && !hiddenWidgets.has('fina') && (
             <div
               className="relative rounded-[--radius-2xl] p-4 flex items-start gap-3 animate-fade-in"
               style={{ background: 'rgba(0,102,255,0.08)', border: '1px solid rgba(0,102,255,0.2)' }}
@@ -477,8 +326,8 @@ export default function Home({
                 <p className="font-body text-xs font-semibold text-accent mb-0.5">{aiName}</p>
                 <p className="font-body text-sm text-text-2 leading-relaxed">
                   {accountType === 'business'
-                    ? "Your subscriptions renewed $47 this week. I found a bundle that could save you $12/mo."
-                    : "You saved $24 on groceries vs. last month. Want me to track your food budget this week?"}
+                    ? ""
+                    : ""}
                 </p>
               </div>
               <button
@@ -494,6 +343,7 @@ export default function Home({
           )}
 
           {/* Recent transactions */}
+          {!hiddenWidgets.has('recentTx') && (
           <div className="flex flex-col gap-0">
             <div className="flex items-center justify-between mb-1">
               <p className="font-body text-sm font-semibold text-text">Recent Activity</p>
@@ -510,8 +360,10 @@ export default function Home({
               ))}
             </div>
           </div>
+          )}
 
           {/* Spending insights */}
+          {!hiddenWidgets.has('spendingInsights') && (
           <div className="rounded-[--radius-2xl] bg-surface border border-[color:var(--color-border)] p-4">
             <div className="flex items-center justify-between mb-3">
               <p className="font-body text-sm font-semibold text-text">Spending This Month</p>
@@ -535,6 +387,7 @@ export default function Home({
               ))}
             </div>
           </div>
+          )}
 
           {/* Demo state toggle strip */}
           <div className="flex gap-2 pb-2">
@@ -549,15 +402,7 @@ export default function Home({
         </div>
       </div>
 
-      <BottomNav active={currentNav as any} accountType={accountType} onChange={tab => onNavigate(tab)} />
-
-      {/* Floating speed-dial quick actions */}
-      <SpeedDial
-        onSend={onSend}
-        onRequest={onRequest}
-        onAddMoney={onAddMoney}
-        onScan={onScan}
-      />
+      <BottomNav active="home" accountType={accountType} onChange={tab => onNavigate(tab)} />
     </div>
   )
 }

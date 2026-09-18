@@ -20,40 +20,7 @@ const STATUS_CFG: Record<TicketStatus, { label: string; color: string; bg: strin
   closed: { label: 'Closed', color: 'rgba(175,197,255,0.5)', bg: 'rgba(175,197,255,0.05)', border: 'rgba(175,197,255,0.12)' },
 }
 
-const INITIAL_MESSAGES: TicketMessage[] = [
-  {
-    id: '1', sender: 'system',
-    text: 'Ticket TKT-482910 created. Your request has been received and assigned to the payments team.',
-    time: '9:04 AM', date: 'Sep 1',
-  },
-  {
-    id: '2', sender: 'user',
-    text: "My payment to James Kim on August 30th for $250 was declined. My balance was above $400 at the time. I didn't receive any notification explaining why.",
-    time: '9:04 AM', date: 'Sep 1',
-  },
-  {
-    id: '3', sender: 'agent',
-    text: "Hi, thanks for reaching out. I'm Jordan from the payments team. I've located the transaction and can see it was flagged by our risk system due to an unusual location mismatch — your account was accessed from a new device in the same session. I'm lifting the hold now. Could you confirm if you were using a new phone or browser at the time?",
-    agentName: 'Jordan · Payments',
-    time: '11:32 AM', date: 'Sep 1',
-  },
-  {
-    id: '4', sender: 'user',
-    text: "Yes, I was using a tablet I don't normally use. That's my device — I can confirm it.",
-    time: '11:47 AM', date: 'Sep 1',
-  },
-  {
-    id: '5', sender: 'agent',
-    text: "Perfect, thank you for confirming. I've cleared the hold and re-authorized the payment — it should process within the next 15 minutes. You'll receive a push notification when it completes. Is there anything else I can help with?",
-    agentName: 'Jordan · Payments',
-    time: '11:52 AM', date: 'Sep 1',
-  },
-  {
-    id: '6', sender: 'system',
-    text: 'Status changed to: Awaiting you — please reply to confirm the issue is resolved.',
-    time: '11:52 AM', date: 'Sep 1',
-  },
-]
+const INITIAL_MESSAGES: TicketMessage[] = []
 
 interface TicketDetailProps {
   ticketId?: string
@@ -61,8 +28,8 @@ interface TicketDetailProps {
   onResolved?: () => void
 }
 
-export default function TicketDetail({ ticketId = 'TKT-482910', onBack, onResolved }: TicketDetailProps) {
-  const [messages, setMessages] = useState<TicketMessage[]>(INITIAL_MESSAGES)
+export default function TicketDetail({ ticketId = '', onBack, onResolved }: TicketDetailProps) {
+  const [messages, setMessages] = useState<TicketMessage[]>([])
   const [reply, setReply] = useState('')
   const [sending, setSending] = useState(false)
   const [status, setStatus] = useState<TicketStatus>('pending_user')

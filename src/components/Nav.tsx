@@ -11,8 +11,8 @@ interface HeaderProps {
 export function Header({ notificationCount = 0, onNotification }: HeaderProps) {
   return (
     <header className="flex items-center justify-between px-5 h-16 bg-bg/90 backdrop-blur-[8px] border-b border-[color:var(--color-border)] sticky top-0 z-40">
-      <div className="h-9 w-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: 'rgba(175,197,255,0.06)', border: '1px solid rgba(175,197,255,0.12)', borderRadius: '50%' }}>
-        <img src={logoSrc} alt="ChangeAIPay" className="w-full h-full object-cover rounded-full" style={{ display: 'block' }} />
+      <div className="h-9 w-9 rounded-full overflow-hidden shrink-0 flex items-center justify-center" style={{ background: 'rgba(175,197,255,0.06)', border: '1px solid rgba(175,197,255,0.12)' }}>
+        <img src={logoSrc} alt="ChangeAIPay" className="w-full h-full object-cover" />
       </div>
       <button
         onClick={onNotification}
@@ -291,7 +291,7 @@ export function BottomNav({ active = 'home', onChange, accountType = 'personal' 
 }
 
 /* ── Merchant bottom nav (6 items + Aina center) ──────────────── */
-export type MerchantNavItem = 'home' | 'payments' | 'insights' | 'ai' | 'plans' | 'requests' | 'profile'
+export type MerchantNavItem = 'home' | 'payments' | 'plans' | 'insights' | 'requests' | 'ai' | 'profile'
 
 interface MerchantBottomNavProps {
   active?: MerchantNavItem
@@ -303,8 +303,8 @@ const MERCHANT_NAV_ITEMS: { id: MerchantNavItem; label: string; icon: ReactNode 
     id: 'home',
     label: 'Home',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-        <path d="M3 8.5L10 3l7 5.5V17H13v-4H7v4H3V8.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M2.5 7.5L9 2.5l6.5 5V16H12v-3.5H6V16H2.5V7.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -312,9 +312,9 @@ const MERCHANT_NAV_ITEMS: { id: MerchantNavItem; label: string; icon: ReactNode 
     id: 'payments',
     label: 'Pay',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-        <rect x="2.5" y="5.5" width="15" height="10" rx="2.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M2.5 9h15" stroke="currentColor" strokeWidth="1.5" />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <rect x="2" y="5" width="14" height="9" rx="2" stroke="currentColor" strokeWidth="1.4" />
+        <path d="M2 8h14" stroke="currentColor" strokeWidth="1.4" />
       </svg>
     ),
   },
@@ -322,27 +322,27 @@ const MERCHANT_NAV_ITEMS: { id: MerchantNavItem; label: string; icon: ReactNode 
     id: 'plans',
     label: 'Plans',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-        <path d="M10 2.5l2 5.5h5.5l-4.5 3.5 1.5 5.5L10 14l-4.5 3 1.5-5.5L2.5 8H8l2-5.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 2l1.8 5h5.2l-4.2 3.1 1.6 5L9 12.5l-4.4 2.6 1.6-5L2 7h5.2L9 2Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
       </svg>
     ),
   },
   { id: 'ai', label: 'Aina', icon: null },
   {
-    id: 'insights',
-    label: 'Insights',
+    id: 'requests',
+    label: 'Requests',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-        <path d="M3 14l4-5 4 3 4-6 2 2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M9 3v12M3 9h12" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
     ),
   },
   {
-    id: 'requests',
-    label: 'Requests',
+    id: 'insights',
+    label: 'Insights',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-        <path d="M10 3.5v13M3.5 10h13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <path d="M2.5 13l3.5-4.5 3.5 2.5 3.5-5.5 2.5 2" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -350,9 +350,9 @@ const MERCHANT_NAV_ITEMS: { id: MerchantNavItem; label: string; icon: ReactNode 
     id: 'profile',
     label: 'Profile',
     icon: (
-      <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-        <circle cx="10" cy="7" r="3.5" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M3 17c0-3.5 3.1-6 7-6s7 2.5 7 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+        <circle cx="9" cy="6.5" r="3" stroke="currentColor" strokeWidth="1.4" />
+        <path d="M2.5 16c0-3 2.9-5.5 6.5-5.5s6.5 2.5 6.5 5.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
       </svg>
     ),
   },
@@ -373,7 +373,7 @@ export function MerchantBottomNav({ active = 'home', onChange }: MerchantBottomN
 
   return (
     <nav
-      className="fixed bottom-4 left-2 right-2 z-50 flex items-end justify-around px-1 rounded-[28px] bg-surface/90 backdrop-blur-[20px]"
+      className="fixed bottom-4 left-4 right-4 z-50 flex items-end justify-around px-2 rounded-[28px] bg-surface/90 backdrop-blur-[20px]"
       style={{
         paddingBottom: 8,
         paddingTop: 6,
@@ -399,7 +399,7 @@ export function MerchantBottomNav({ active = 'home', onChange }: MerchantBottomN
               }}
             >
               <div
-                className="w-[46px] h-[46px] rounded-full overflow-hidden"
+                className="w-[52px] h-[52px] rounded-full overflow-hidden"
                 style={{
                   border: `2px solid ${isActive ? 'var(--color-accent)' : 'rgba(0,102,255,0.5)'}`,
                   boxShadow: isActive
@@ -412,7 +412,7 @@ export function MerchantBottomNav({ active = 'home', onChange }: MerchantBottomN
                 <img src={ainaSrc} alt="Aina — Business AI" className="w-full h-full object-cover" />
               </div>
               <span
-                className="font-body text-[8px] font-medium mt-0.5"
+                className="font-body text-[9px] font-medium mt-1"
                 style={{ color: isActive ? 'var(--color-accent)' : 'rgba(175,197,255,0.55)' }}
               >
                 Aina
@@ -424,74 +424,14 @@ export function MerchantBottomNav({ active = 'home', onChange }: MerchantBottomN
         const isActive = active === item.id
         const wasActive = prevActive === item.id && active !== item.id
 
-        // Compact bubble item for merchant nav (7 items total)
         return (
-          <button
+          <BubbleItem
             key={item.id}
+            item={item as (typeof NAV_ITEMS)[number]}
+            isActive={isActive}
+            wasActive={wasActive}
             onClick={() => onChange?.(item.id)}
-            aria-label={item.label}
-            aria-current={isActive ? 'page' : undefined}
-            className="relative flex flex-col items-center justify-end focus-ring rounded-full"
-            style={{ minWidth: 32, height: 48, paddingBottom: 4 }}
-          >
-            {/* Elevated bubble */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: '50%',
-                width: 36,
-                height: 36,
-                borderRadius: '50%',
-                transform: `translateX(-50%) translateY(${isActive ? '-14px' : '0px'})`,
-                transition: (isActive || wasActive)
-                  ? `transform 380ms ${isActive ? SPRING_EASE : SETTLE_EASE}, opacity 220ms ease, box-shadow 300ms ease`
-                  : 'none',
-                background: isActive ? 'rgba(175,197,255,0.14)' : 'transparent',
-                backdropFilter: isActive ? 'blur(20px)' : 'none',
-                WebkitBackdropFilter: isActive ? 'blur(20px)' : 'none',
-                border: isActive ? '1px solid rgba(175,197,255,0.22)' : 'none',
-                boxShadow: isActive
-                  ? '0 8px 24px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.08)'
-                  : 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                pointerEvents: 'none',
-                zIndex: isActive ? 2 : 1,
-              }}
-            >
-              <span style={{ color: isActive ? 'var(--color-accent)' : 'transparent', transition: 'color 200ms ease' }}>
-                {item.icon}
-              </span>
-            </div>
-            {/* Flush icon */}
-            <span
-              style={{
-                color: 'rgba(175,197,255,0.45)',
-                opacity: isActive ? 0 : 1,
-                transition: 'opacity 180ms ease',
-                position: 'relative',
-                zIndex: 1,
-                marginBottom: 2,
-              }}
-            >
-              {item.icon}
-            </span>
-            {/* Label */}
-            <span
-              className="font-body font-medium"
-              style={{
-                fontSize: '8px',
-                color: isActive ? 'var(--color-accent)' : 'rgba(175,197,255,0.45)',
-                opacity: isActive ? 0.8 : 0.6,
-                transition: 'color 250ms ease, opacity 250ms ease',
-                lineHeight: 1,
-              }}
-            >
-              {item.label}
-            </span>
-          </button>
+          />
         )
       })}
     </nav>

@@ -19,15 +19,7 @@ interface NotificationsProps {
   onNotifications?: () => void
 }
 
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  { id: '1', title: 'Payment Received', body: 'You received $500.00 from Alex Johnson.', time: '2 min ago', group: 'today', read: false, type: 'payment' },
-  { id: '2', title: 'Security Alert', body: 'New login from Chrome on MacOS. Was this you?', time: '1 hr ago', group: 'today', read: false, type: 'security' },
-  { id: '3', title: 'Transfer Complete', body: 'Your $120.00 transfer to Savings reached its destination.', time: '3 hrs ago', group: 'today', read: true, type: 'payment' },
-  { id: '4', title: 'Fina Insight', body: 'You\'ve spent 15% less on dining this week vs. last. Keep it up!', time: '5 hrs ago', group: 'today', read: true, type: 'system' },
-  { id: '5', title: 'Monthly Recap', body: 'Your August summary is ready. You saved $124 this month.', time: 'Yesterday', group: 'earlier', read: true, type: 'system' },
-  { id: '6', title: 'Upgrade Offer', body: 'Unlock FX-free transfers. Edge plan is 40% off this week.', time: '2 days ago', group: 'earlier', read: true, type: 'promo' },
-  { id: '7', title: 'Payment Failed', body: 'Your $89.99 payment to Amazon could not be processed.', time: '3 days ago', group: 'earlier', read: true, type: 'payment' },
-]
+const INITIAL_NOTIFICATIONS: Notification[] = []
 
 const TYPE_ICON: Record<Notification['type'], React.ReactNode> = {
   payment: (

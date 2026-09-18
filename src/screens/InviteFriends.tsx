@@ -76,7 +76,7 @@ function MiniQR({ seed }: { seed: string }) {
 }
 
 export default function InviteFriends({
-  userName = 'Maya', referralCode = 'MAYA-3F9K', circleCount = 3, nextMilestone = 5,
+  userName = 'Maya', referralCode = '', circleCount = 0, nextMilestone = 0,
   onBack, onViewCircle, onViewTerms,
 }: InviteFriendsProps) {
   const [copied, setCopied] = useState(false)
@@ -174,7 +174,21 @@ export default function InviteFriends({
           <p className="font-body text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Share your invite</p>
           <div className="grid grid-cols-4 gap-2.5">
             {SHARE_CHANNELS.map(ch => (
-              <button key={ch.id} onClick={() => ch.id === 'qr' && setShowQR(p => !p)}
+              <button key={ch.id} onClick={() => {
+                const msg = `Join ChangeAIPay with my invite code ${referralCode} — send money for free!`
+                if (ch.id === 'message') { window.open(`sms:?body=${encodeURIComponent(msg)}`) }
+                else if (ch.id === 'email') { window.open(`mailto:?subject=${encodeURIComponent("You're invited to ChangeAIPay")}&body=${encodeURIComponent(msg)}`) }
+                else if (ch.id === 'contacts') {
+                  const nav = navigator as unknown as { contacts?: { select: (p: string[], o: object) => Promise<unknown> } }
+                  if (nav.contacts?.select) {
+                    nav.contacts.select(['name', 'email', 'tel'], { multiple: false }).catch(() => {})
+                  } else { window.open(`mailto:?subject=${encodeURIComponent("You're invited to ChangeAIPay")}&body=${encodeURIComponent(msg)}`) }
+                }
+                else if (ch.id === 'qr') {
+                  if (navigator.share) { navigator.share({ title: "ChangeAIPay invite", text: msg }).catch(() => {}) }
+                  else { setShowQR(p => !p) }
+                }
+              }}
                 className="flex flex-col items-center gap-2 py-3.5 rounded-[--radius-xl] transition-all active:scale-[0.95]"
                 style={{ background: `${ch.color}0D`, border: `1px solid ${ch.color}2A` }}>
                 {ch.icon}

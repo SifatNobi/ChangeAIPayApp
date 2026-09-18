@@ -12,20 +12,7 @@ interface MerchantTx {
   status: 'completed' | 'pending'
 }
 
-const ALL_TXS: MerchantTx[] = [
-  { id: '1',  type: 'payment', label: 'Payment received',    sub: 'Office Supplies Co · INV-085', amount: '+$320.00', date: 'Today',     status: 'completed' },
-  { id: '2',  type: 'payment', label: 'QR payment',          sub: 'J. Kim',                       amount: '+$75.00',  date: 'Today',     status: 'completed' },
-  { id: '3',  type: 'refund',  label: 'Refund issued',       sub: 'Order #ORD-4201 — disputed',   amount: '-$45.00',  date: 'Today',     status: 'completed' },
-  { id: '4',  type: 'payment', label: 'Payment received',    sub: 'Sunrise Café · INV-084',       amount: '+$148.50', date: 'Yesterday', status: 'completed' },
-  { id: '5',  type: 'payout',  label: 'Payout to bank',      sub: 'Chase Business ••4821',        amount: '-$1,200.00', date: 'Yesterday', status: 'completed' },
-  { id: '6',  type: 'payment', label: 'Payment received',    sub: 'Peak Media Ltd · INV-083',     amount: '+$860.00', date: 'Yesterday', status: 'completed' },
-  { id: '7',  type: 'payment', label: 'Payment received',    sub: 'Bright & Co',                  amount: '+$220.00', date: 'Aug 31',    status: 'completed' },
-  { id: '8',  type: 'payment', label: 'Payment received',    sub: 'Urban Roots · QR',             amount: '+$55.00',  date: 'Aug 31',    status: 'completed' },
-  { id: '9',  type: 'refund',  label: 'Refund issued',       sub: 'INV-081 partial',              amount: '-$30.00',  date: 'Aug 31',    status: 'completed' },
-  { id: '10', type: 'payout',  label: 'Payout to bank',      sub: 'Chase Business ••4821',        amount: '-$840.50', date: 'Aug 30',    status: 'completed' },
-  { id: '11', type: 'payment', label: 'Invoice paid',        sub: 'Nexus Lab · INV-080',          amount: '+$475.00', date: 'Aug 30',    status: 'completed' },
-  { id: '12', type: 'payment', label: 'QR payment',          sub: 'Walk-in customer',             amount: '+$38.00',  date: 'Aug 29',    status: 'completed' },
-]
+const ALL_TXS: MerchantTx[] = []
 
 const FILTER_LABELS: { id: TxFilter; label: string }[] = [
   { id: 'all',     label: 'All' },

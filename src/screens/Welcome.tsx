@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState } from 'react'
 import Button from '@/components/Button'
 import { Card } from '@/components/Card'
 
@@ -7,30 +7,6 @@ interface WelcomeProps {
   onApple?: () => void
   onEmail?: () => void
   onLogin?: () => void
-}
-
-// Google Identity Services types
-declare global {
-  interface Window {
-    google?: {
-      accounts: {
-        id: {
-          initialize: (config: { client_id: string; callback: (response: { credential: string }) => void }) => void;
-          renderButton: (element: HTMLElement, config: { theme: string; size: string; type: string; text: string; shape: string; logo_alignment: string }) => void;
-          prompt: (notification?: string) => void;
-        };
-        oauth2: {
-          initTokenClient: (config: { client_id: string; scope: string; callback: (response: { access_token: string }) => void }) => { requestAccessToken: () => void };
-        };
-      };
-    };
-    appleid?: {
-      auth: {
-        init: (config: { clientId: string; scope: string; redirectURI: string; state: string; usePopup: boolean }) => void;
-        signIn: () => Promise<{ authorization: { code: string; id_token: string; user: { name: { firstName: string; lastName: string }; email: string } } }>;
-      };
-    };
-  }
 }
 
 /* ── Hero illustration — global payment flow, restrained ────── */
@@ -99,39 +75,6 @@ function HeroIllustration() {
         </linearGradient>
       </defs>
     </svg>
-  )
-}
-
-/* ── Star rating ─────────────────────────────────────────────── */
-function StarRating({ rating = 4.9, count = '50k+' }: { rating?: number; count?: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <div className="flex items-center gap-0.5">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <svg key={i} width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M7 1.5l1.6 3.3 3.6.5-2.6 2.5.6 3.6L7 9.6l-3.2 1.7.6-3.6L2 5.3l3.6-.5L7 1.5Z"
-              fill={i < Math.floor(rating) ? '#F5B700' : 'rgba(245,183,0,0.25)'}
-            />
-          </svg>
-        ))}
-      </div>
-      <p className="font-mono text-xs text-text-2">
-        {rating} · {count} reviews
-      </p>
-    </div>
-  )
-}
-
-/* ── Product of month badge ──────────────────────────────────── */
-function ProductBadge() {
-  return (
-    <div className="flex items-center gap-2 px-3 h-7 rounded-full bg-warning/10 border border-warning/25">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-        <path d="M6 1l1.5 3h3l-2.5 2 1 3L6 7.5 3 9l1-3L1.5 4h3L6 1Z" fill="#F5B700" />
-      </svg>
-      <span className="font-body text-xs font-semibold text-warning">Product of the Month</span>
-    </div>
   )
 }
 
@@ -309,95 +252,7 @@ function AppleIcon() {
   )
 }
 
-// OAuth configuration
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'demo-client-id';
-const APPLE_CLIENT_ID = import.meta.env.VITE_APPLE_CLIENT_ID || 'demo-client-id';
-
 export default function Welcome({ onGoogle, onApple, onEmail, onLogin }: WelcomeProps) {
-  const [googleReady, setGoogleReady] = useState(false);
-  const [appleReady, setAppleReady] = useState(false);
-
-  // Initialize Google Identity Services
-  useEffect(() => {
-    if (window.google?.accounts?.id) {
-      window.google.accounts.id.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleCredential,
-      });
-      setGoogleReady(true);
-    }
-    // In production, load Google Identity Services script dynamically
-  }, []);
-
-  // Initialize Apple Sign In
-  useEffect(() => {
-    if (window.appleid?.auth) {
-      window.appleid.auth.init({
-        clientId: APPLE_CLIENT_ID,
-        scope: 'name email',
-        redirectURI: window.location.origin + '/auth/callback',
-        state: Math.random().toString(36).substring(7),
-        usePopup: true,
-      });
-      setAppleReady(true);
-    }
-  }, []);
-
-  const handleGoogleCredential = useCallback((response: { credential: string }) => {
-    // In production: send credential to backend for verification
-    // For demo: decode JWT to get user info
-    try {
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      const userData = {
-        email: payload.email,
-        name: payload.name,
-        picture: payload.picture,
-        provider: 'google',
-        sub: payload.sub,
-      };
-      // Store user data and navigate based on account status
-      // New accounts -> accountType (08), returning -> home (38)
-      onGoogle?.();
-    } catch (e) {
-      console.error('Failed to parse Google credential:', e);
-      onGoogle?.(); // fallback
-    }
-  }, [onGoogle]);
-
-  const handleGoogleSignIn = useCallback(() => {
-    if (window.google?.accounts?.id) {
-      (window.google.accounts.id.prompt as (listener?: (notification: any) => void) => void)((notification: any) => {
-        if (notification?.isNotDisplayed?.() || notification?.isSkippedMoment?.()) {
-          // Fallback to the old behavior if One Tap is not displayed
-          onGoogle?.();
-        }
-      });
-    } else {
-      onGoogle?.();
-    }
-  }, [onGoogle]);
-
-  const handleAppleSignIn = useCallback(async () => {
-    if (!window.appleid?.auth) {
-      onApple?.(); // fallback
-      return;
-    }
-    try {
-      const response = await window.appleid.auth.signIn();
-      const { authorization } = response;
-      // In production: send authorization.code to backend for verification
-      const userData = {
-        email: authorization.user?.email,
-        name: authorization.user?.name ? `${authorization.user.name.firstName} ${authorization.user.name.lastName}` : '',
-        provider: 'apple',
-        idToken: authorization.id_token,
-      };
-      onApple?.();
-    } catch (e) {
-      console.error('Apple Sign In failed:', e);
-      onApple?.(); // fallback
-    }
-  }, [onApple]);
   return (
     <div className="flex flex-col bg-bg min-h-screen">
       {/* Scrollable content */}
@@ -405,12 +260,6 @@ export default function Welcome({ onGoogle, onApple, onEmail, onLogin }: Welcome
 
         {/* ── Hero ─────────────────────────────────────────────── */}
         <div className="mb-8">
-          {/* Social proof row — sits above the dominant headline */}
-          <div className="flex items-center justify-between mb-6">
-            <StarRating />
-            <ProductBadge />
-          </div>
-
           {/* Dominant headline — asymmetric, large focal element */}
           <div className="relative">
             {/* The focal element: "$0 fees" dominates */}
@@ -422,7 +271,7 @@ export default function Welcome({ onGoogle, onApple, onEmail, onLogin }: Welcome
               </h1>
             </div>
             <p className="font-body text-sm text-text-2 mt-4 max-w-[260px] leading-relaxed">
-              AI-powered payments, zero unnecessary costs. Send money anywhere on the planet — without paying for the privilege.
+              AI-powered payments, zero unnecessary costs. Send money anywhere on the planet without paying for the privilege.
             </p>
           </div>
 
@@ -467,9 +316,8 @@ export default function Welcome({ onGoogle, onApple, onEmail, onLogin }: Welcome
         <div className="flex flex-col gap-3">
           {/* Google */}
           <button
-            onClick={googleReady ? handleGoogleSignIn : onGoogle}
-            disabled={!googleReady}
-            className="w-full h-13 rounded-[--radius-lg] bg-white flex items-center justify-center gap-3 font-body text-sm font-semibold text-[#1a1a1a] hover:bg-gray-50 active:scale-[0.98] transition-all duration-[250ms] focus-ring disabled:opacity-50"
+            onClick={onGoogle}
+            className="w-full h-13 rounded-[--radius-lg] bg-white flex items-center justify-center gap-3 font-body text-sm font-semibold text-[#1a1a1a] hover:bg-gray-50 active:scale-[0.98] transition-all duration-[250ms] focus-ring"
             aria-label="Continue with Google"
           >
             <GoogleIcon />
@@ -478,9 +326,8 @@ export default function Welcome({ onGoogle, onApple, onEmail, onLogin }: Welcome
 
           {/* Apple */}
           <button
-            onClick={appleReady ? handleAppleSignIn : onApple}
-            disabled={!appleReady}
-            className="w-full h-13 rounded-[--radius-lg] bg-[#1a1a1a] border border-white/15 flex items-center justify-center gap-3 font-body text-sm font-semibold text-white hover:bg-[#242424] active:scale-[0.98] transition-all duration-[250ms] focus-ring disabled:opacity-50"
+            onClick={onApple}
+            className="w-full h-13 rounded-[--radius-lg] bg-[#1a1a1a] border border-white/15 flex items-center justify-center gap-3 font-body text-sm font-semibold text-white hover:bg-[#242424] active:scale-[0.98] transition-all duration-[250ms] focus-ring"
             aria-label="Continue with Apple"
           >
             <AppleIcon />

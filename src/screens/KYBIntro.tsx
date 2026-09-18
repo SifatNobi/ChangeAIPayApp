@@ -1,3 +1,5 @@
+import ainaSrc from '@/imports/Aina.png.jpeg'
+
 interface KYBIntroProps {
   businessName?: string
   onStart?: () => void
@@ -46,11 +48,11 @@ export default function KYBIntro({ businessName = 'Your Business', onStart, onBa
         <div className="rounded-[--radius-2xl] px-5 py-5 flex flex-col gap-3"
           style={{ background: 'linear-gradient(135deg, rgba(0,30,80,0.92), rgba(13,26,74,0.98))', border: '1px solid rgba(0,102,255,0.28)' }}>
           <div className="flex items-start gap-3">
-            {/* Aina avatar — sharp bottom-left bubble, accent glow */}
+            {/* Aina avatar */}
             <div className="relative shrink-0">
-              <div className="w-12 h-12 flex items-center justify-center font-display text-lg font-extrabold text-white"
-                style={{ background: 'linear-gradient(135deg, #0066FF, #3FE7FF)', borderRadius: '16px 16px 16px 4px', boxShadow: '0 0 18px rgba(0,102,255,0.5)' }}>
-                A
+              <div className="w-12 h-12 overflow-hidden"
+                style={{ borderRadius: '16px 16px 16px 4px', border: '1.5px solid rgba(63,231,255,0.4)', boxShadow: '0 0 18px rgba(0,102,255,0.5)' }}>
+                <img src={ainaSrc} alt="Aina" className="w-full h-full object-cover" />
               </div>
               <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 flex items-center justify-center"
                 style={{ background: '#22C55E', borderColor: 'rgba(5,11,45,0.95)' }} />

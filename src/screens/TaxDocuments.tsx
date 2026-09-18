@@ -37,56 +37,7 @@ const KIND_CONFIG: Record<DocKind, { label: string; color: string; icon: React.R
   },
 }
 
-const TAX_DOCS: TaxDoc[] = [
-  {
-    id: 'td-2025-annual',
-    title: '2025 Annual Account Summary',
-    description: 'Full year income, expenses, and transfer activity',
-    year: 2025, kind: 'annual_summary', sizeKB: 218,
-  },
-  {
-    id: 'td-2025-crypto',
-    title: '2025 Crypto Gains & Losses',
-    description: 'Realized capital gains and losses from crypto trades — required for Schedule D / Form 8949',
-    year: 2025, kind: 'crypto_gains', sizeKB: 196, cryptoTxCount: 23, netGain: 1284.50,
-  },
-  {
-    id: 'td-2025-interest',
-    title: '2025 Interest Income',
-    description: 'Total interest earned on your ChangeAIPay account',
-    year: 2025, kind: 'interest', sizeKB: 84,
-  },
-  {
-    id: 'td-2025-1099',
-    title: '2025 Form 1099-B',
-    description: 'Proceeds from broker and barter exchange transactions',
-    year: 2025, kind: 'form', form: '1099-B', sizeKB: 144,
-  },
-  {
-    id: 'td-2025-1099misc',
-    title: '2025 Form 1099-MISC',
-    description: 'Miscellaneous income including referral and rewards',
-    year: 2025, kind: 'form', form: '1099-MISC', sizeKB: 78,
-  },
-  {
-    id: 'td-2024-annual',
-    title: '2024 Annual Account Summary',
-    description: 'Full year income, expenses, and transfer activity',
-    year: 2024, kind: 'annual_summary', sizeKB: 204,
-  },
-  {
-    id: 'td-2024-crypto',
-    title: '2024 Crypto Gains & Losses',
-    description: 'Realized capital gains and losses from crypto trades',
-    year: 2024, kind: 'crypto_gains', sizeKB: 182, cryptoTxCount: 17, netGain: -340.20,
-  },
-  {
-    id: 'td-2024-1099',
-    title: '2024 Form 1099-B',
-    description: 'Proceeds from broker and barter exchange transactions',
-    year: 2024, kind: 'form', form: '1099-B', sizeKB: 132,
-  },
-]
+const TAX_DOCS: TaxDoc[] = []
 
 const YEARS = [2025, 2024]
 

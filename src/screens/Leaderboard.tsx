@@ -11,14 +11,7 @@ interface LeaderEntry {
   isYou: boolean
 }
 
-const ENTRIES: LeaderEntry[] = [
-  { rank: 1,  initials: 'CK', displayName: 'C.K.',  activeConnections: 47, status: 'Legend',       statusEmoji: '🏆', color: '#FFD700', isYou: false },
-  { rank: 2,  initials: 'AA', displayName: 'A.A.',  activeConnections: 38, status: 'Catalyst',     statusEmoji: '🌀', color: '#FC7E2F', isYou: false },
-  { rank: 3,  initials: 'RJ', displayName: 'R.J.',  activeConnections: 29, status: 'Catalyst',     statusEmoji: '🌀', color: '#FC7E2F', isYou: false },
-  { rank: 4,  initials: 'MP', displayName: 'M.P.',  activeConnections: 21, status: 'Change Maker', statusEmoji: '⚡', color: '#9945FF', isYou: false },
-  { rank: 5,  initials: 'LN', displayName: 'L.N.',  activeConnections: 14, status: 'Change Maker', statusEmoji: '⚡', color: '#9945FF', isYou: false },
-  { rank: 12, initials: 'MA', displayName: 'You',   activeConnections: 3,  status: 'Connector',    statusEmoji: '🔗', color: '#3FE7FF', isYou: true  },
-]
+const ENTRIES: LeaderEntry[] = []
 
 interface LeaderboardProps {
   isOptedIn?: boolean

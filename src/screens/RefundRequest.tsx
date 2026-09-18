@@ -68,10 +68,10 @@ const REASONS: { id: Reason; label: string; sub: string; icon: React.ReactNode }
 const NOTE_MAX = 200
 
 export default function RefundRequest({
-  merchantName = 'Coffee & Co',
-  transactionAmount = '',
-  transactionDate = '28 Aug 2026',
-  transactionId = 'TXN-2026-0072CC',
+  merchantName = '',
+  transactionAmount = '$0.00',
+  transactionDate = '',
+  transactionId = '',
   onSubmit,
   onBack,
 }: RefundRequestProps) {
@@ -112,7 +112,7 @@ export default function RefundRequest({
           <p className="font-body text-xs text-text-muted uppercase tracking-wider">Transaction</p>
           <div className="flex items-center justify-between">
             <p className="font-body text-base font-semibold text-text">{merchantName}</p>
-            <p className="font-display text-lg font-extrabold text-text">{transactionAmount || '—'}</p>
+            <p className="font-display text-lg font-extrabold text-text">{transactionAmount}</p>
           </div>
           <div className="flex items-center gap-3">
             <p className="font-body text-xs text-text-muted">{transactionDate}</p>

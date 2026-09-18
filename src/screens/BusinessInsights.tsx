@@ -15,58 +15,7 @@ interface Insight {
   dismissLabel: string
 }
 
-const INSIGHTS: Insight[] = [
-  {
-    id: '1',
-    severity: 'high',
-    category: 'Revenue Alert',
-    title: 'Tuesday revenue consistently low',
-    body: "Your Tuesday revenue ($890 avg) is 45% below your weekly average. This has occurred every Tuesday for the past 4 weeks — it looks structural, not random.",
-    actionLabel: 'Schedule a Tuesday promo',
-    resolvedLabel: 'Promotion scheduled for next Tuesday',
-    dismissLabel: 'Dismiss',
-  },
-  {
-    id: '2',
-    severity: 'opportunity',
-    category: 'Timing Opportunity',
-    title: '11 AM–1 PM drives 38% of daily revenue',
-    body: 'Your peak transaction window is 11 AM to 1 PM but you have no marketing or follow-up active during this period. Reaching out to repeat customers before noon could increase daily revenue by an estimated 12–18%.',
-    actionLabel: 'Set a peak-hour reminder',
-    resolvedLabel: 'Reminder set for 10:30 AM daily',
-    dismissLabel: 'Not now',
-  },
-  {
-    id: '3',
-    severity: 'medium',
-    category: 'Expense Flag',
-    title: 'Office supplies spend up 180%',
-    body: 'Office supplies spending this month is $320 vs $114 last month — a 180% increase. This may be intentional, but it falls outside your historical range and is worth tagging before your next budget review.',
-    actionLabel: 'Mark as reviewed',
-    resolvedLabel: 'Expense flagged and marked reviewed',
-    dismissLabel: 'Ignore',
-  },
-  {
-    id: '4',
-    severity: 'medium',
-    category: 'Customer Retention',
-    title: 'Office Supplies Co is overdue',
-    body: "Office Supplies Co typically orders every 4 days. They're now 12 days since their last purchase — 3× their usual cycle. They're your #1 customer by spend this month.",
-    actionLabel: 'Send a check-in',
-    resolvedLabel: 'Check-in sent to Office Supplies Co',
-    dismissLabel: 'Dismiss',
-  },
-  {
-    id: '5',
-    severity: 'low',
-    category: 'Payout Timing',
-    title: 'Optimal payout window: today',
-    body: "Based on your operating schedule and balance of $543.50, scheduling a payout today before 4 PM puts funds in your account by Thursday — aligned with your typical end-of-week expenses.",
-    actionLabel: 'Schedule payout now',
-    resolvedLabel: 'Payout scheduled for today',
-    dismissLabel: 'Dismiss',
-  },
-]
+const INSIGHTS: Insight[] = []
 
 const SEVERITY_CFG: Record<InsightSeverity, {
   color: string; bg: string; border: string; dotGlow: string; label: string

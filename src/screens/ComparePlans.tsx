@@ -18,26 +18,28 @@ interface FeatureRow {
   edge: string | boolean
   prime: string | boolean
   apex: string | boolean
+  note?: string
 }
 
 const PLANS: PlanDef[] = [
-  { id: 'free',  name: 'Free',  price: '$0',     priceNote: 'forever',   color: 'rgba(175,197,255,0.5)', tagline: 'Essential banking' },
-  { id: 'edge',  name: 'Edge',  price: '$9.99',  priceNote: '/month',    color: '#3FE7FF',               tagline: 'Better limits' },
+  { id: 'free',  name: 'Free',  price: '$0',     priceNote: '/month',    color: 'rgba(175,197,255,0.5)', tagline: 'Essential banking' },
+  { id: 'edge',  name: 'Edge',  price: '$24.99', priceNote: '/month',    color: '#3FE7FF',               tagline: 'Better limits' },
   { id: 'prime', name: 'Prime', price: '$39.99', priceNote: '/month',    color: '#0066FF',               tagline: 'Most popular' },
-  { id: 'apex',  name: 'Apex',  price: '$64.99', priceNote: '/month',    color: '#9945FF',               tagline: 'Power users' },
+  { id: 'apex',  name: 'Apex',  price: '$64.99', priceNote: '/month',    color: '#F5B700',               tagline: 'Power users' },
 ]
 
 const FEATURES: FeatureRow[] = [
   // Transfers
-  { category: 'Transfers', label: 'Monthly limit',       free: '$400',     edge: '$1,500',   prime: '$10,000',  apex: 'Unlimited'  },
-  { category: 'Transfers', label: 'Daily limit',         free: '$400',     edge: '$750',     prime: '$2,500',   apex: 'Unlimited'  },
-  { category: 'Transfers', label: 'Zero domestic fees',  free: false,      edge: true,       prime: true,       apex: true         },
-  { category: 'Transfers', label: 'Zero FX fees',        free: false,      edge: false,      prime: true,       apex: true         },
-  { category: 'Transfers', label: 'International sends', free: '+1.75%',   edge: '+1.75%',   prime: '+0.5%',    apex: 'Free'       },
-  { category: 'Transfers', label: 'Instant transfers',   free: true,       edge: true,       prime: true,       apex: true         },
+  { category: 'Transfers', label: 'Monthly limit',            free: '$400 (Full Free)\n$100 (Free Lite)',  edge: '$1,500',   prime: '$10,000',  apex: '$50,000'    },
+  { category: 'Transfers', label: 'Daily limit',              free: '$400 (Full Free)',                    edge: '$750',     prime: '$2,500',   apex: '$10,000'    },
+  { category: 'Transfers', label: 'Zero domestic fees',       free: false,                                 edge: true,       prime: true,       apex: true         },
+  { category: 'Transfers', label: 'FX fee (0% allowance)',    free: '$0 allowance · 1.45% rate',           edge: '0% up to $1,500/mo · 0.95% after',  prime: '0% up to $3,000/mo · 0.72% after',  apex: '0% up to $6,000/mo · 0.58% after', note: 'None of these plans offer unlimited zero-rate FX — each has a monthly 0%-rate allowance, then the rate shown applies.' },
+  { category: 'Transfers', label: 'International sends',      free: 'FX rate: 1.45%',                      edge: '0% up to $1,500/mo\n0.95% thereafter',  prime: '0% up to $3,000/mo\n0.72% thereafter',  apex: '0% up to $6,000/mo\n0.58% thereafter' },
+  { category: 'Transfers', label: 'Instant transfers',        free: true,                                  edge: true,       prime: true,       apex: true         },
   // Crypto
   { category: 'Crypto',    label: 'Buy & sell crypto',   free: true,       edge: true,       prime: true,       apex: true         },
   { category: 'Crypto',    label: 'Crypto trading fee',  free: '1.5%',     edge: '1.0%',     prime: '0.5%',     apex: '0.25%'      },
+  { category: 'Crypto',    label: 'Nano (XNO) trading fee', free: '$0',   edge: '$0',       prime: '$0',       apex: '$0',        note: 'Nano trades are always fee-free, regardless of plan.' },
   { category: 'Crypto',    label: 'Wallet deposit/withdraw', free: true,   edge: true,       prime: true,       apex: true         },
   // Goals
   { category: 'Goals',     label: 'Savings goals',       free: 'Up to 3',  edge: 'Up to 10', prime: 'Unlimited',apex: 'Unlimited'  },
@@ -67,7 +69,13 @@ function Cell({ val, color }: { val: string | boolean; color: string }) {
       <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 2l6 6M8 2l-6 6" stroke="rgba(175,197,255,0.2)" strokeWidth="1.2" strokeLinecap="round" /></svg>
     </div>
   )
-  return <p className="font-body text-[10px] text-center leading-tight" style={{ color }}>{val}</p>
+  return (
+    <div className="flex flex-col items-center gap-0.5">
+      {String(val).split('\n').map((line, i) => (
+        <p key={i} className="font-body text-[9px] text-center leading-tight" style={{ color }}>{line}</p>
+      ))}
+    </div>
+  )
 }
 
 interface ComparePlansProps {
@@ -137,17 +145,24 @@ export default function ComparePlans({ currentPlan = 'free', recommendedPlan = '
                   </svg>
                 </button>
                 {open && rows.map((row, i) => (
-                  <div key={row.label} className="flex items-center px-4 py-2.5 gap-1"
-                    style={{ background: i % 2 === 0 ? 'rgba(175,197,255,0.02)' : 'transparent' }}>
-                    <p className="font-body text-[11px] text-text-muted leading-tight" style={{ flex: 1 }}>{row.label}</p>
-                    {PLANS.map(p => {
-                      const val = row[p.id as keyof typeof row] as string | boolean
-                      return (
-                        <div key={p.id} style={{ width: COL_W }} className="flex items-center justify-center">
-                          <Cell val={val} color={p.color} />
-                        </div>
-                      )
-                    })}
+                  <div key={row.label}>
+                    <div className="flex items-center px-4 py-2.5 gap-1"
+                      style={{ background: i % 2 === 0 ? 'rgba(175,197,255,0.02)' : 'transparent' }}>
+                      <p className="font-body text-[11px] text-text-muted leading-tight" style={{ flex: 1 }}>{row.label}</p>
+                      {PLANS.map(p => {
+                        const val = row[p.id as keyof typeof row] as string | boolean
+                        return (
+                          <div key={p.id} style={{ width: COL_W }} className="flex items-center justify-center">
+                            <Cell val={val} color={p.color} />
+                          </div>
+                        )
+                      })}
+                    </div>
+                    {row.note && (
+                      <p className="px-4 pb-2 font-body text-[9px] leading-relaxed" style={{ color: 'rgba(63,231,255,0.5)' }}>
+                        ↳ {row.note}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AuthHeader from '@/components/AuthHeader'
 import Button from '@/components/Button'
 
@@ -71,8 +71,16 @@ export default function EnableBiometrics({ onEnable, onSkip, onBack }: EnableBio
   const [type, setType] = useState<BiometricType>('faceId')
   const [showNativeSheet, setShowNativeSheet] = useState(false)
   const [enrolling, setEnrolling] = useState(false)
+  const [consented, setConsented] = useState(false)
 
-  const handleEnable = () => setShowNativeSheet(true)
+  const handleEnable = () => { if (consented) setShowNativeSheet(true) }
+
+  useEffect(() => {
+    if (!showNativeSheet) return
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setShowNativeSheet(false) }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [showNativeSheet])
 
   const handleNativeConfirm = async () => {
     setShowNativeSheet(false)
@@ -119,24 +127,79 @@ export default function EnableBiometrics({ onEnable, onSkip, onBack }: EnableBio
               </p>
             </div>
 
-            {/* Security explanation */}
-            <div className="w-full rounded-[--radius-2xl] bg-surface border border-[color:var(--color-border)] p-5 flex flex-col gap-3">
+            {/* Consent disclosure card */}
+            <div className="w-full rounded-[--radius-2xl] bg-surface border border-[color:var(--color-border)] p-5 flex flex-col gap-4">
+              <p className="font-body text-xs font-semibold uppercase tracking-wider text-text-muted">Before you enable — what we collect</p>
               {[
-                { icon: '🔒', text: `Your ${type === 'faceId' ? 'face data' : 'fingerprint'} never leaves your device` },
-                { icon: '🏦', text: type === 'faceId' ? 'Stored in Apple Secure Enclave / Android StrongBox' : 'Processed by your device hardware only' },
-                { icon: '⚡', text: 'Log in and confirm payments in under a second' },
+                {
+                  icon: '📐',
+                  label: type === 'faceId' ? 'Face geometry template' : 'Fingerprint template',
+                  detail: type === 'faceId'
+                    ? 'Your device generates a mathematical representation of your facial geometry. The original image is immediately discarded.'
+                    : 'Your device generates a mathematical representation of your fingerprint ridge pattern. The original image is immediately discarded.',
+                },
+                {
+                  icon: '🔒',
+                  label: 'Stored only on your device',
+                  detail: type === 'faceId'
+                    ? 'The template is stored in your device\'s Secure Enclave (Apple) or StrongBox (Android) — a hardware-isolated security chip. ChangeAIPay never receives, stores, or transmits this data.'
+                    : 'The template is stored in your device\'s hardware security module only. ChangeAIPay never receives, stores, or transmits this data.',
+                },
+                {
+                  icon: '📅',
+                  label: 'Retained until you revoke',
+                  detail: 'The biometric template remains on your device until you disable biometric login in Settings, or until you delete your account. We have no copy to delete on our end.',
+                },
               ].map(item => (
-                <div key={item.text} className="flex items-start gap-3">
-                  <span className="text-base shrink-0">{item.icon}</span>
-                  <p className="font-body text-sm text-text-2">{item.text}</p>
+                <div key={item.label} className="flex items-start gap-3">
+                  <span className="text-base shrink-0 mt-0.5">{item.icon}</span>
+                  <div>
+                    <p className="font-body text-sm font-semibold text-text">{item.label}</p>
+                    <p className="font-body text-xs text-text-2 leading-relaxed mt-0.5">{item.detail}</p>
+                  </div>
                 </div>
               ))}
+              <div className="pt-1 border-t border-[color:var(--color-border)]">
+                <p className="font-body text-xs text-text-muted leading-relaxed">
+                  For full details on biometric data handling and your deletion rights, see our{' '}
+                  <button
+                    onClick={() => window.open('https://changeaipay.com/legal/biometric-retention', '_blank')}
+                    className="text-accent underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                  >
+                    Biometric Data Retention Policy
+                  </button>.
+                </p>
+              </div>
             </div>
+
+            {/* Explicit consent checkbox */}
+            <button
+              onClick={() => setConsented(c => !c)}
+              className="flex items-start gap-3 w-full text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-lg"
+              aria-pressed={consented}
+            >
+              <div
+                className="mt-0.5 w-5 h-5 rounded shrink-0 flex items-center justify-center transition-colors"
+                style={{
+                  background: consented ? 'var(--color-accent)' : 'transparent',
+                  border: `1.5px solid ${consented ? 'var(--color-accent)' : 'rgba(175,197,255,0.35)'}`,
+                }}
+              >
+                {consented && (
+                  <svg width="11" height="9" viewBox="0 0 11 9" fill="none" aria-hidden="true">
+                    <path d="M1 4l3 3 6-6" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              <p className="font-body text-xs text-text-2 leading-relaxed">
+                I understand that a {type === 'faceId' ? 'facial geometry template' : 'fingerprint template'} will be created and stored in my device's secure hardware. I consent to this data being used solely to authenticate me in ChangeAIPay, and I can revoke this at any time in Settings.
+              </p>
+            </button>
           </div>
         </div>
 
         <div className="flex flex-col gap-3 mt-8">
-          <Button variant="primary" fullWidth loading={enrolling} onClick={handleEnable}>
+          <Button variant="primary" fullWidth loading={enrolling} onClick={handleEnable} disabled={!consented || enrolling}>
             {enrolling ? 'Enabling…' : `Enable ${type === 'faceId' ? 'Face ID' : 'Fingerprint'}`}
           </Button>
           <Button variant="ghost" fullWidth onClick={onSkip}>
@@ -148,7 +211,9 @@ export default function EnableBiometrics({ onEnable, onSkip, onBack }: EnableBio
       {/* Simulated native biometric enrollment sheet */}
       {showNativeSheet && (
         <div className="fixed inset-0 z-50 flex items-end justify-center pb-10 px-4 animate-fade-in"
-          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+          role="dialog" aria-modal="true" aria-label="Biometric enrollment confirmation"
+          style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+          onClick={e => { if (e.target === e.currentTarget) setShowNativeSheet(false) }}>
           <div className="w-full max-w-sm rounded-[--radius-3xl] bg-[#1C1C1E] border border-white/12 overflow-hidden animate-slide-up">
             <div className="px-6 pt-8 pb-6 text-center flex flex-col items-center gap-4">
               <div className="w-16 h-16 rounded-[--radius-xl] bg-surface flex items-center justify-center">

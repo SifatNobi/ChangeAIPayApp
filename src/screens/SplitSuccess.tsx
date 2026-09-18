@@ -18,10 +18,16 @@ interface SplitSuccessProps {
   onDone?: () => void
 }
 
+const DEFAULT_ENTRIES: SplitEntry[] = [
+  { name: 'Alex Johnson', initials: 'AJ', color: '#0066FF', handle: '@alexj',       amount: '40.00', status: 'sent' },
+  { name: 'Sarah Kim',    initials: 'SK', color: '#3FE7FF', handle: '@sarahk',      amount: '40.00', status: 'sent' },
+  { name: 'Marcus Webb',  initials: 'MW', color: '#AFC5FF', handle: '@marcuswebb',  amount: '40.00', status: 'sent' },
+]
+
 export default function SplitSuccess({
-  total = '',
+  total = '120.00',
   currency = 'USD',
-  entries = [],
+  entries = DEFAULT_ENTRIES,
   onShare,
   onDone,
 }: SplitSuccessProps) {
@@ -68,11 +74,11 @@ export default function SplitSuccess({
 
         <h1 className="font-display text-2xl font-extrabold text-text tracking-tight mb-1">Requests Sent!</h1>
         <p className="font-body text-sm text-text-muted text-center mb-6">
-          {entries.length} payment request{entries.length !== 1 ? 's' : ''} sent · {sym}{total || '—'} total
+          {entries.length} payment request{entries.length !== 1 ? 's' : ''} sent · {sym}{total} total
         </p>
 
         {/* Participant summary card */}
-        {contentVisible && entries.length > 0 && (
+        {contentVisible && (
           <div
             className="w-full rounded-[--radius-2xl] p-5 flex flex-col gap-3 animate-fade-in mb-5"
             style={{ background: 'rgba(175,197,255,0.05)', border: '1px solid rgba(175,197,255,0.12)' }}

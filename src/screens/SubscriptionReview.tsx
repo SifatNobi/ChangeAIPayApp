@@ -1,4 +1,54 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+
+const BRAND_ICONS: Record<string, ReactNode> = {
+  Netflix: (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M5 3v12l3.5-9.5L12 15V3" stroke="#E50914" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Spotify: (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <circle cx="9" cy="9" r="7" stroke="#1DB954" strokeWidth="1.3" />
+      <path d="M5.5 7.5c2 -.7 5 -.5 7 .5" stroke="#1DB954" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M6 10c1.6-.5 4-.4 5.5.4" stroke="#1DB954" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M6.5 12.5c1.2-.3 3 -.3 4.5.3" stroke="#1DB954" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  ),
+  'Adobe CC': (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M2 13.5L6.5 3 9 9" stroke="#FF0000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16 13.5L11.5 3 9 9" stroke="#FF0000" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4.5 10.5h9" stroke="#FF0000" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  ),
+  Headspace: (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <circle cx="9" cy="8" r="4.5" stroke="#FF7843" strokeWidth="1.3" />
+      <path d="M4.5 12.5c0 2.5 9 2.5 9 0" stroke="#FF7843" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  ),
+  'Gym Membership': (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <rect x="1.5" y="7.5" width="3" height="3" rx="1" stroke="#9945FF" strokeWidth="1.2" />
+      <rect x="13.5" y="7.5" width="3" height="3" rx="1" stroke="#9945FF" strokeWidth="1.2" />
+      <path d="M4.5 9h9" stroke="#9945FF" strokeWidth="1.5" strokeLinecap="round" />
+      <rect x="5.5" y="5.5" width="2" height="7" rx="1" stroke="#9945FF" strokeWidth="1.2" />
+      <rect x="10.5" y="5.5" width="2" height="7" rx="1" stroke="#9945FF" strokeWidth="1.2" />
+    </svg>
+  ),
+  'Duolingo Plus': (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <ellipse cx="9" cy="8.5" rx="5.5" ry="6" stroke="#58CC02" strokeWidth="1.3" />
+      <path d="M6.5 8.5l2 2 3-3" stroke="#58CC02" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="9" cy="15.5" r="1.2" fill="#58CC02" />
+    </svg>
+  ),
+  'iCloud 200GB': (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+      <path d="M5 12.5a3 3 0 0 1 0-6 3.5 3.5 0 0 1 7 .5 2.5 2.5 0 0 1 0 5H5Z" stroke="#3FE7FF" strokeWidth="1.2" strokeLinejoin="round" />
+    </svg>
+  ),
+}
 
 type SubStatus = 'active' | 'flagged' | 'reviewed'
 
@@ -121,7 +171,7 @@ export default function SubscriptionReview({ onBack, onOpenRecurring }: Subscrip
                 {/* Icon */}
                 <div className="w-10 h-10 rounded-[--radius-xl] flex items-center justify-center shrink-0 font-display text-base font-extrabold"
                   style={{ background: `${sub.color}18`, border: `1px solid ${sub.color}30`, color: sub.color }}>
-                  {sub.name.charAt(0)}
+                  {BRAND_ICONS[sub.name] ?? sub.name.charAt(0)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">

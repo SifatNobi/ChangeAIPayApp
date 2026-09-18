@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import finaSrc from '@/imports/Fina.png.jpeg'
 
 type VoiceState = 'listening' | 'thinking' | 'speaking' | 'idle'
 
@@ -199,20 +200,17 @@ export default function VoiceMode({ onEnd, onSwitchToText }: VoiceModeProps) {
             )}
             <div className="absolute rounded-full"
               style={{ inset: 8, border: '1.5px solid rgba(63,231,255,0.15)', boxShadow: '0 0 20px rgba(63,231,255,0.1)' }} />
-            {/* Inner circle */}
+            {/* Inner circle — Fina avatar */}
             <div
-              className="relative z-10 w-20 h-20 rounded-full flex items-center justify-center"
+              className="relative z-10 w-20 h-20 rounded-full overflow-hidden"
               style={{
-                background: 'var(--gradient-primary)',
                 boxShadow: voiceState === 'listening' || voiceState === 'speaking'
                   ? '0 0 40px rgba(63,231,255,0.5), 0 0 80px rgba(0,102,255,0.3)'
                   : '0 0 20px rgba(0,102,255,0.3)',
                 transition: 'box-shadow 400ms ease',
+                border: '2px solid rgba(63,231,255,0.4)',
               }}>
-              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
-                <circle cx="14" cy="8" r="5" fill="white" />
-                <path d="M4 25c0-5.5 4.5-10 10-10s10 4.5 10 10" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none" />
-              </svg>
+              <img src={finaSrc} alt="Fina" className="w-full h-full object-cover" />
             </div>
           </div>
 

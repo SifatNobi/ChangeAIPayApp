@@ -25,35 +25,6 @@ interface PlannerSuggestion {
 }
 
 const INITIAL_MESSAGES: PlannerMessage[] = [
-  {
-    id: 'fm1',
-    role: 'fina',
-    text: "Hi! I'm Fina's goal planner. Let me look at your goals and suggest the best path forward.",
-  },
-  {
-    id: 'fm2',
-    role: 'fina',
-    text: "I've reviewed your four goals. Here's what I found:",
-    suggestion: {
-      type: 'optimize',
-      headline: 'Reach Emergency Fund 2 months faster',
-      bullets: [
-        'Bump paycheck split for Savings from 15% → 22% (+$238/mo)',
-        'You can still hit MacBook by Oct and Vacation by Jun 2027',
-        'New Emergency Fund target: October 2026 instead of December',
-      ],
-      ctaLabel: 'Apply This Plan',
-      goalId: 'g1',
-      prefill: {
-        name: 'Emergency Fund',
-        emoji: '🛡️',
-        targetAmount: 5000,
-        targetDate: '2026-10-31',
-        fundingMethod: 'paycheck',
-        monthlyNeeded: 510,
-      },
-    },
-  },
 ]
 
 const QUICK_PROMPTS = [
@@ -70,7 +41,7 @@ interface GoalPlannerProps {
 }
 
 export default function GoalPlanner({ onCreateGoal, onEditGoal, onBack }: GoalPlannerProps) {
-  const [messages, setMessages] = useState<PlannerMessage[]>(INITIAL_MESSAGES)
+  const [messages, setMessages] = useState<PlannerMessage[]>([])
   const [input, setInput] = useState('')
   const [thinking, setThinking] = useState(false)
 

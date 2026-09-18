@@ -10,53 +10,7 @@ interface SavedItem {
   tagColor?: string
 }
 
-const SAVED: SavedItem[] = [
-  {
-    id: 's1',
-    text: "Last month you spent $412 on food — $198 dining out and $214 on groceries. That's 18% of your total spending, slightly above your usual 14%.",
-    savedAt: 'Today',
-    context: 'Spending analysis · Aug 31, 2:14 PM',
-    convoId: 'c1',
-    tag: 'Spending',
-    tagColor: '#F5B700',
-  },
-  {
-    id: 's2',
-    text: "To hit your Emergency Fund goal by December, you need to save about $317/month. Your current paycheck split is contributing $150/month — consider bumping Savings Goals from 15% to 22% of your paycheck.",
-    savedAt: 'Yesterday',
-    context: 'Goals check-in · Aug 30, 3:22 PM',
-    convoId: 'c3',
-    tag: 'Goals',
-    tagColor: '#22C55E',
-  },
-  {
-    id: 's3',
-    text: "Your ETH position is up 14.2% since you bought in. If you're comfortable with your current crypto allocation (11% of net worth), holding makes more sense than rebalancing right now.",
-    savedAt: 'Aug 23',
-    context: 'Crypto portfolio · Aug 23, 6:45 PM',
-    convoId: 'c8',
-    tag: 'Crypto',
-    tagColor: '#F7931A',
-  },
-  {
-    id: 's4',
-    text: "I've set up round-up sweeps from your debit card to your Vacation goal. At your current spending pace, you'll accumulate roughly $28–35/month in round-ups — about 1.1–1.4% of your target each month.",
-    savedAt: 'Aug 25',
-    context: 'Auto Save setup · Aug 25, 9:18 AM',
-    convoId: 'c6',
-    tag: 'Auto Save',
-    tagColor: '#9945FF',
-  },
-  {
-    id: 's5',
-    text: "Based on your September outlook, I'd reduce discretionary spending by $80–$120 to offset the irregular expenses I see coming — two subscription renewals and a likely higher grocery bill.",
-    savedAt: 'Aug 18',
-    context: 'Forecast · Aug 18, 1:03 PM',
-    convoId: 'c10',
-    tag: 'Forecast',
-    tagColor: '#3FE7FF',
-  },
-]
+const SAVED: SavedItem[] = []
 
 interface SavedResponsesProps {
   onOpenConvo?: (convoId: string) => void
@@ -64,7 +18,7 @@ interface SavedResponsesProps {
 }
 
 export default function SavedResponses({ onOpenConvo, onBack }: SavedResponsesProps) {
-  const [saved, setSaved] = useState<SavedItem[]>(SAVED)
+  const [saved, setSaved] = useState<SavedItem[]>([])
   const [activeFilter, setActiveFilter] = useState<string>('All')
 
   const tags = ['All', ...Array.from(new Set(SAVED.map(s => s.tag).filter(Boolean)))] as string[]

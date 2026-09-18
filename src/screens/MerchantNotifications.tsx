@@ -13,60 +13,7 @@ interface MerchantNotif {
   amount?: string
 }
 
-const INITIAL_NOTIFS: MerchantNotif[] = [
-  {
-    id: '1',
-    type: 'payment',
-    title: 'Payment received',
-    body: 'Office Supplies Co paid invoice #INV-2026-084 in full.',
-    time: '2 min ago',
-    read: false,
-    amount: '+$320.00',
-  },
-  {
-    id: '2',
-    type: 'dispute',
-    title: 'Dispute opened',
-    body: 'A chargeback has been filed for transaction #TX-29482. Response due within 7 days.',
-    time: '38 min ago',
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'payment',
-    title: 'QR payment received',
-    body: 'Freelance client J. Kim completed a QR payment.',
-    time: '3h ago',
-    read: false,
-    amount: '+$75.00',
-  },
-  {
-    id: '4',
-    type: 'payout',
-    title: 'Payout processed',
-    body: '$1,200.00 has been transferred to Chase Business ••4821. Estimated arrival: tomorrow.',
-    time: 'Yesterday',
-    read: true,
-    amount: '$1,200.00',
-  },
-  {
-    id: '5',
-    type: 'verification',
-    title: 'KYB verification approved',
-    body: 'Your business identity has been fully verified. All merchant features are now active.',
-    time: '2 days ago',
-    read: true,
-  },
-  {
-    id: '6',
-    type: 'payment',
-    title: 'Payment received',
-    body: 'Sunrise Café paid for order #ORD-5512.',
-    time: '3 days ago',
-    read: true,
-    amount: '+$148.50',
-  },
-]
+const INITIAL_NOTIFS: MerchantNotif[] = []
 
 const TYPE_CONFIG: Record<NotifType, { color: string; bg: string; icon: React.ReactNode }> = {
   payment: {

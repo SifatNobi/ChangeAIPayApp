@@ -37,7 +37,7 @@ const DENIAL_REASONS = {
 
 export default function RefundResult({
   outcome = 'approved',
-  refundAmount = '',
+  refundAmount = '$24.50',
   currency = 'USD',
   merchantName = 'Coffee & Co',
   denialReason = 'outside_policy',
@@ -101,7 +101,7 @@ export default function RefundResult({
 
             <h1 className="font-display text-2xl font-extrabold text-text tracking-tight mb-1">Refund Approved</h1>
             <p className="font-body text-sm text-text-muted text-center mb-6">
-              {sym}{refundAmount || '—'} from {merchantName} is back in your wallet
+              {sym}{refundAmount} from {merchantName} is back in your wallet
             </p>
 
             {contentVisible && (
@@ -111,7 +111,7 @@ export default function RefundResult({
                   style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)' }}
                 >
                   {[
-                    { label: 'Refund amount', value: refundAmount ? `${sym}${refundAmount}` : '—' },
+                    { label: 'Refund amount', value: `${sym}${refundAmount}` },
                     { label: 'Merchant',       value: merchantName },
                     { label: 'Credited to',    value: 'Main Wallet' },
                     { label: 'Settled',        value: 'Instant' },
@@ -162,7 +162,7 @@ export default function RefundResult({
 
             <h1 className="font-display text-2xl font-extrabold text-text tracking-tight mb-2">Refund Declined</h1>
             <p className="font-body text-sm text-text-2 text-center mb-6 px-2">
-              We reviewed your request for {sym}{refundAmount || '—'} from {merchantName}.
+              We reviewed your request for {sym}{refundAmount} from {merchantName}.
             </p>
 
             <div
@@ -231,7 +231,7 @@ export default function RefundResult({
 
             <h1 className="font-display text-2xl font-extrabold text-text tracking-tight mb-2">Under Review</h1>
             <p className="font-body text-sm text-text-2 text-center mb-6 px-2">
-              Your refund request for {sym}{refundAmount || '—'} from {merchantName} is being reviewed.
+              Your refund request for {sym}{refundAmount} from {merchantName} is being reviewed.
             </p>
 
             <div

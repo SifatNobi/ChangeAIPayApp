@@ -1,5 +1,11 @@
 import { useState } from 'react'
 import { MERCHANT_TIERS, calcStandardFees, calcAnnualSavings, fmt, type TierName } from '@/data/merchantTiers'
+import {
+  isRevenueCatNative,
+  purchaseMerchantYearlyPackage,
+  restorePurchases,
+  hasMerchantAccess,
+} from '@/lib/purchases'
 
 type CheckoutStep = 'summary' | 'auth' | 'processing' | 'success'
 
@@ -27,6 +33,7 @@ export default function MerchantCheckout({
   const [pin, setPin] = useState('')
   const [billing, setBilling] = useState<'annual' | 'monthly'>('annual')
   const [cardLast4] = useState('4521')
+  const [subscribeError, setSubscribeError] = useState<string | null>(null)
 
   const handlePinDigit = (d: string) => {
     if (pin.length >= 6) return
@@ -40,8 +47,26 @@ export default function MerchantCheckout({
     setTimeout(() => setStep('success'), 1400)
   }
 
+  // Native (Android): the CTA must drive the REAL RevenueCat store purchase — same contract as
+  // Checkout.tsx (personal). Web preview (Figma Make) keeps the simulated PIN/biometric flow.
+  const handleSubscribe = async () => {
+    if (!isRevenueCatNative()) {
+      setStep('auth')
+      return
+    }
+    setStep('processing')
+    try {
+      await purchaseMerchantYearlyPackage(tier.name)
+      setStep('success')
+    } catch (error) {
+      console.error('[RevenueCat] ChangeAIPay Merchant purchase failed:', error)
+      setSubscribeError(error instanceof Error ? error.message : String(error))
+      setStep('summary')
+    }
+  }
+
   if (step === 'processing') {
-    setTimeout(() => setStep('success'), 1500)
+    if (!isRevenueCatNative()) setTimeout(() => setStep('success'), 1500)
     return (
       <div className="flex flex-col items-center justify-center bg-bg" style={{ minHeight: 785 }}>
         <div className="w-16 h-16 rounded-[18px] flex items-center justify-center mb-4"

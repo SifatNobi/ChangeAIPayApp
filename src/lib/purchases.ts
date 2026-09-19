@@ -64,6 +64,12 @@ export function hasProAccess(customerInfo: CustomerInfo | null | undefined): boo
   return entitlement?.isActive === true
 }
 
+export function hasMerchantAccess(customerInfo: CustomerInfo | null | undefined): boolean {
+  if (!customerInfo) return false
+  const merchantEntitlement = customerInfo.entitlements?.active?.[CHANGE_AI_PAY_MERCHANT_ENTITLEMENT_ID]
+  return merchantEntitlement?.isActive === true
+}
+
 export async function getMonthlyProPackage(): Promise<PurchasesPackage | null> {
   if (!(await initPurchases())) return null
   const offerings = await Purchases.getOfferings()

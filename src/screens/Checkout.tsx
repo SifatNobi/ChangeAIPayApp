@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import {
   isRevenueCatNative,
-  purchaseMonthlyPackage,
+  purchasePersonalMonthlyPackage,
   restorePurchases,
   hasProAccess,
 } from '@/lib/purchases'
@@ -42,6 +42,7 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
   const [paymentId, setPaymentId] = useState(PAYMENT_METHODS[0].id)
   const [authing, setAuthing] = useState(false)
   const [confirming, setConfirming] = useState(false)
+  const [subscribeError, setSubscribeError] = useState<string | null>(null)
 
   const info = PLANS[plan]
   const price = cycle === 'monthly' ? info.monthlyPrice : info.annualPrice
@@ -68,7 +69,7 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
     }
 
     try {
-      const result = await purchaseMonthlyPackage()
+      const result = await purchasePersonalMonthlyPackage(plan)
       setAuthing(false)
       setConfirming(true)
       setTimeout(() => {
@@ -78,7 +79,9 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
       }, 1400)
     } catch (error) {
       console.error('[RevenueCat] ChangeAIPay Pro purchase failed:', error)
+      setSubscribeError(error instanceof Error ? error.message : String(error))
       setAuthing(false)
+      setConfirming(false)
     }
   }
 
@@ -219,23 +222,32 @@ export default function Checkout({ plan = 'prime', onConfirm, onBack, onCompareP
             )}
           </button>
         )}
+        {subscribeError && (
+          <div className="px-4 py-2.5 rounded-[--radius-xl] flex items-center justify-center gap-2"
+            style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)' }}>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="rgba(239,68,68,0.5)" strokeWidth="1.1" /><path d="M7 4.5v3" stroke="#EF4444" strokeWidth="1.1" strokeLinecap="round" /><circle cx="7" cy="9.4" r="0.9" fill="#EF4444" /></svg>
+            <p className="font-body text-[11px] text-[#EF4444] text-center leading-snug">{subscribeError}</p>
+          </div>
+        )}
         <p className="font-body text-[10px] text-text-muted text-center leading-relaxed">
           Cancel anytime. No refunds for partial months unless required by law.
         </p>
-        <button
-          className="w-full h-10 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
-          onClick={async () => {
-            if (!isRevenueCatNative()) return
-            try {
-              const customerInfo = await restorePurchases()
-              onRestored?.(hasProAccess(customerInfo))
-            } catch (error) {
-              console.error('[RevenueCat] Restore Purchases failed:', error)
-            }
-          }}
-        >
-          Restore Purchases
-        </button>
+        <div className="flex items-center justify-center gap-1.5">
+          <button
+            className="font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent"
+            onClick={async () => {
+              if (!isRevenueCatNative()) return
+              try {
+                const customerInfo = await restorePurchases()
+                onRestored?.(hasProAccess(customerInfo))
+              } catch (error) {
+                console.error('[RevenueCat] Restore Purchases failed:', error)
+              }
+            }}
+          >
+            Restore Purchases
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -15,9 +15,10 @@ const BILLING_HISTORY: BillingRecord[] = []
 interface MerchantBillingProps {
   onBack?: () => void
   onChangePlan?: () => void
+  onRestore?: () => void
 }
 
-export default function MerchantBilling({ onBack, onChangePlan }: MerchantBillingProps) {
+export default function MerchantBilling({ onBack, onChangePlan, onRestore }: MerchantBillingProps) {
   const [downloading, setDownloading] = useState<string | null>(null)
   const [downloaded, setDownloaded] = useState<string[]>([])
 
@@ -198,9 +199,7 @@ export default function MerchantBilling({ onBack, onChangePlan }: MerchantBillin
 
         <button
           className="w-full h-11 font-body text-xs text-text-muted flex items-center justify-center transition-colors hover:text-accent mt-2"
-          onClick={() => {
-            /* Integration point: trigger RevenueCat/App Store restore entitlements */
-          }}
+          onClick={onRestore}
         >
           Restore Purchases
         </button>

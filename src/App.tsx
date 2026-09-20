@@ -7,6 +7,8 @@ import {
   hasProAccess,
   hasMerchantAccess,
   subscribeToCustomerInfo,
+  isRevenueCatNative,
+  restorePurchases,
 } from '@/lib/purchases'
 
 import PhoneFrame from './components/PhoneFrame'
@@ -2980,7 +2982,10 @@ export default function App() {
             tierName={selectedMerchantTier}
             annualVolume={472800}
             onBack={() => go('merchantPlans')}
-            onSuccess={() => go('merchantProfile')}
+            onSuccess={(hasAccess) => {
+              if (hasAccess) setMerchantActive(true)
+              go('merchantProfile')
+            }}
           />
         )
 
@@ -3010,6 +3015,10 @@ export default function App() {
           <MerchantBilling
             onBack={() => go('merchantProfile')}
             onChangePlan={() => go('merchantPlans')}
+            onRestore={() => {
+              if (!isRevenueCatNative()) return
+              restorePurchases().then(info => setMerchantActive(hasMerchantAccess(info))).catch(() => {})
+            }}
           />
         )
 

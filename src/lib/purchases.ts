@@ -8,7 +8,13 @@ import type {
 import type { TierName } from '@/data/merchantTiers'
 
 // RevenueCat public Test Store SDK key (Test Store marketplace keys start with "test_").
-export const REVENUECAT_PUBLIC_SDK_KEY = 'test_AGnEOgfhFYwvQnrzkxfjxYjMnyd'
+// This key is ONLY used by DEBUG/Test Store builds (built with `vite --mode test`).
+export const TEST_STORE_SDK_KEY = 'test_AGnEOgfhFYwvQnrzkxfjxYjMnyd'
+
+// Production SDK key — read from build environment (VITE_REVENUECAT_PUBLIC_SDK_KEY).
+// Must be a REAL production public SDK key. If absent in a release build, initPurchases() fails
+// closed (never silently falls back to the Test Store key).
+export const REVENUECAT_PUBLIC_SDK_KEY: string | null = import.meta.env.VITE_REVENUECAT_PUBLIC_SDK_KEY ?? null
 
 // REQUIRED: exact RevenueCat entitlement identifier for the "ChangeAIPay Pro" entitlement.
 export const CHANGE_AI_PAY_PRO_ENTITLEMENT_ID = 'changeaipay_pro'
@@ -52,7 +58,34 @@ export function isRevenueCatNative(): boolean {
 export async function initPurchases(): Promise<boolean> {
   if (!isRevenueCatNative()) return false
   if (configured) return true
-  await Purchases.configure({ apiKey: REVENUECAT_PUBLIC_SDK_KEY })
+
+  // FAIL-CLOSED RevenueCat key guard (release-hardening pass).
+  // * A `test_` key configures the RevenueCat Test Store marketplace — it MUST be used only by
+  //   DEBUG / Test Store builds. Shipping it inside a RELEASE APK makes the app report the
+  //   RevenueCat "Wrong API Key / Test Store" warning, which is exactly the bug this pass fixes.
+  // * `vite build --mode test` is the ONLY configuration allowed to resolve to the Test Store key.
+  //   Every other build mode must resolve to a real production SDK key from build env
+  //   (VITE_REVENUECAT_PUBLIC_SDK_KEY); if that key is absent we refuse to configure the SDK
+  //   and surface a clear blocker instead of silently falling back to test_.
+  const isTestBuild = import.meta.env.MODE === 'test'
+  const resolvedKey = isTestBuild ? TEST_STORE_SDK_KEY : REVENUECAT_PUBLIC_SDK_KEY
+  if (!resolvedKey) {
+    console.error(
+      '[RevenueCat] RELEASE build: VITE_REVENUECAT_PUBLIC_SDK_KEY is not configured. ' +
+      'RevenueCat is BLOCKED in this build so no Test Store key can ship in release. ' +
+      'Set the real RevenueCat production public SDK key — do not invent one.',
+    )
+    return false
+  }
+  if (!isTestBuild && resolvedKey.startsWith('test_')) {
+    console.error(
+      '[RevenueCat] RELEASE build: refusing a Test Store key ("test_…") in a non-test build. ' +
+      'RevenueCat is BLOCKED in this build.',
+    )
+    return false
+  }
+
+  await Purchases.configure({ apiKey: resolvedKey })
   await Purchases.setLogLevel({ level: LOG_LEVEL.DEBUG })
   configured = true
   return true

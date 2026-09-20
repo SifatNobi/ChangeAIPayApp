@@ -5,6 +5,7 @@ import {
   initPurchases,
   getCustomerInfo,
   hasProAccess,
+  hasMerchantAccess,
   subscribeToCustomerInfo,
 } from '@/lib/purchases'
 
@@ -741,6 +742,7 @@ export default function App() {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null)
   const [recommendedPlan, setRecommendedPlan] = useState<'prime' | 'apex'>('prime')
   const [premiumActive, setPremiumActive] = useState(false)
+  const [merchantActive, setMerchantActive] = useState(false)
   const [kybBusinessData, setKybBusinessData] = useState<BusinessDetailsData | null>(null)
   const [kybAddressData, setKybAddressData] = useState<KYBAddressData | null>(null)
   const [kybStakeholders, setKybStakeholders] = useState<Stakeholder[] | null>(null)
@@ -791,8 +793,10 @@ export default function App() {
       if (!(await initPurchases())) return
       const info = await getCustomerInfo()
       if (mounted && info) setPremiumActive(hasProAccess(info))
+      if (mounted && info) setMerchantActive(hasMerchantAccess(info))
       unsubscribe = await subscribeToCustomerInfo(ci => {
         if (mounted) setPremiumActive(hasProAccess(ci))
+        if (mounted) setMerchantActive(hasMerchantAccess(ci))
       })
     })().catch(() => {})
     return () => {

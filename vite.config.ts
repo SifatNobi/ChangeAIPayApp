@@ -12,6 +12,15 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: process.env.FIGMA_PUBLIC_URL ? `${process.env.FIGMA_PUBLIC_URL}/` : '/',
+    moduleSideEffects: (id: string) => {
+      // Scoped to the ONE genuine RevenueCat module: keep its exports (both the
+      // merchant purchase/access functions AND their referenced product ids)
+      // from being pruned per-export. Every other module keeps the bundler's
+      // default side-effect analysis. No global treeshake:false, no other module
+      // is affected, no UI/business logic is changed.
+      if (id.includes('src/lib/purchases.ts')) return true
+      return undefined
+    },
     build: {
       sourcemap: emitSourcemaps ? 'inline' : false,
       minify: !emitSourcemaps,
